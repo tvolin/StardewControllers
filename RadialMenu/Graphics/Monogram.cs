@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Globalization;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using System.Globalization;
 
 namespace RadialMenu.Graphics;
 
@@ -13,7 +13,8 @@ internal class Monogram
         SpriteBatch spriteBatch,
         Rectangle destinationRect,
         string text,
-        Color color)
+        Color color
+    )
     {
         var monogramText = GetMonogramText(text);
         if (string.IsNullOrEmpty(monogramText))
@@ -25,7 +26,8 @@ internal class Monogram
         var scaledSize = size * scale;
         var position = new Vector2(
             destinationRect.Center.X - scaledSize.X / 2,
-            destinationRect.Center.Y - scaledSize.Y / 2);
+            destinationRect.Center.Y - scaledSize.Y / 2
+        );
         Utility.drawTextWithColoredShadow(
             spriteBatch,
             monogramText,
@@ -33,15 +35,14 @@ internal class Monogram
             position,
             color,
             Color.DimGray,
-            scale: scale);
+            scale: scale
+        );
     }
 
     public static Vector2? Measure(string text)
     {
         var monogramText = GetMonogramText(text);
-        return !string.IsNullOrEmpty(monogramText)
-            ? Font.MeasureString(monogramText)
-            : null;
+        return !string.IsNullOrEmpty(monogramText) ? Font.MeasureString(monogramText) : null;
     }
 
     private static string GetMonogramChar(string word)
@@ -52,10 +53,8 @@ internal class Monogram
     private static string GetMonogramText(string text)
     {
         var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return words.Length >= 2
-            ? GetMonogramChar(words[0]) + GetMonogramChar(words[^1])
-            : words.Length == 1
-                ? GetMonogramChar(words[0])
-                : "";
+        return words.Length >= 2 ? GetMonogramChar(words[0]) + GetMonogramChar(words[^1])
+            : words.Length == 1 ? GetMonogramChar(words[0])
+            : "";
     }
 }

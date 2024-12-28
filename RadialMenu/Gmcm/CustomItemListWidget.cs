@@ -28,6 +28,7 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
 
     private readonly ClickDetector clickDetector = new();
     private readonly List<CustomMenuItemConfiguration> items = [];
+
     // Item count is tracked separately from customItems.Count, so we can "remove" items without
     // losing their data. This way, if the player lowers the count and raises it again, the old
     // items are still there and don't have to be tediously set up all over again.
@@ -57,8 +58,12 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
             }
             var item = items[i];
             var centerX = (int)position.X + maxItemWidth / 2;
-            var (texture, sourceRect, destinationRect) =
-                LayoutItem(item, centerX, position.Y, maxItemWidth);
+            var (texture, sourceRect, destinationRect) = LayoutItem(
+                item,
+                centerX,
+                position.Y,
+                maxItemWidth
+            );
             var imageDestinationRect = destinationRect;
             var hoverTestRect = destinationRect;
             if (hoverTestRect.Width < ITEM_HEIGHT)
@@ -71,7 +76,8 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
                 var inflationScale = animationProgress * (MAX_ANIMATION_SCALE - 1.0f);
                 imageDestinationRect.Inflate(
                     imageDestinationRect.Width * inflationScale,
-                    imageDestinationRect.Height * inflationScale);
+                    imageDestinationRect.Height * inflationScale
+                );
                 hadMouseOver = true;
                 if (clickDetector.HasLeftClick() && i != SelectedIndex)
                 {
@@ -84,20 +90,27 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
             spriteBatch.Draw(texture, imageDestinationRect, sourceRect, Color.White);
             if (i == SelectedIndex)
             {
-                var selectionHeight =
-                    (int)(ITEM_HEIGHT * MAX_ANIMATION_SCALE + SELECTION_PADDING * 2);
-                var selectionWidth = (int)(Math.Max(destinationRect.Width, ITEM_HEIGHT)
-                    * MAX_ANIMATION_SCALE
-                    + SELECTION_PADDING * 2);
+                var selectionHeight = (int)(
+                    ITEM_HEIGHT * MAX_ANIMATION_SCALE + SELECTION_PADDING * 2
+                );
+                var selectionWidth = (int)(
+                    Math.Max(destinationRect.Width, ITEM_HEIGHT) * MAX_ANIMATION_SCALE
+                    + SELECTION_PADDING * 2
+                );
                 var centerY = (int)position.Y + ITEM_HEIGHT / 2;
                 var borderDestinationRect = new Rectangle(
                     centerX - selectionWidth / 2,
                     centerY - selectionHeight / 2,
                     selectionWidth,
-                    selectionHeight);
+                    selectionHeight
+                );
                 var borderSourceRect = new Rectangle(64, 192, 64, 64); // Orange-red border
                 spriteBatch.Draw(
-                    Game1.mouseCursors, borderDestinationRect, borderSourceRect, Color.White);
+                    Game1.mouseCursors,
+                    borderDestinationRect,
+                    borderSourceRect,
+                    Color.White
+                );
             }
             col++;
             position.X += maxItemWidth;
@@ -117,7 +130,8 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
         var rowCount = (int)MathF.Ceiling((float)itemCount / MAX_COLUMNS);
         return labelHeight
             + VERTICAL_OFFSET
-            + ITEM_HEIGHT * rowCount + ITEM_VERTICAL_SPACING * (rowCount - 1)
+            + ITEM_HEIGHT * rowCount
+            + ITEM_VERTICAL_SPACING * (rowCount - 1)
             + MARGIN_BOTTOM;
     }
 
@@ -172,15 +186,24 @@ internal class CustomItemListWidget(TextureHelper textureHelper)
         CustomMenuItemConfiguration item,
         float centerX,
         float topY,
-        float maxItemWidth)
+        float maxItemWidth
+    )
     {
-        var sprite = textureHelper.GetSprite(item.SpriteSourceFormat, item.SpriteSourcePath)
-            ?? new(Game1.mouseCursors, /* Question Mark */ new(176, 425, 9, 12));
+        var sprite =
+            textureHelper.GetSprite(item.SpriteSourceFormat, item.SpriteSourcePath)
+            ?? new(
+                Game1.mouseCursors, // Question Mark
+                new(176, 425, 9, 12)
+            );
         var sourceSize = sprite.SourceRect?.Size ?? sprite.Texture.Bounds.Size;
         var aspectRatio = sourceSize.X / (float)sourceSize.Y;
         var itemWidth = Math.Min(aspectRatio * ITEM_HEIGHT, maxItemWidth);
         var destinationRect = new Rectangle(
-            (int)MathF.Round(centerX - itemWidth / 2), (int)topY, (int)itemWidth, ITEM_HEIGHT);
+            (int)MathF.Round(centerX - itemWidth / 2),
+            (int)topY,
+            (int)itemWidth,
+            ITEM_HEIGHT
+        );
         return new(sprite.Texture, sprite.SourceRect, destinationRect);
     }
 }

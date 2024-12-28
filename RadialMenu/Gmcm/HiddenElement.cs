@@ -19,11 +19,7 @@ internal class HiddenElement : Element
         LocalPosition = originalElement.LocalPosition;
     }
 
-    public override void Draw(SpriteBatch b)
-    {
-    }
+    public override void Draw(SpriteBatch b) { }
 
-    public override void Update(bool isOffScreen = false)
-    {
-    }
+    public override void Update(bool isOffScreen = false) { }
 }

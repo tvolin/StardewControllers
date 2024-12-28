@@ -1,7 +1,7 @@
-﻿using GenericModConfigMenu.Framework.ModOption;
+﻿using System.Text;
+using GenericModConfigMenu.Framework.ModOption;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
-using System.Text;
 
 namespace RadialMenu.Gmcm;
 
@@ -12,7 +12,8 @@ internal record GenericModConfigKeybindOption(
     Func<string> GetSectionTitle,
     Func<string> GetFieldName,
     Func<string> GetTooltip,
-    Func<IEnumerable<SButton>> GetCurrentBinding)
+    Func<IEnumerable<SButton>> GetCurrentBinding
+)
 {
     // Used for GMCM; not displayed in UI.
     public string UniqueDisplayName => $"{ModManifest.Name}: {UniqueFieldName}";
@@ -66,24 +67,27 @@ internal class GenericModConfigKeybindings
                     Func<IEnumerable<SButton>>? getValue = option switch
                     {
                         SimpleModOption<SButton> buttonOption => () => [buttonOption.GetValue()],
-                        SimpleModOption<KeybindList> keybindListOption => () => keybindListOption
-                            .GetValue()?
-                            .Keybinds
-                            .Where(kb => kb.IsBound)
-                            .FirstOrDefault()?
-                            .Buttons ?? [],
-                        _ => null
+                        SimpleModOption<KeybindList> keybindListOption => () =>
+                            keybindListOption
+                                .GetValue()
+                                ?.Keybinds.Where(kb => kb.IsBound)
+                                .FirstOrDefault()
+                                ?.Buttons ?? [],
+                        _ => null,
                     };
                     if (getValue is not null)
                     {
-                        allOptions.Add(new(
-                            modConfig.ModManifest,
-                            option.FieldId,
-                            page.PageTitle,
-                            getSectionTitle,
-                            option.Name,
-                            option.Tooltip,
-                            getValue));
+                        allOptions.Add(
+                            new(
+                                modConfig.ModManifest,
+                                option.FieldId,
+                                page.PageTitle,
+                                getSectionTitle,
+                                option.Name,
+                                option.Tooltip,
+                                getValue
+                            )
+                        );
                     }
                 }
             }
@@ -94,11 +98,14 @@ internal class GenericModConfigKeybindings
     public IReadOnlyDictionary<string, IManifest> AllMods { get; }
     public IReadOnlyList<GenericModConfigKeybindOption> AllOptions { get; }
 
-    private readonly ILookup<(string, string), GenericModConfigKeybindOption>
-        optionsByModAndFieldName =
-            EmptyLookup<(string, string), GenericModConfigKeybindOption>();
-    private readonly Dictionary<(string, string), GenericModConfigKeybindOption>
-        optionsByModAndFieldId = [];
+    private readonly ILookup<
+        (string, string),
+        GenericModConfigKeybindOption
+    > optionsByModAndFieldName = EmptyLookup<(string, string), GenericModConfigKeybindOption>();
+    private readonly Dictionary<
+        (string, string),
+        GenericModConfigKeybindOption
+    > optionsByModAndFieldId = [];
 
     private GenericModConfigKeybindings(IReadOnlyList<GenericModConfigKeybindOption> allOptions)
     {
@@ -108,14 +115,20 @@ internal class GenericModConfigKeybindings
             .DistinctBy(mod => mod.UniqueID)
             .OrderBy(mod => mod.Name)
             .ToDictionary(mod => mod.UniqueID);
-        optionsByModAndFieldId = allOptions.ToDictionary(
-            opt => (opt.ModManifest.UniqueID, opt.FieldId));
-        optionsByModAndFieldName = allOptions.ToLookup(
-            opt => (opt.ModManifest.UniqueID, opt.UniqueFieldName));
+        optionsByModAndFieldId = allOptions.ToDictionary(opt =>
+            (opt.ModManifest.UniqueID, opt.FieldId)
+        );
+        optionsByModAndFieldName = allOptions.ToLookup(opt =>
+            (opt.ModManifest.UniqueID, opt.UniqueFieldName)
+        );
     }
 
     public GenericModConfigKeybindOption? Find(
-        string modId, string fieldId, string fieldName = "", Keybind? previousBinding = null)
+        string modId,
+        string fieldId,
+        string fieldName = "",
+        Keybind? previousBinding = null
+    )
     {
         var nameMatches = optionsByModAndFieldName[(modId, fieldName)];
         GenericModConfigKeybindOption? bestNameMatch = null;
@@ -127,9 +140,11 @@ internal class GenericModConfigKeybindings
                 {
                     bestNameMatch = nameMatch;
                 }
-                else if (nameMatch.FieldId == fieldId
+                else if (
+                    nameMatch.FieldId == fieldId
                     || !bestNameMatch.MatchesBinding(previousBinding)
-                        && nameMatch.MatchesBinding(previousBinding))
+                        && nameMatch.MatchesBinding(previousBinding)
+                )
                 {
                     bestNameMatch = nameMatch;
                     break;
@@ -154,8 +169,8 @@ internal class GenericModConfigKeybindings
             // will in fact keep hitting this, but at some point we have to trust the user to
             // look at the warnings in the SMAPI console.
             ?? AllOptions.FirstOrDefault(opt =>
-                opt.ModManifest.UniqueID == modId
-                && opt.MatchesBinding(previousBinding));
+                opt.ModManifest.UniqueID == modId && opt.MatchesBinding(previousBinding)
+            );
     }
 
     private static ILookup<TKey, TElement> EmptyLookup<TKey, TElement>()

@@ -22,7 +22,9 @@ public interface IRadialMenu
     /// invalid.</returns>
     IRadialMenuPage? GetSelectedPage()
     {
-        return (SelectedPageIndex >= 0) && (SelectedPageIndex < Pages.Count) ? Pages[SelectedPageIndex] : null;
+        return (SelectedPageIndex >= 0) && (SelectedPageIndex < Pages.Count)
+            ? Pages[SelectedPageIndex]
+            : null;
     }
 
     /// <summary>

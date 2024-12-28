@@ -9,6 +9,7 @@ public enum SpriteSourceFormat
     /// Use the icon of an existing in-game item.
     /// </summary>
     ItemIcon,
+
     /// <summary>
     /// Draw an arbitrary area from any texture, tile sheet, etc.
     /// </summary>

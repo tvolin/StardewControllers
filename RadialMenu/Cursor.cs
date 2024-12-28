@@ -7,7 +7,11 @@ namespace RadialMenu;
 
 internal record MenuCursorTarget(float Angle, int SelectedIndex);
 
-internal enum MenuKind { Inventory, Custom };
+internal enum MenuKind
+{
+    Inventory,
+    Custom,
+};
 
 internal class Cursor(Func<ICursorConfiguration> getConfig)
 {
@@ -77,15 +81,17 @@ internal class Cursor(Func<ICursorConfiguration> getConfig)
 
     public bool IsThumbStickForActiveMenu(SButton button)
     {
-        return button == ThumbStickPreference switch
-        {
-            ThumbStickPreference.AlwaysLeft => SButton.LeftStick,
-            ThumbStickPreference.AlwaysRight => SButton.RightStick,
-            ThumbStickPreference.SameAsTrigger => SwapTriggers ^ ActiveMenu == MenuKind.Inventory
-                ? SButton.LeftStick
-                : SButton.RightStick,
-            _ => throw new NotImplementedException(),
-        };
+        return button
+            == ThumbStickPreference switch
+            {
+                ThumbStickPreference.AlwaysLeft => SButton.LeftStick,
+                ThumbStickPreference.AlwaysRight => SButton.RightStick,
+                ThumbStickPreference.SameAsTrigger => SwapTriggers
+                ^ ActiveMenu == MenuKind.Inventory
+                    ? SButton.LeftStick
+                    : SButton.RightStick,
+                _ => throw new NotImplementedException(),
+            };
     }
 
     public void Reset()
@@ -139,9 +145,8 @@ internal class Cursor(Func<ICursorConfiguration> getConfig)
     private float? GetCurrentThumbStickAngle()
     {
         var position = GetCurrentThumbStickPosition(GamePadState.ThumbSticks);
-        float? angle = position.Length() > ThumbStickDeadZone
-            ? MathF.Atan2(position.X, position.Y)
-            : null;
+        float? angle =
+            position.Length() > ThumbStickDeadZone ? MathF.Atan2(position.X, position.Y) : null;
         return (angle + MAX_ANGLE) % MAX_ANGLE;
     }
 

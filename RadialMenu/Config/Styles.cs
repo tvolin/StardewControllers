@@ -14,14 +14,17 @@ public class Styles
     /// Background color of the inner area where a preview of the current selection is displayed.
     /// </summary>
     public HexColor InnerBackgroundColor { get; set; } = new(new Color(0.05f, 0.05f, 0.05f, 0.9f));
+
     /// <summary>
     /// Radius of the inner area where a preview of the current selection is displayed.
     /// </summary>
     public float InnerRadius { get; set; } = 300;
+
     /// <summary>
     /// Background color of the outer area where menu items appear.
     /// </summary>
     public HexColor OuterBackgroundColor { get; set; } = new(new Color(0.91f, 0.73f, 0.49f, 0.9f));
+
     /// <summary>
     /// Radius of the outer area where menu items appear.
     /// </summary>
@@ -38,6 +41,7 @@ public class Styles
     /// </para>
     /// </remarks>
     public float OuterRadius { get; set; } = 110;
+
     /// <summary>
     /// Contextual background color for the part of the outer menu that matches the player's current
     /// tool selection.
@@ -45,12 +49,14 @@ public class Styles
     /// <see cref="OuterBackgroundColor"/> for that slice.
     /// </summary>
     public HexColor SelectionColor { get; set; } = new(new Color(0.85f, 0.55f, 0.15f, 0.9f));
+
     /// <summary>
     /// Contextual background color for the part of the outer menu that is highlighted (focused).
     /// This is not an overlay color, the highlight completely replaces the
     /// <see cref="OuterBackgroundColor"/> for that slice.
     /// </summary>
     public HexColor HighlightColor { get; set; } = new(Color.RoyalBlue);
+
     /// <summary>
     /// Empty space between the inner circle and outer ring.
     /// </summary>
@@ -59,6 +65,7 @@ public class Styles
     /// entirely (set to <c>0</c>) if desired.
     /// </remarks>
     public float GapWidth { get; set; } = 8;
+
     /// <summary>
     /// Suggested height of a sprite (icon) within the menu ring.
     /// </summary>
@@ -67,6 +74,7 @@ public class Styles
     /// reduced in order to fit some sprites with very wide aspect ratios.
     /// </remarks>
     public int MenuSpriteHeight { get; set; } = 64;
+
     /// <summary>
     /// Text color for the stack size displayed for stackable items. Generally applicable to the
     /// Inventory menu only.
@@ -77,11 +85,13 @@ public class Styles
     /// not the default of <see cref="Color.White"/>.
     /// </remarks>
     public HexColor StackSizeColor { get; set; } = new(Color.White);
+
     /// <summary>
     /// Distance between the tip of the menu cursor (pointer showing the precise angle of the
     /// thumbstick) and the outer ring.
     /// </summary>
     public float CursorDistance { get; set; } = 8;
+
     /// <summary>
     /// Size of the cursor indicating the thumbstick angle.
     /// </summary>
@@ -90,10 +100,12 @@ public class Styles
     /// simple triangle, it is the distance from base to tip.
     /// </remarks>
     public float CursorSize { get; set; } = 32;
+
     /// <summary>
     /// Fill color for the cursor indicating the thumbstick angle.
     /// </summary>
     public HexColor CursorColor { get; set; } = new(Color.LightGray);
+
     /// <summary>
     /// Height of the zoomed-in sprite displayed in the selection preview (inner circle). Typically
     /// 2x the <see cref="MenuSpriteHeight"/>.
@@ -104,10 +116,12 @@ public class Styles
     /// there are no explicit wideness checks.
     /// </remarks>
     public int SelectionSpriteHeight { get; set; } = 128;
+
     /// <summary>
     /// Color of the large title text displayed in the selection preview.
     /// </summary>
     public HexColor SelectionTitleColor { get; set; } = new(Color.White);
+
     /// <summary>
     /// Color of the smaller description text displayed underneath the title in the selection
     /// preview.

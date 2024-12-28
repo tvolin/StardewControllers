@@ -1,6 +1,6 @@
-﻿using RadialMenu.Menus;
+﻿using System.Collections;
+using RadialMenu.Menus;
 using StardewValley;
-using System.Collections;
 
 namespace RadialMenu;
 
@@ -15,8 +15,10 @@ internal class PageRegistry
 
     // The primary data structure should be an indexed collection so that it can be composed into other lists.
     private readonly List<PageRegistration> registrations = [];
+
     // Re-registrations will happen by key, so we need a way to refer back to the primary data.
     private readonly Dictionary<string, int> registrationIndices = [];
+
     // Pages have to be tracked in order to be able to invalidate them. We can't do both in the same place because
     // registrations are global and page lists are per-player. Use weak references to prevent memory leaks.
     private readonly List<WeakReference<PageList>> trackedPageLists = [];

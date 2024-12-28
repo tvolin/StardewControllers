@@ -11,7 +11,8 @@ internal class StylePage(
     IGMCMOptionsAPI? gmcmOptions,
     IManifest mod,
     IModContentHelper modContent,
-    Func<Styles> getStyles)
+    Func<Styles> getStyles
+)
 {
     public const string ID = "MenuStyle";
 
@@ -78,7 +79,9 @@ internal class StylePage(
         modContent.Load<Texture2D>("assets/preview-cursor.png").GetData(cursorPreviewData);
         modContent.Load<Texture2D>("assets/preview-items.png").GetData(itemsPreviewData);
         modContent.Load<Texture2D>("assets/preview-title.png").GetData(titlePreviewData);
-        modContent.Load<Texture2D>("assets/preview-description.png").GetData(descriptionPreviewData);
+        modContent
+            .Load<Texture2D>("assets/preview-description.png")
+            .GetData(descriptionPreviewData);
     }
 
     private void RegisterPage()
@@ -97,43 +100,50 @@ internal class StylePage(
             name: I18n.Gmcm_Style_Colors_Inner,
             tooltip: I18n.Gmcm_Style_Colors_Inner_Tooltip,
             getColor: () => Styles.InnerBackgroundColor,
-            setColor: color => Styles.InnerBackgroundColor = color);
+            setColor: color => Styles.InnerBackgroundColor = color
+        );
         AddColorOption(
             FIELD_ID_OUTER_COLOR,
             name: I18n.Gmcm_Style_Colors_Outer,
             tooltip: I18n.Gmcm_Style_Colors_Outer_Tooltip,
             getColor: () => Styles.OuterBackgroundColor,
-            setColor: color => Styles.OuterBackgroundColor = color);
+            setColor: color => Styles.OuterBackgroundColor = color
+        );
         AddColorOption(
             FIELD_ID_SELECTION_COLOR,
             name: I18n.Gmcm_Style_Colors_Selection,
             tooltip: I18n.Gmcm_Style_Colors_Selection_Tooltip,
             getColor: () => Styles.SelectionColor,
-            setColor: color => Styles.SelectionColor = color);
+            setColor: color => Styles.SelectionColor = color
+        );
         AddColorOption(
             FIELD_ID_HIGHLIGHT_COLOR,
             name: I18n.Gmcm_Style_Colors_Highlight,
             tooltip: I18n.Gmcm_Style_Colors_Highlight_Tooltip,
             getColor: () => Styles.HighlightColor,
-            setColor: color => Styles.HighlightColor = color);
+            setColor: color => Styles.HighlightColor = color
+        );
         AddColorOption(
             FIELD_ID_CURSOR_COLOR,
             name: I18n.Gmcm_Style_Colors_Cursor,
             tooltip: I18n.Gmcm_Style_Colors_Cursor_Tooltip,
             getColor: () => Styles.CursorColor,
-            setColor: color => Styles.CursorColor = color);
+            setColor: color => Styles.CursorColor = color
+        );
         AddColorOption(
             FIELD_ID_TITLE_COLOR,
             name: I18n.Gmcm_Style_Colors_Title,
             tooltip: I18n.Gmcm_Style_Colors_Title_Tooltip,
             getColor: () => Styles.SelectionTitleColor,
-            setColor: color => Styles.SelectionTitleColor = color);
+            setColor: color => Styles.SelectionTitleColor = color
+        );
         AddColorOption(
             FIELD_ID_DESCRIPTION_COLOR,
             name: I18n.Gmcm_Style_Colors_Description,
             tooltip: I18n.Gmcm_Style_Colors_Description_Tooltip,
             getColor: () => Styles.SelectionDescriptionColor,
-            setColor: color => Styles.SelectionDescriptionColor = color);
+            setColor: color => Styles.SelectionDescriptionColor = color
+        );
 
         gmcm.AddSectionTitle(mod, I18n.Gmcm_Style_Dimensions);
         gmcm.AddParagraph(mod, I18n.Gmcm_Style_Dimensions_Note);
@@ -145,7 +155,8 @@ internal class StylePage(
             setValue: value => Styles.InnerRadius = value,
             min: 200,
             max: 400,
-            interval: 25);
+            interval: 25
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Outer,
@@ -154,7 +165,8 @@ internal class StylePage(
             setValue: value => Styles.OuterRadius = value,
             min: 100,
             max: 200,
-            interval: 10);
+            interval: 10
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Gap,
@@ -162,7 +174,8 @@ internal class StylePage(
             getValue: () => Styles.GapWidth,
             setValue: value => Styles.GapWidth = value,
             min: 0,
-            max: 20);
+            max: 20
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Cursor_Size,
@@ -171,7 +184,8 @@ internal class StylePage(
             setValue: value => Styles.CursorSize = value,
             min: 16,
             max: 64,
-            interval: 4);
+            interval: 4
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Cursor_Distance,
@@ -179,7 +193,8 @@ internal class StylePage(
             getValue: () => Styles.CursorDistance,
             setValue: value => Styles.CursorDistance = value,
             min: 0,
-            max: 16);
+            max: 16
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Itemheight,
@@ -188,7 +203,8 @@ internal class StylePage(
             setValue: value => Styles.MenuSpriteHeight = value,
             min: 16,
             max: 64,
-            interval: 8);
+            interval: 8
+        );
         gmcm.AddNumberOption(
             mod,
             name: I18n.Gmcm_Style_Dimensions_Selectionheight,
@@ -197,7 +213,8 @@ internal class StylePage(
             setValue: value => Styles.SelectionSpriteHeight = value,
             min: 32,
             max: 256,
-        interval: 16);
+            interval: 16
+        );
 
         // This option isn't meant to do anything in the UI; it's a hack for us to get access to the
         // menu events, so that we can automatically reload the configuration into transient values
@@ -219,27 +236,31 @@ internal class StylePage(
             {
                 UpdateColorValuesFromConfig();
                 UpdateMenuPreview();
-            });
-
-        gmcm.OnFieldChanged(mod, (fieldId, value) =>
-        {
-            switch (fieldId)
-            {
-                case FIELD_ID_OUTER_COLOR:
-                case FIELD_ID_INNER_COLOR:
-                case FIELD_ID_SELECTION_COLOR:
-                case FIELD_ID_HIGHLIGHT_COLOR:
-                case FIELD_ID_CURSOR_COLOR:
-                case FIELD_ID_TITLE_COLOR:
-                case FIELD_ID_DESCRIPTION_COLOR:
-                    if (GetColorFromAmbiguousType(value) is Color color)
-                    {
-                        liveColorValues[fieldId] = color;
-                        UpdateMenuPreview();
-                    }
-                    break;
             }
-        });
+        );
+
+        gmcm.OnFieldChanged(
+            mod,
+            (fieldId, value) =>
+            {
+                switch (fieldId)
+                {
+                    case FIELD_ID_OUTER_COLOR:
+                    case FIELD_ID_INNER_COLOR:
+                    case FIELD_ID_SELECTION_COLOR:
+                    case FIELD_ID_HIGHLIGHT_COLOR:
+                    case FIELD_ID_CURSOR_COLOR:
+                    case FIELD_ID_TITLE_COLOR:
+                    case FIELD_ID_DESCRIPTION_COLOR:
+                        if (GetColorFromAmbiguousType(value) is Color color)
+                        {
+                            liveColorValues[fieldId] = color;
+                            UpdateMenuPreview();
+                        }
+                        break;
+                }
+            }
+        );
     }
 
     private void AddColorOption(
@@ -247,7 +268,8 @@ internal class StylePage(
         Func<string> name,
         Func<HexColor> getColor,
         Action<HexColor> setColor,
-        Func<string>? tooltip = null)
+        Func<string>? tooltip = null
+    )
     {
         if (gmcmOptions is not null)
         {
@@ -262,7 +284,9 @@ internal class StylePage(
                     IGMCMOptionsAPI.ColorPickerStyle.RGBSliders
                     | IGMCMOptionsAPI.ColorPickerStyle.HSLColorWheel
                     | IGMCMOptionsAPI.ColorPickerStyle.HSVColorWheel
-                    | IGMCMOptionsAPI.ColorPickerStyle.RadioChooser));
+                    | IGMCMOptionsAPI.ColorPickerStyle.RadioChooser
+                )
+            );
         }
         else
         {
@@ -278,7 +302,8 @@ internal class StylePage(
                     {
                         setColor(hexColor);
                     }
-                });
+                }
+            );
         }
     }
 
@@ -288,8 +313,7 @@ internal class StylePage(
         {
             return color;
         }
-        if (value is string formattedColor
-            && HexColor.TryParse(formattedColor, out var hexColor))
+        if (value is string formattedColor && HexColor.TryParse(formattedColor, out var hexColor))
         {
             return hexColor;
         }
@@ -314,22 +338,35 @@ internal class StylePage(
         Color[] previewData = new Color[PREVIEW_LENGTH];
         for (var i = 0; i < PREVIEW_LENGTH; i++)
         {
-            var innerColor =
-                Premultiply(liveColorValues[FIELD_ID_INNER_COLOR], innerPreviewData[i].A);
-            var outerColor =
-                Premultiply(liveColorValues[FIELD_ID_OUTER_COLOR], outerPreviewData[i].A);
-            var selectionColor =
-                Premultiply(liveColorValues[FIELD_ID_SELECTION_COLOR], selectionPreviewData[i].A);
-            var highlightColor =
-                Premultiply(liveColorValues[FIELD_ID_HIGHLIGHT_COLOR], highlightPreviewData[i].A);
-            var cursorColor =
-                Premultiply(liveColorValues[FIELD_ID_CURSOR_COLOR], cursorPreviewData[i].A);
+            var innerColor = Premultiply(
+                liveColorValues[FIELD_ID_INNER_COLOR],
+                innerPreviewData[i].A
+            );
+            var outerColor = Premultiply(
+                liveColorValues[FIELD_ID_OUTER_COLOR],
+                outerPreviewData[i].A
+            );
+            var selectionColor = Premultiply(
+                liveColorValues[FIELD_ID_SELECTION_COLOR],
+                selectionPreviewData[i].A
+            );
+            var highlightColor = Premultiply(
+                liveColorValues[FIELD_ID_HIGHLIGHT_COLOR],
+                highlightPreviewData[i].A
+            );
+            var cursorColor = Premultiply(
+                liveColorValues[FIELD_ID_CURSOR_COLOR],
+                cursorPreviewData[i].A
+            );
             var itemsColor = Premultiply(Color.DarkGreen, itemsPreviewData[i].A);
-            var titleColor =
-                Premultiply(liveColorValues[FIELD_ID_TITLE_COLOR], titlePreviewData[i].A);
+            var titleColor = Premultiply(
+                liveColorValues[FIELD_ID_TITLE_COLOR],
+                titlePreviewData[i].A
+            );
             var descriptionColor = Premultiply(
                 liveColorValues[FIELD_ID_DESCRIPTION_COLOR],
-                descriptionPreviewData[i].A);
+                descriptionPreviewData[i].A
+            );
             previewData[i] = innerColor
                 .BlendPremultiplied(outerColor)
                 .BlendPremultiplied(selectionColor)
@@ -349,7 +386,8 @@ internal class StylePage(
             (byte)(color.R * a),
             (byte)(color.G * a),
             (byte)(color.B * a),
-            (byte)(a * 255));
+            (byte)(a * 255)
+        );
     }
 }
 

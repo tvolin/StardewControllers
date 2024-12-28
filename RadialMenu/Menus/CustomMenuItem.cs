@@ -25,7 +25,8 @@ internal class CustomMenuItem(
     Texture2D? texture = null,
     Rectangle? sourceRectangle = null,
     Rectangle? tintRectangle = null,
-    Color? tintColor = null) : IRadialMenuItem
+    Color? tintColor = null
+) : IRadialMenuItem
 {
     public string Title { get; } = title;
 
@@ -43,7 +44,11 @@ internal class CustomMenuItem(
 
     public Color? TintColor { get; } = tintColor;
 
-    public MenuItemActivationResult Activate(Farmer who, DelayedActions delayedActions, MenuItemAction requestedAction)
+    public MenuItemActivationResult Activate(
+        Farmer who,
+        DelayedActions delayedActions,
+        MenuItemAction requestedAction
+    )
     {
         return activate(who, delayedActions, requestedAction);
     }

@@ -18,9 +18,12 @@ internal static class MenuPage
     public static IRadialMenuPage FromCustomItemConfiguration(
         IEnumerable<CustomMenuItemConfiguration> itemConfigs,
         Action<CustomMenuItemConfiguration> activator,
-        TextureHelper textures)
+        TextureHelper textures
+    )
     {
-        var items = itemConfigs.Select(config => CreateCustomMenuItem(config, activator, textures)).ToList();
+        var items = itemConfigs
+            .Select(config => CreateCustomMenuItem(config, activator, textures))
+            .ToList();
         return new MenuPage<CustomMenuItem>(items, _ => false);
     }
 
@@ -32,19 +35,22 @@ internal static class MenuPage
     /// <param name="count">Number of items to include on this page.</param>
     public static IRadialMenuPage FromFarmerInventory(Farmer who, int startIndex, int count)
     {
-        var items = Enumerable.Range(startIndex, count)
+        var items = Enumerable
+            .Range(startIndex, count)
             .Select(i => who.Items[i])
             .Where(item => item is not null)
             .Select(item => new InventoryMenuItem(item))
             .ToList();
-        bool isSelected(InventoryMenuItem menuItem) => menuItem.Item == who.Items[who.CurrentToolIndex];
+        bool isSelected(InventoryMenuItem menuItem) =>
+            menuItem.Item == who.Items[who.CurrentToolIndex];
         return new MenuPage<InventoryMenuItem>(items, isSelected);
     }
 
     private static CustomMenuItem CreateCustomMenuItem(
         CustomMenuItemConfiguration config,
         Action<CustomMenuItemConfiguration> activator,
-        TextureHelper textures)
+        TextureHelper textures
+    )
     {
         var sprite = textures.GetSprite(config.SpriteSourceFormat, config.SpriteSourcePath);
         return new(
@@ -54,14 +60,17 @@ internal static class MenuPage
             sourceRectangle: sprite?.SourceRect,
             activate: (who, delayedActions, _) =>
             {
-                if (delayedActions == DelayedActions.All
-                    || (delayedActions != DelayedActions.None && config.EnableActivationDelay))
+                if (
+                    delayedActions == DelayedActions.All
+                    || (delayedActions != DelayedActions.None && config.EnableActivationDelay)
+                )
                 {
                     return MenuItemActivationResult.Delayed;
                 }
                 activator.Invoke(config);
                 return MenuItemActivationResult.Custom;
-            });
+            }
+        );
     }
 }
 

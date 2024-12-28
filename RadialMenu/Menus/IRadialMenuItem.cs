@@ -85,5 +85,9 @@ public interface IRadialMenuItem
     /// <see cref="MenuItemActivationResult.Delayed"/> outcome and the actual action being skipped.</param>
     /// <param name="requestedAction">The action type requested by the player, i.e. which button was pressed.</param>
     /// <returns>A result that describes what action, if any, was performed.</returns>
-    MenuItemActivationResult Activate(Farmer who, DelayedActions delayedActions, MenuItemAction requestedAction);
+    MenuItemActivationResult Activate(
+        Farmer who,
+        DelayedActions delayedActions,
+        MenuItemAction requestedAction
+    );
 }

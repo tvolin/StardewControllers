@@ -42,8 +42,10 @@ internal class ClickDetector(ClickRepeat? repeat = null)
                 if (hasHeldClick)
                 {
                     var elapsedSinceLastClick = currentTime - lastClickTime;
-                    if ((!isRepeating && elapsedSinceLastClick > repeat.DelayMs)
-                        || (isRepeating && elapsedSinceLastClick > repeat.IntervalMs))
+                    if (
+                        (!isRepeating && elapsedSinceLastClick > repeat.DelayMs)
+                        || (isRepeating && elapsedSinceLastClick > repeat.IntervalMs)
+                    )
                     {
                         isRepeating = true;
                         lastClickTime = currentTime;

@@ -13,6 +13,7 @@ public enum ItemActivationMethod
     /// pressing the action button while using the right thumbstick is awkward.
     /// </remarks>
     ActionButtonPress,
+
     /// <summary>
     /// Activate by pressing the same thumbstick that is being used for selection.
     /// </summary>
@@ -25,6 +26,7 @@ public enum ItemActivationMethod
     /// without moving it.
     /// </remarks>
     ThumbStickPress,
+
     /// <summary>
     /// Activate whichever item was last selected when the menu trigger is released.
     /// </summary>
@@ -34,5 +36,5 @@ public enum ItemActivationMethod
     /// not very experienced with radial menus might find it error-prone due to accidental
     /// movement of the thumbstick while releasing the trigger.
     /// </remarks>
-    TriggerRelease
+    TriggerRelease,
 };

@@ -9,6 +9,7 @@ internal class SpritePreviewWidget
 {
     private const float BORDER_SCALE = 4.0f;
     private const int IMAGE_HEIGHT = 128;
+
     // Width is chosen to be larger than height to allow for wide aspects, even though essentially
     // all item sprites are either square or tall. Anyway, we have much more horizontal space than
     // vertical space to play with in the UI.
@@ -40,13 +41,14 @@ internal class SpritePreviewWidget
             return;
         }
         var sourceRect = SourceRect ?? Texture.Bounds;
-        var destinationWidth =
-            (int)MathF.Round(sourceRect.Width / (float)sourceRect.Height * IMAGE_HEIGHT);
+        var destinationWidth = (int)
+            MathF.Round(sourceRect.Width / (float)sourceRect.Height * IMAGE_HEIGHT);
         var destinationRect = new Rectangle(
             borderRect.Center.X - destinationWidth / 2,
             position.Y + IMAGE_PADDING,
             destinationWidth,
-            IMAGE_HEIGHT);
+            IMAGE_HEIGHT
+        );
         spriteBatch.Draw(Texture, destinationRect, sourceRect, Color.White);
     }
 }

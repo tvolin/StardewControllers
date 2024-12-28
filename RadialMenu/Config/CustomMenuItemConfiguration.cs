@@ -1,6 +1,6 @@
-﻿using RadialMenu.Graphics;
+﻿using System.Diagnostics.CodeAnalysis;
+using RadialMenu.Graphics;
 using StardewModdingAPI.Utilities;
-using System.Diagnostics.CodeAnalysis;
 
 namespace RadialMenu.Config;
 

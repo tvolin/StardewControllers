@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Text;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
-using System.Text;
 
 namespace RadialMenu.Menus;
 
@@ -47,7 +47,11 @@ internal class InventoryMenuItem : IRadialMenuItem
         (TintRectangle, TintColor) = GetTinting(item, textureData ?? data);
     }
 
-    public MenuItemActivationResult Activate(Farmer who, DelayedActions delayedActions, MenuItemAction requestedAction)
+    public MenuItemActivationResult Activate(
+        Farmer who,
+        DelayedActions delayedActions,
+        MenuItemAction requestedAction
+    )
     {
         return FuzzyActivation.ConsumeOrSelect(who, Item, delayedActions, requestedAction);
     }
@@ -60,7 +64,9 @@ internal class InventoryMenuItem : IRadialMenuItem
     }
 
     private static (Rectangle? tintRect, Color? tintColor) GetTinting(
-        Item item, ParsedItemData data)
+        Item item,
+        ParsedItemData data
+    )
     {
         if (item is not ColoredObject coloredObject)
         {

@@ -19,6 +19,7 @@ internal class PlayerState(Cursor cursor, InventoryMenu inventoryMenu, CustomMen
     public IRadialMenuPage? ActivePage => ActiveMenu?.GetSelectedPage();
     public int MenuOffset { get; set; }
     public Func<DelayedActions, MenuItemActivationResult>? PendingActivation { get; set; }
+
     // Track delay state so we don't keep trying to activate the item.
     public bool IsActivationDelayed { get; set; }
     public double RemainingActivationDelayMs { get; set; }

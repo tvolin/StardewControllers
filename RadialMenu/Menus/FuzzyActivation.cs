@@ -29,7 +29,8 @@ internal static class FuzzyActivation
         Farmer who,
         Item item,
         DelayedActions? delayedActions = null,
-        MenuItemAction preferredAction = MenuItemAction.Use)
+        MenuItemAction preferredAction = MenuItemAction.Use
+    )
     {
         if (delayedActions == DelayedActions.All)
         {

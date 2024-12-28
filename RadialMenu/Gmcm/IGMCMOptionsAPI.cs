@@ -20,23 +20,32 @@ public interface IGMCMOptionsAPI
     /// <param name="showAlpha">Whether the color picker should allow setting the Alpha channel</param>
     /// <param name="colorPickerStyle">Flags to control how the color picker is rendered.  <see cref="ColorPickerStyle"/></param>
     /// <param name="fieldId">The unique field ID for use with GMCM's <c>OnFieldChanged</c>, or <c>null</c> to auto-generate a randomized ID.</param>
-    public void AddColorOption(IManifest mod, Func<Color> getValue, Action<Color> setValue, Func<string> name,
-        Func<string>? tooltip = null, bool showAlpha = true, uint colorPickerStyle = 0, string? fieldId = null);
+    public void AddColorOption(
+        IManifest mod,
+        Func<Color> getValue,
+        Action<Color> setValue,
+        Func<string> name,
+        Func<string>? tooltip = null,
+        bool showAlpha = true,
+        uint colorPickerStyle = 0,
+        string? fieldId = null
+    );
 
-    #pragma warning disable format
+#pragma warning disable format
     /// <summary>
     /// Flags to control how the <c cref="ColorPickerOption">ColorPickerOption</c> widget is displayed.
     /// </summary>
     [Flags]
-    public enum ColorPickerStyle : uint {
+    public enum ColorPickerStyle : uint
+    {
         Default = 0,
-        RGBSliders    = 0b00000001,
+        RGBSliders = 0b00000001,
         HSVColorWheel = 0b00000010,
         HSLColorWheel = 0b00000100,
-        AllStyles     = 0b11111111,
-        NoChooser     = 0,
-        RadioChooser  = 0b01 << 8,
-        ToggleChooser = 0b10 << 8
+        AllStyles = 0b11111111,
+        NoChooser = 0,
+        RadioChooser = 0b01 << 8,
+        ToggleChooser = 0b10 << 8,
     }
-    #pragma warning restore format
+#pragma warning restore format
 }

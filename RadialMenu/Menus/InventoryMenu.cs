@@ -44,7 +44,12 @@ internal class InventoryMenu(Farmer who, Func<int> getPageSize) : IRadialMenu
         {
             for (int i = 0; i < pages.Count; i++)
             {
-                if (pages[i].Items.Any(i => i is InventoryMenuItem menuItem && menuItem.Item == currentItem))
+                if (
+                    pages[i]
+                        .Items.Any(i =>
+                            i is InventoryMenuItem menuItem && menuItem.Item == currentItem
+                        )
+                )
                 {
                     SelectedPageIndex = i;
                     return;

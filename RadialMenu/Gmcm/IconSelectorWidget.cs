@@ -9,7 +9,13 @@ internal class IconSelectorWidget
 {
     public event EventHandler<EventArgs>? SelectedItemChanged;
 
-    private enum Control { PrevCategory, NextCategory, PrevImage, NextImage }
+    private enum Control
+    {
+        PrevCategory,
+        NextCategory,
+        PrevImage,
+        NextImage,
+    }
 
     private const double CURSOR_FOCUS_DURATION_MS = 120;
     private const float CURSOR_FOCUS_SCALE = 1.08f;
@@ -74,7 +80,11 @@ internal class IconSelectorWidget
     // Main reason to abstract this into a utility function is to handle the hover/click interaction
     // automatically instead of having to repeat it for every button.
     private void DrawCursorControl(
-        SpriteBatch spriteBatch, Control control, Vector2 position, Rectangle sourceRect)
+        SpriteBatch spriteBatch,
+        Control control,
+        Vector2 position,
+        Rectangle sourceRect
+    )
     {
         var inflation = 0.0f;
 
@@ -99,7 +109,8 @@ internal class IconSelectorWidget
         {
             destinationRect.Inflate(
                 inflation * destinationRect.Width,
-                inflation * destinationRect.Height);
+                inflation * destinationRect.Height
+            );
         }
         spriteBatch.Draw(Game1.mouseCursors, destinationRect, sourceRect, Color.White);
     }
@@ -124,7 +135,8 @@ internal class IconSelectorWidget
             selectedCategoryName,
             Font,
             new(currentPosition.X, textTop),
-            Game1.textColor);
+            Game1.textColor
+        );
         currentPosition.X += maxCategoryWidth + HORIZONTAL_PADDING;
         DrawCursorControl(spriteBatch, Control.NextCategory, currentPosition, RightArrowCursorRect);
 
@@ -137,9 +149,10 @@ internal class IconSelectorWidget
             spriteBatch,
             Control.PrevImage,
             new(currentPosition.X, previewArrowTop),
-            LeftArrowCursorRect);
+            LeftArrowCursorRect
+        );
         currentPosition.X += LeftArrowCursorRect.Width + HORIZONTAL_PADDING;
-        
+
         var itemImage = ItemRegistry.GetData(selectedItemId);
         if (itemImage is not null)
         {
@@ -152,7 +165,8 @@ internal class IconSelectorWidget
             spriteBatch,
             Control.NextImage,
             new(currentPosition.X, previewArrowTop),
-            RightArrowCursorRect);
+            RightArrowCursorRect
+        );
 
         HandleClick();
     }
@@ -251,8 +265,8 @@ internal class IconSelectorWidget
         // Doing this by item could be way more inefficient than the same code for category, since
         // there can be a thousand items in a category. Whether or not it's really worth the extra
         // complexity to optimize is another question, since we only run this on user input.
-        var selectedCategory = ItemRegistry.ItemTypes
-            .Where(t => t.Identifier == SelectedCategoryId)
+        var selectedCategory = ItemRegistry
+            .ItemTypes.Where(t => t.Identifier == SelectedCategoryId)
             .FirstOrDefault();
         if (selectedCategory is null)
         {

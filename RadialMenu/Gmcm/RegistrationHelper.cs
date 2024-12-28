@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Utilities;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using StardewValley;
-using Microsoft.Xna.Framework;
 
 namespace RadialMenu.Gmcm;
 
@@ -42,7 +42,8 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
     public void AddImage(
         Func<Texture2D> texture,
         Rectangle? texturePixelArea = null,
-        int scale = Game1.pixelZoom)
+        int scale = Game1.pixelZoom
+    )
     {
         api.AddImage(mod, texture, texturePixelArea, scale);
         currentTablePosition++;
@@ -53,7 +54,8 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         Action<bool> setValue,
         Func<string> name,
         Func<string>? tooltip = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddBoolOption(mod, getValue, setValue, name, tooltip, fieldId);
         if (fieldId is not null)
@@ -72,10 +74,21 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         int? max = null,
         int? interval = null,
         Func<int, string>? formatValue = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddNumberOption(
-            mod, getValue, setValue, name, tooltip, min, max, interval, formatValue, fieldId);
+            mod,
+            getValue,
+            setValue,
+            name,
+            tooltip,
+            min,
+            max,
+            interval,
+            formatValue,
+            fieldId
+        );
         if (fieldId is not null)
         {
             tablePositionsByFieldId.Add(fieldId, currentTablePosition);
@@ -92,10 +105,21 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         float? max = null,
         float? interval = null,
         Func<float, string>? formatValue = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddNumberOption(
-            mod, getValue, setValue, name, tooltip, min, max, interval, formatValue, fieldId);
+            mod,
+            getValue,
+            setValue,
+            name,
+            tooltip,
+            min,
+            max,
+            interval,
+            formatValue,
+            fieldId
+        );
         if (fieldId is not null)
         {
             tablePositionsByFieldId.Add(fieldId, currentTablePosition);
@@ -110,10 +134,19 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         Func<string>? tooltip = null,
         string[]? allowedValues = null,
         Func<string, string>? formatAllowedValue = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddTextOption(
-            mod, getValue, setValue, name, tooltip, allowedValues, formatAllowedValue, fieldId);
+            mod,
+            getValue,
+            setValue,
+            name,
+            tooltip,
+            allowedValues,
+            formatAllowedValue,
+            fieldId
+        );
         if (fieldId is not null)
         {
             tablePositionsByFieldId.Add(fieldId, currentTablePosition);
@@ -126,7 +159,8 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         Action<SButton> setValue,
         Func<string> name,
         Func<string>? tooltip = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddKeybind(mod, getValue, setValue, name, tooltip, fieldId);
         if (fieldId is not null)
@@ -141,7 +175,8 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         Action<KeybindList> setValue,
         Func<string> name,
         Func<string>? tooltip = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddKeybindList(mod, getValue, setValue, name, tooltip, fieldId);
         if (fieldId is not null)
@@ -168,11 +203,23 @@ internal class RegistrationHelper(IGenericModMenuConfigApi api, IManifest mod)
         Action? afterReset = null,
         Action? beforeMenuClosed = null,
         Func<int>? height = null,
-        string? fieldId = null)
+        string? fieldId = null
+    )
     {
         api.AddComplexOption(
-            mod, name, draw, tooltip, beforeMenuOpened, beforeSave, afterSave, beforeReset,
-            afterReset, beforeMenuClosed, height, fieldId);
+            mod,
+            name,
+            draw,
+            tooltip,
+            beforeMenuOpened,
+            beforeSave,
+            afterSave,
+            beforeReset,
+            afterReset,
+            beforeMenuClosed,
+            height,
+            fieldId
+        );
         if (fieldId is not null)
         {
             tablePositionsByFieldId.Add(fieldId, currentTablePosition);

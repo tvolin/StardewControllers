@@ -36,12 +36,13 @@ internal class TextureHelper(IGameContentHelper contentHelper, IMonitor monitor)
                         return new(texture, textureRect.SourceRect);
                     }
                     catch (Exception ex)
-                    when (ex is ArgumentException || ex is ContentLoadException)
+                        when (ex is ArgumentException || ex is ContentLoadException)
                     {
                         monitor.Log(
-                            $"Failed to load texture asset: {textureRect.AssetPath}\n" +
-                            $"{ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}",
-                            LogLevel.Error);
+                            $"Failed to load texture asset: {textureRect.AssetPath}\n"
+                                + $"{ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}",
+                            LogLevel.Error
+                        );
                     }
                 }
                 break;

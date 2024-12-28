@@ -1,9 +1,9 @@
-﻿using GenericModConfigMenu.Framework;
-using StardewValley.Menus;
-using StardewValley;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using GenericModConfigMenu.Framework;
 using GenericModConfigMenu.Framework.ModOption;
 using SpaceShared.UI;
+using StardewValley;
+using StardewValley.Menus;
 
 namespace RadialMenu.Gmcm;
 
@@ -20,12 +20,14 @@ internal static class UiInternals
 
     public static void ForceSaveOption(this ModConfigPage page, string fieldId)
     {
-        page.Options
-            .FirstOrDefault(opt => opt.FieldId == fieldId)?
-            .BeforeSave();
+        page.Options.FirstOrDefault(opt => opt.FieldId == fieldId)?.BeforeSave();
     }
+
     public static void ForceUpdateElement<T>(
-        this SpecificModConfigMenu menu, int childIndex, Action<T> update)
+        this SpecificModConfigMenu menu,
+        int childIndex,
+        Action<T> update
+    )
         where T : Element
     {
         ForceUpdateElement(menu.Table, childIndex, update);
@@ -115,9 +117,8 @@ internal static class UiInternals
     public static bool TryGetModConfigMenu([MaybeNullWhen(false)] out SpecificModConfigMenu menu)
     {
         // GMCM uses this to get the SpecificModConfigMenu, which is where the options are stored.
-        var activeMenu = Game1.activeClickableMenu is TitleMenu
-            ? TitleMenu.subMenu
-            : Game1.activeClickableMenu;
+        var activeMenu =
+            Game1.activeClickableMenu is TitleMenu ? TitleMenu.subMenu : Game1.activeClickableMenu;
         if (activeMenu is SpecificModConfigMenu configMenu)
         {
             menu = configMenu;
@@ -129,7 +130,8 @@ internal static class UiInternals
 
     public static bool TryGetModConfigPage(
         [MaybeNullWhen(false)] out ModConfigPage page,
-        string? expectedPageId = null)
+        string? expectedPageId = null
+    )
     {
         if (TryGetModConfigMenu(out var menu))
         {
@@ -143,14 +145,14 @@ internal static class UiInternals
     public static bool TryGetModConfigMenuAndPage(
         [MaybeNullWhen(false)] out SpecificModConfigMenu menu,
         [MaybeNullWhen(false)] out ModConfigPage page,
-        string? expectedPageId = null)
+        string? expectedPageId = null
+    )
     {
         menu = null;
         page = null;
-        
-        var activeMenu = Game1.activeClickableMenu is TitleMenu
-            ? TitleMenu.subMenu
-            : Game1.activeClickableMenu;
+
+        var activeMenu =
+            Game1.activeClickableMenu is TitleMenu ? TitleMenu.subMenu : Game1.activeClickableMenu;
         if (activeMenu is not SpecificModConfigMenu configMenu)
         {
             return false;

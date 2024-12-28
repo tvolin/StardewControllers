@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using RadialMenu.Config;
 using RadialMenu.Gmcm;
@@ -8,7 +9,6 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using System.Reflection;
 
 namespace RadialMenu;
 
@@ -21,6 +21,7 @@ public class ModEntry : Mod
 
     private readonly PageRegistry pageRegistry = new();
     private readonly PerScreen<PlayerState> playerState;
+
     // Painter doesn't actually need to be per-screen in order to have correct output, but it does
     // some caching related to its current items/selection, so giving the same painter inputs from
     // different players would slow performance for both of them.
@@ -129,7 +130,8 @@ public class ModEntry : Mod
             ActivePage?.SelectedItemIndex ?? -1,
             Cursor.CurrentTarget?.SelectedIndex ?? -1,
             Cursor.CurrentTarget?.Angle,
-            selectionBlend);
+            selectionBlend
+        );
     }
 
     [EventPriority(EventPriority.Low - 10)]
@@ -172,11 +174,16 @@ public class ModEntry : Mod
             // proceed otherwise.
             if (RemainingActivationDelayMs > 0)
             {
-                RemainingActivationDelayMs -= Game1.currentGameTime.ElapsedGameTime.TotalMilliseconds;
+                RemainingActivationDelayMs -= Game1
+                    .currentGameTime
+                    .ElapsedGameTime
+                    .TotalMilliseconds;
             }
             var activationResult = MaybeInvokePendingActivation();
-            if (activationResult != MenuItemActivationResult.Ignored
-                && activationResult != MenuItemActivationResult.Delayed)
+            if (
+                activationResult != MenuItemActivationResult.Ignored
+                && activationResult != MenuItemActivationResult.Delayed
+            )
             {
                 PendingActivation = null;
                 RemainingActivationDelayMs = 0;
@@ -214,11 +221,13 @@ public class ModEntry : Mod
                 }
                 else
                 {
-                    if (config.PrimaryActivation == ItemActivationMethod.TriggerRelease
-                        && Cursor.CurrentTarget is not null)
+                    if (
+                        config.PrimaryActivation == ItemActivationMethod.TriggerRelease
+                        && Cursor.CurrentTarget is not null
+                    )
                     {
                         Cursor.RevertActiveMenu();
-                        ScheduleActivation(/* forceSelect= */ config.PrimaryAction);
+                        ScheduleActivation(preferredAction: config.PrimaryAction);
                     }
                     else
                     {
@@ -252,20 +261,20 @@ public class ModEntry : Mod
         {
             return;
         }
-        
+
         foreach (var button in e.Pressed)
         {
             if (Cursor.CurrentTarget is not null)
             {
                 if (button == config.SecondaryActionButton)
                 {
-                    ScheduleActivation(/* forceSelect= */ config.SecondaryAction);
+                    ScheduleActivation(preferredAction: config.SecondaryAction);
                     Helper.Input.Suppress(button);
                     return;
                 }
                 else if (IsActivationButton(button))
                 {
-                    ScheduleActivation(/* forceSelect= */ config.PrimaryAction);
+                    ScheduleActivation(preferredAction: config.PrimaryAction);
                     Helper.Input.Suppress(button);
                     return;
                 }
@@ -320,7 +329,11 @@ public class ModEntry : Mod
         var inventoryMenu = new InventoryMenu(who, () => config.MaxInventoryItems);
         var registeredPages = pageRegistry.CreatePageList(who);
         var customMenu = new CustomMenu(
-            () => config.CustomMenuItems, ActivateCustomMenuItem, textureHelper, registeredPages);
+            () => config.CustomMenuItems,
+            ActivateCustomMenuItem,
+            textureHelper,
+            registeredPages
+        );
         return new(cursor, inventoryMenu, customMenu);
     }
 
@@ -331,7 +344,9 @@ public class ModEntry : Mod
             : new GamePadState();
     }
 
-    private Func<DelayedActions, MenuItemActivationResult>? GetSelectedItemActivation(MenuItemAction preferredAction)
+    private Func<DelayedActions, MenuItemActivationResult>? GetSelectedItemActivation(
+        MenuItemAction preferredAction
+    )
     {
         if (ActivePage is null)
         {
@@ -339,8 +354,10 @@ public class ModEntry : Mod
         }
         var itemIndex = Cursor.CurrentTarget?.SelectedIndex;
         return itemIndex < ActivePage.Items.Count
-            ? (delayedActions) => ActivePage.Items[itemIndex.Value]
-                .Activate(Game1.player, delayedActions, preferredAction)
+            ? (delayedActions) =>
+                ActivePage
+                    .Items[itemIndex.Value]
+                    .Activate(Game1.player, delayedActions, preferredAction)
             : null;
     }
 
@@ -378,9 +395,10 @@ public class ModEntry : Mod
         {
             return MenuItemActivationResult.Delayed;
         }
-        var result = RemainingActivationDelayMs <= 0
-            ? PendingActivation.Invoke(DelayedActions.None)
-            : PendingActivation.Invoke(config.DelayedActions);
+        var result =
+            RemainingActivationDelayMs <= 0
+                ? PendingActivation.Invoke(DelayedActions.None)
+                : PendingActivation.Invoke(config.DelayedActions);
         if (result == MenuItemActivationResult.Delayed)
         {
             Game1.playSound("select");
@@ -390,8 +408,10 @@ public class ModEntry : Mod
         // Farmer.shiftToolbar (on purpose), the selected index can now be on a non-active page.
         // To avoid confusing the game's UI, check for this condition and switch to the backpack
         // page that actually does contain the index.
-        if (result == MenuItemActivationResult.Selected
-            && Game1.player.CurrentToolIndex >= GameConstants.BACKPACK_PAGE_SIZE)
+        if (
+            result == MenuItemActivationResult.Selected
+            && Game1.player.CurrentToolIndex >= GameConstants.BACKPACK_PAGE_SIZE
+        )
         {
             var items = Game1.player.Items;
             var currentPage = Game1.player.CurrentToolIndex / GameConstants.BACKPACK_PAGE_SIZE;
@@ -421,7 +441,8 @@ public class ModEntry : Mod
         {
             Monitor.Log(
                 $"Couldn't read global keybindings; mod {GMCM_MOD_ID} is not installed.",
-                LogLevel.Warn);
+                LogLevel.Warn
+            );
             return;
         }
         Monitor.Log("Generic Mod Config Menu is loaded; reading keybindings.", LogLevel.Info);
@@ -434,9 +455,10 @@ public class ModEntry : Mod
                 foreach (var option in gmcmKeybindings.AllOptions)
                 {
                     Monitor.Log(
-                        "Found keybind option: " +
-                        $"[{option.ModManifest.UniqueID}] - {option.UniqueFieldName}",
-                        LogLevel.Info);
+                        "Found keybind option: "
+                            + $"[{option.ModManifest.UniqueID}] - {option.UniqueFieldName}",
+                        LogLevel.Info
+                    );
                 }
             }
             gmcmSync = new(() => config, gmcmKeybindings, Monitor);
@@ -444,12 +466,13 @@ public class ModEntry : Mod
             Helper.WriteConfig(config);
         }
         catch (Exception ex)
-        when (ex is InvalidOperationException || ex is TargetInvocationException)
+            when (ex is InvalidOperationException || ex is TargetInvocationException)
         {
             Monitor.Log(
-                $"Couldn't read global keybindings; the current version of {GMCM_MOD_ID} is " +
-                $"not compatible.\n{ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}",
-                LogLevel.Error);
+                $"Couldn't read global keybindings; the current version of {GMCM_MOD_ID} is "
+                    + $"not compatible.\n{ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}",
+                LogLevel.Error
+            );
         }
     }
 
@@ -462,7 +485,8 @@ public class ModEntry : Mod
         configMenuApi.Register(
             mod: ModManifest,
             reset: ResetConfiguration,
-            save: () => Helper.WriteConfig(config));
+            save: () => Helper.WriteConfig(config)
+        );
         configMenu = new(
             configMenuApi,
             gmcmOptionsApi,
@@ -472,7 +496,8 @@ public class ModEntry : Mod
             Helper.ModContent,
             textureHelper,
             Helper.Events.GameLoop,
-            () => config);
+            () => config
+        );
         configMenu.Setup();
     }
 

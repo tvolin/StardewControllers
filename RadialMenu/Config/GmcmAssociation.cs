@@ -15,6 +15,7 @@ public class GmcmAssociation
     /// Generic Mod Config Menu.
     /// </summary>
     public string ModId { get; set; } = "";
+
     /// <summary>
     /// The unique identifier of the keybinding field associated with this item in Generic Mod
     /// Config Menu.
@@ -42,6 +43,7 @@ public class GmcmAssociation
     /// </para>
     /// </remarks>
     public string FieldId { get; set; } = "";
+
     /// <summary>
     /// The visible name of the keybinding field associated with this item in Generic Mod Config
     /// Menu.
@@ -70,6 +72,7 @@ public class GmcmAssociation
     /// </para>
     /// </remarks>
     public string FieldName { get; set; } = "";
+
     /// <summary>
     /// If set, only the <see cref="CustomMenuItemConfiguration.Keybind"/> will track the current setting in
     /// GMCM; <see cref="CustomMenuItemConfiguration.Name"/> and <see cref="CustomMenuItemConfiguration.Description"/>
@@ -92,7 +95,7 @@ public class GmcmAssociation
             ModId = ModId,
             FieldId = FieldId,
             FieldName = FieldName,
-            UseCustomName = UseCustomName
+            UseCustomName = UseCustomName,
         };
     }
 }

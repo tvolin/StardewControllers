@@ -1,6 +1,6 @@
-﻿using StardewModdingAPI;
+﻿using System.Reflection;
+using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
-using System.Reflection;
 
 namespace RadialMenu
 {
@@ -14,16 +14,22 @@ namespace RadialMenu
         {
             this.inputHelper = inputHelper;
             // We can't use ReflectionHelper here because SMAPI blocks reflection on itself.
-            currentInputStateField = inputHelper.GetType().GetField(
-                "CurrentInputState",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
+            currentInputStateField = inputHelper
+                .GetType()
+                .GetField(
+                    "CurrentInputState",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                )!;
             // We don't really need the input state object at construction time, but since we don't
             // have direct access to its type, we have to use the object to get it.
             var currentInputState = GetCurrentInputState();
-            overrideButtonMethod = currentInputState.GetType().GetMethod(
-                "OverrideButton",
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                [typeof(SButton), typeof(bool)])!;
+            overrideButtonMethod = currentInputState
+                .GetType()
+                .GetMethod(
+                    "OverrideButton",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    [typeof(SButton), typeof(bool)]
+                )!;
         }
 
         public void Activate(Keybind keybind)

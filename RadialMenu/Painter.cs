@@ -19,8 +19,10 @@ internal class Painter
 
     private static readonly float ROOT_3 = MathF.Sqrt(3);
 
-    private static readonly TextureSegment UnknownSprite =
-        new(Game1.mouseCursors, /* Question Mark */ new(176, 425, 9, 12));
+    private static readonly TextureSegment UnknownSprite = new(
+        Game1.mouseCursors, // Question Mark
+        new(176, 425, 9, 12)
+    );
 
     public IReadOnlyList<IRadialMenuItem> Items { get; set; } = [];
     public Styles Styles => getStyles();
@@ -32,8 +34,7 @@ internal class Painter
     private VertexPositionColor[] innerVertices = [];
     private VertexPositionColor[] outerVertices = [];
     private float selectionBlend = 1.0f;
-    private SelectionState selectionState =
-        new(/* ItemCount= */ 0, /* FocusedIndex= */ 0, /* SelectedIndex= */ 0);
+    private SelectionState selectionState = new(ItemCount: 0, PreviousIndex: 0, SelectedIndex: 0);
 
     public Painter(GraphicsDevice graphicsDevice, Func<Styles> getStyles)
     {
@@ -53,7 +54,8 @@ internal class Painter
         int previousIndex,
         int selectedIndex,
         float? selectionAngle,
-        float selectionBlend = 1.0f)
+        float selectionBlend = 1.0f
+    )
     {
         GenerateVertices();
         var selectionState = new SelectionState(Items.Count, previousIndex, selectedIndex);
@@ -74,32 +76,40 @@ internal class Painter
         var oldRasterizerState = graphicsDevice.RasterizerState;
         // Unsure why this doesn't seem to have any effect. Keeping it here in case we figure it
         // out, because the circle looks jagged without it.
-        graphicsDevice.RasterizerState = new RasterizerState
-        {
-            MultiSampleAntiAlias = true
-        };
+        graphicsDevice.RasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
         try
         {
             // Cursor is just 1 triangle, so we can compute this on every frame.
-            var cursorVertices = selectionAngle != null
-                ? GenerateCursorVertices(
-                    Styles.InnerRadius - Styles.CursorDistance,
-                    selectionAngle.Value)
-                : [];
+            var cursorVertices =
+                selectionAngle != null
+                    ? GenerateCursorVertices(
+                        Styles.InnerRadius - Styles.CursorDistance,
+                        selectionAngle.Value
+                    )
+                    : [];
             foreach (var pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 graphicsDevice.DrawUserPrimitives(
-                    PrimitiveType.TriangleList, innerVertices, 0, innerVertices.Length / 3);
+                    PrimitiveType.TriangleList,
+                    innerVertices,
+                    0,
+                    innerVertices.Length / 3
+                );
                 graphicsDevice.DrawUserPrimitives(
-                    PrimitiveType.TriangleList, outerVertices, 0, outerVertices.Length / 3);
+                    PrimitiveType.TriangleList,
+                    outerVertices,
+                    0,
+                    outerVertices.Length / 3
+                );
                 if (cursorVertices.Length > 0)
                 {
                     graphicsDevice.DrawUserPrimitives(
                         PrimitiveType.TriangleList,
                         cursorVertices,
                         0,
-                        cursorVertices.Length / 3);
+                        cursorVertices.Length / 3
+                    );
                 }
             }
         }
@@ -128,22 +138,20 @@ internal class Painter
                 var scale = maxWidth / displaySize.X;
                 displaySize = new(
                     (int)MathF.Round(displaySize.X * scale),
-                    (int)MathF.Round(displaySize.Y * scale));
+                    (int)MathF.Round(displaySize.Y * scale)
+                );
             }
             var sourceSize = GetSpriteSize(item, out var isMonogram);
             var aspectRatio = (float)sourceSize.X / sourceSize.Y;
             // Sprites draw from top left rather than center; we have to adjust for it.
             var itemPoint2d = new Vector2(
                 centerX + itemPoint.X - displaySize.X / 2.0f,
-                centerY + itemPoint.Y - displaySize.Y / 2.0f);
+                centerY + itemPoint.Y - displaySize.Y / 2.0f
+            );
             var destinationRect = new Rectangle(itemPoint2d.ToPoint(), displaySize);
             if (isMonogram)
             {
-                Monogram.Draw(
-                    spriteBatch,
-                    destinationRect,
-                    item.Title,
-                    Color.White);
+                Monogram.Draw(spriteBatch, destinationRect, item.Title, Color.White);
             }
             else
             {
@@ -157,7 +165,8 @@ internal class Painter
                     new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y),
                     3f,
                     SpriteEffects.None,
-                    -0.0001f);
+                    -0.0001f
+                );
                 // Tinting may be an overlay sprite, or a tint of the original sprite. In here, we
                 // determine that by the nullness of both the rectangle and color. If a tint color
                 // is specified, but no separate rectangle, then it means we need to tint the base
@@ -174,53 +183,52 @@ internal class Painter
             if (item.Quality is int quality && quality > 0)
             {
                 // From StardewValley:Object.cs
-                var qualitySourceRect = quality < 4
-                    ? new Rectangle(338 + (quality - 1) * 8, 400, 8, 8)
-                    : new Rectangle(346, 392, 8, 8);
-                var qualityIconPos = new Vector2(
-                    destinationRect.Left,
-                    destinationRect.Bottom - 16);
+                var qualitySourceRect =
+                    quality < 4
+                        ? new Rectangle(338 + (quality - 1) * 8, 400, 8, 8)
+                        : new Rectangle(346, 392, 8, 8);
+                var qualityIconPos = new Vector2(destinationRect.Left, destinationRect.Bottom - 16);
                 spriteBatch.Draw(
                     Game1.mouseCursors,
                     qualityIconPos,
                     qualitySourceRect,
                     Color.White,
-                    /* rotation= */ 0,
-                    Vector2.Zero,
-                    /* scale= */ 3.0f,
-                    SpriteEffects.None,
-                    /* layerDepth= */ 0.1f);
+                    rotation: 0,
+                    origin: Vector2.Zero,
+                    scale: 3.0f,
+                    effects: SpriteEffects.None,
+                    layerDepth: 0.1f
+                );
             }
             if (item.StackSize is int stackSize)
             {
                 var stackTextScale = 3.0f;
-                var stackTextWidth =
-                    Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
+                var stackTextWidth = Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
                 var stackLabelPos = new Vector2(
                     destinationRect.Right - stackTextWidth,
-                    destinationRect.Bottom - 8);
+                    destinationRect.Bottom - 8
+                );
                 Utility.drawTinyDigits(
                     stackSize,
                     spriteBatch,
                     stackLabelPos,
                     stackTextScale,
-                    /* layerDepth= */ 0.1f,
-                    Styles.StackSizeColor);
+                    layerDepth: 0.1f,
+                    Styles.StackSizeColor
+                );
             }
             t += angleBetweenItems;
         }
     }
 
-    private void PaintSelectionDetails(
-        SpriteBatch spriteBatch, TileRectangle viewport)
+    private void PaintSelectionDetails(SpriteBatch spriteBatch, TileRectangle viewport)
     {
         if (selectionState.SelectedIndex < 0)
         {
             return;
         }
-        var item = Items.Count > selectionState.SelectedIndex
-            ? Items[selectionState.SelectedIndex]
-            : null;
+        var item =
+            Items.Count > selectionState.SelectedIndex ? Items[selectionState.SelectedIndex] : null;
         if (item is null)
         {
             return;
@@ -231,12 +239,11 @@ internal class Painter
         if (item.Texture is not null)
         {
             var itemDrawSize = GetScaledSize(item, Styles.SelectionSpriteHeight);
-            var itemPos =
-                new Vector2(centerX - itemDrawSize.X / 2, centerY - itemDrawSize.Y - 24);
+            var itemPos = new Vector2(centerX - itemDrawSize.X / 2, centerY - itemDrawSize.Y - 24);
             var itemRect = new Rectangle(itemPos.ToPoint(), itemDrawSize);
             var baseColor = item.TintRectangle is null
-                        ? (item.TintColor ?? Color.White)
-                        : Color.White;
+                ? (item.TintColor ?? Color.White)
+                : Color.White;
             spriteBatch.Draw(item.Texture, itemRect, item.SourceRectangle, baseColor);
             if (item.TintRectangle is Rectangle tintRect && item.TintColor is Color tintColor)
             {
@@ -252,7 +259,8 @@ internal class Painter
         var descriptionFont = Game1.smallFont;
         var descriptionText = item.Description;
         var descriptionY = labelPos.Y + labelFont.LineSpacing + 16.0f;
-        var descriptionLines = Game1.parseText(descriptionText, descriptionFont, 400)
+        var descriptionLines = Game1
+            .parseText(descriptionText, descriptionFont, 400)
             .Split(Environment.NewLine);
         foreach (var descriptionLine in descriptionLines)
         {
@@ -263,7 +271,8 @@ internal class Painter
                 descriptionFont,
                 descriptionLine,
                 descriptionPos,
-                Styles.SelectionDescriptionColor);
+                Styles.SelectionDescriptionColor
+            );
         }
     }
 
@@ -271,22 +280,23 @@ internal class Painter
     {
         if (innerVertices.Length == 0)
         {
-            innerVertices =
-                GenerateCircleVertices(Styles.InnerRadius, Styles.InnerBackgroundColor);
+            innerVertices = GenerateCircleVertices(Styles.InnerRadius, Styles.InnerBackgroundColor);
         }
         if (outerVertices.Length == 0)
         {
             outerVertices = GenerateDonutVertices(
                 Styles.InnerRadius + Styles.GapWidth,
                 Styles.OuterRadius,
-                Styles.OuterBackgroundColor);
+                Styles.OuterBackgroundColor
+            );
         }
     }
 
     private static (float start, float end) GetSegmentRange(
         int selectedIndex,
         int itemCount,
-        int segmentCount)
+        int segmentCount
+    )
     {
         if (selectedIndex < 0)
         {
@@ -304,26 +314,33 @@ internal class Painter
         var (itemCount, previousIndex, selectedIndex) = selectionState;
         const int outerChordSize = 6;
         var segmentCount = outerVertices.Length / outerChordSize;
-        var (previousHighlightStartSegment, previousHighlightEndSegment) =
-            GetSegmentRange(previousIndex, itemCount, segmentCount);
-        var (currentHighlightStartSegment, currentHighlightEndSegment) =
-            GetSegmentRange(selectedIndex, itemCount, segmentCount);
+        var (previousHighlightStartSegment, previousHighlightEndSegment) = GetSegmentRange(
+            previousIndex,
+            itemCount,
+            segmentCount
+        );
+        var (currentHighlightStartSegment, currentHighlightEndSegment) = GetSegmentRange(
+            selectedIndex,
+            itemCount,
+            segmentCount
+        );
         for (var i = 0; i < segmentCount; i++)
         {
-            var isCurrentHighlight = currentHighlightStartSegment < currentHighlightEndSegment
-                ? (i >= currentHighlightStartSegment && i < currentHighlightEndSegment)
-                : (i >= currentHighlightStartSegment || i < currentHighlightEndSegment);
-            var isPreviousHighlight = isCurrentHighlight
-                ? false
+            var isCurrentHighlight =
+                currentHighlightStartSegment < currentHighlightEndSegment
+                    ? (i >= currentHighlightStartSegment && i < currentHighlightEndSegment)
+                    : (i >= currentHighlightStartSegment || i < currentHighlightEndSegment);
+            var isPreviousHighlight =
+                isCurrentHighlight ? false
                 : previousHighlightStartSegment < previousHighlightEndSegment
                     ? (i >= previousHighlightStartSegment && i < previousHighlightEndSegment)
-                    : (i >= previousHighlightStartSegment || i < previousHighlightEndSegment);
+                : (i >= previousHighlightStartSegment || i < previousHighlightEndSegment);
             var outerIndex = i * outerChordSize;
-            var outerColor = isCurrentHighlight
-                ? Color.Lerp(Styles.OuterBackgroundColor, Styles.HighlightColor, selectionBlend)
-                : isPreviousHighlight
-                    ? Styles.SelectionColor
-                    : Styles.OuterBackgroundColor;
+            var outerColor =
+                isCurrentHighlight
+                    ? Color.Lerp(Styles.OuterBackgroundColor, Styles.HighlightColor, selectionBlend)
+                : isPreviousHighlight ? Styles.SelectionColor
+                : Styles.OuterBackgroundColor;
             for (var j = 0; j < outerChordSize; j++)
             {
                 outerVertices[outerIndex + j].Color = outerColor;
@@ -354,7 +371,10 @@ internal class Painter
     }
 
     private static VertexPositionColor[] GenerateDonutVertices(
-        float innerRadius, float thickness, Color color)
+        float innerRadius,
+        float thickness,
+        Color color
+    )
     {
         var outerRadius = innerRadius + thickness;
         var vertexCount = GetOptimalVertexCount(outerRadius);
@@ -411,7 +431,7 @@ internal class Painter
     private static int GetOptimalVertexCount(float radius)
     {
         var optimalAngle = Math.Acos(1 - CIRCLE_MAX_ERROR / radius);
-        return (int) Math.Ceiling(TWO_PI / optimalAngle);
+        return (int)Math.Ceiling(TWO_PI / optimalAngle);
     }
 
     private static Point GetScaledSize(IRadialMenuItem item, int height)

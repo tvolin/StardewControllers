@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics.CodeAnalysis;
 
 namespace RadialMenu.Graphics;
 
@@ -10,7 +10,8 @@ public record TextureSegmentPath(string AssetPath, Rectangle SourceRect)
 {
     public static bool TryParse(
         string formattedPath,
-        [MaybeNullWhen(false)] out TextureSegmentPath parsed)
+        [MaybeNullWhen(false)] out TextureSegmentPath parsed
+    )
     {
         parsed = null;
         var parts = formattedPath.Split(':');
@@ -29,10 +30,12 @@ public record TextureSegmentPath(string AssetPath, Rectangle SourceRect)
         {
             return false;
         }
-        if (int.TryParse(coords[0], out int x)
+        if (
+            int.TryParse(coords[0], out int x)
             && int.TryParse(coords[1], out int y)
             && int.TryParse(coords[2], out int width)
-            && int.TryParse(coords[3], out int height))
+            && int.TryParse(coords[3], out int height)
+        )
         {
             parsed = new(assetPath, new Rectangle(x, y, width, height));
             return true;

@@ -17,12 +17,14 @@ public enum ThumbStickPreference
     /// Always use the left thumbstick, regardless of which menu is open.
     /// </summary>
     AlwaysLeft,
+
     /// <summary>
     /// Always use the right thumbstick, regardless of which menu is open.
     /// </summary>
     AlwaysRight,
+
     /// <summary>
     /// Use the thumbstick that is on the same side as the trigger button used to open the menu.
     /// </summary>
-    SameAsTrigger
+    SameAsTrigger,
 };

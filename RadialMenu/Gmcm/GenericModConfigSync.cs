@@ -6,7 +6,8 @@ namespace RadialMenu.Gmcm;
 internal class GenericModConfigSync(
     Func<Configuration> getConfig,
     GenericModConfigKeybindings bindings,
-    IMonitor monitor)
+    IMonitor monitor
+)
 {
     public void Sync(CustomMenuItemConfiguration item, bool ignoreOverrides = false)
     {
@@ -14,15 +15,15 @@ internal class GenericModConfigSync(
         {
             return;
         }
-        var keybindOption =
-            bindings.Find(gmcm.ModId, gmcm.FieldId, gmcm.FieldName, item.Keybind);
+        var keybindOption = bindings.Find(gmcm.ModId, gmcm.FieldId, gmcm.FieldName, item.Keybind);
         if (keybindOption is null)
         {
             monitor.Log(
-                $"Couldn't sync key binding information for item named '{item.Name}'. " +
-                $"No keybinding field in {gmcm.ModId} for field name '{gmcm.FieldName}' or " +
-                $"field ID {gmcm.FieldId}.",
-                LogLevel.Warn);
+                $"Couldn't sync key binding information for item named '{item.Name}'. "
+                    + $"No keybinding field in {gmcm.ModId} for field name '{gmcm.FieldName}' or "
+                    + $"field ID {gmcm.FieldId}.",
+                LogLevel.Warn
+            );
             return;
         }
         if (ignoreOverrides || !gmcm.UseCustomName)

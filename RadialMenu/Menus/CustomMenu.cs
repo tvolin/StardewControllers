@@ -1,6 +1,6 @@
-﻿using RadialMenu.Config;
+﻿using System.Collections;
+using RadialMenu.Config;
 using RadialMenu.Graphics;
-using System.Collections;
 
 namespace RadialMenu.Menus;
 
@@ -23,13 +23,13 @@ internal class CustomMenu : IRadialMenu
         Func<IReadOnlyList<CustomMenuItemConfiguration>> getShortcuts,
         Action<CustomMenuItemConfiguration> shortcutActivator,
         TextureHelper textureHelper,
-        IInvalidatableList<IRadialMenuPage> additionalPages)
+        IInvalidatableList<IRadialMenuPage> additionalPages
+    )
     {
         this.getShortcuts = getShortcuts;
         this.shortcutActivator = shortcutActivator;
         this.textureHelper = textureHelper;
         combinedPages = new CombinedPageList(CreateShortcutPage, additionalPages);
-        
     }
 
     /// <summary>
@@ -57,10 +57,13 @@ internal class CustomMenu : IRadialMenu
         return MenuPage.FromCustomItemConfiguration(shortcuts, shortcutActivator, textureHelper);
     }
 
-    class CombinedPageList(Func<IRadialMenuPage> getShortcutPage, IInvalidatableList<IRadialMenuPage> additionalPages)
-        : IReadOnlyList<IRadialMenuPage>
+    class CombinedPageList(
+        Func<IRadialMenuPage> getShortcutPage,
+        IInvalidatableList<IRadialMenuPage> additionalPages
+    ) : IReadOnlyList<IRadialMenuPage>
     {
-        public IRadialMenuPage this[int index] => index == 0 ? ShortcutPage : additionalPages[index - 1];
+        public IRadialMenuPage this[int index] =>
+            index == 0 ? ShortcutPage : additionalPages[index - 1];
 
         public IRadialMenuPage ShortcutPage { get; set; } = getShortcutPage();
 

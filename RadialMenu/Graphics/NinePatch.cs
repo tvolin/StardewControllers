@@ -26,9 +26,8 @@ internal class NinePatch
     {
         var destinationGrid = GetGrid(
             destinationRect,
-            borderScale != 1.0f
-                ? (borderWidths.ToVector2() * borderScale).ToPoint()
-                : borderWidths);
+            borderScale != 1.0f ? (borderWidths.ToVector2() * borderScale).ToPoint() : borderWidths
+        );
         for (int y = 0; y < destinationGrid.GetLength(0); y++)
         {
             for (int x = 0; x < destinationGrid.GetLength(1); x++)
@@ -62,7 +61,7 @@ internal class NinePatch
                 new(left, startBottom, borderWidths.X, borderWidths.Y),
                 new(left + borderWidths.X, startBottom, innerWidth, borderWidths.Y),
                 new(startRight, startBottom, borderWidths.X, borderWidths.Y),
-            }
+            },
         };
     }
 }

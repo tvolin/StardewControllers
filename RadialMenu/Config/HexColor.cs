@@ -1,8 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
+using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 
 namespace RadialMenu.Config;
 
@@ -58,7 +58,8 @@ public class HexColor
             hexString.Length > 6 ? (argb & 0xff000000) >> 24 : 0xff,
             (argb & 0xff0000) >> 16,
             (argb & 0xff00) >> 8,
-            argb & 0xff);
+            argb & 0xff
+        );
         result = new HexColor(new Color((byte)r, (byte)g, (byte)b, (byte)a));
         return true;
     }
@@ -85,7 +86,8 @@ class HexColorConverter : JsonConverter<HexColor>
         Type objectType,
         HexColor? _existingValue,
         bool _hasExistingValue,
-        JsonSerializer serializer)
+        JsonSerializer serializer
+    )
     {
         if (reader.TokenType == JsonToken.Null)
         {
