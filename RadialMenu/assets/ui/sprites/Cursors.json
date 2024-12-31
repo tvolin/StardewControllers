@@ -1,0 +1,38 @@
+﻿{
+  "Texture": "LooseSprites/Cursors",
+  "Sprites": {
+    "BigPlus": {
+      "SourceRect": "0, 411, 16, 16"
+    },
+    "Number0": {
+      "SourceRect": "512, 128, 7, 8"
+    },
+    "Number1": {
+      "SourceRect": "521, 128, 6, 8"
+    },
+    "Number2": {
+      "SourceRect": "528, 128, 7, 8"
+    },
+    "Number3": {
+      "SourceRect": "536, 128, 7, 8"
+    },
+    "Number4": {
+      "SourceRect": "544, 128, 7, 8"
+    },
+    "Number5": {
+      "SourceRect": "552, 128, 7, 8"
+    },
+    "Number6": {
+      "SourceRect": "512, 136, 7, 8"
+    },
+    "Number7": {
+      "SourceRect": "521, 136, 7, 8"
+    },
+    "Number8": {
+      "SourceRect": "528, 136, 8, 8"
+    },
+    "Number9": {
+      "SourceRect": "537, 136, 7, 8"
+    }
+  }
+}

@@ -5,6 +5,7 @@ using RadialMenu.Config;
 using RadialMenu.Gmcm;
 using RadialMenu.Graphics;
 using RadialMenu.Menus;
+using RadialMenu.UI;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -20,6 +21,8 @@ public class ModEntry : Mod
 
     private readonly PageRegistry pageRegistry = new();
     private readonly PerScreen<PlayerState> playerState;
+
+    private IViewEngine? viewEngine;
 
     // Painter doesn't actually need to be per-screen in order to have correct output, but it does
     // some caching related to its current items/selection, so giving the same painter inputs from
@@ -140,6 +143,22 @@ public class ModEntry : Mod
         gmcmOptionsApi = Helper.ModRegistry.GetApi<IGMCMOptionsAPI>(GMCM_OPTIONS_MOD_ID);
         LoadGmcmKeybindings();
         RegisterConfigMenu();
+
+        viewEngine = Helper.ModRegistry.GetApi<IViewEngine>("focustense.StardewUI");
+        if (viewEngine is null)
+        {
+            Monitor.Log(
+                "StardewUI Framework is not installed; some aspects of the mod will not be configurable in-game.",
+                LogLevel.Warn
+            );
+            return;
+        }
+        viewEngine.RegisterCustomData($"Mods/{ModManifest.UniqueID}", "assets/ui/data");
+        viewEngine.RegisterSprites($"Mods/{ModManifest.UniqueID}/Sprites", "assets/ui/sprites");
+        viewEngine.RegisterViews($"Mods/{ModManifest.UniqueID}/Views", "assets/ui/views");
+#if DEBUG
+        viewEngine.EnableHotReloadingWithSourceSync();
+#endif
     }
 
     private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
@@ -256,6 +275,16 @@ public class ModEntry : Mod
 
     private void Input_ButtonsChanged(object? sender, ButtonsChangedEventArgs e)
     {
+        if (Context.IsPlayerFree && e.Pressed.Contains(SButton.F10) && viewEngine is not null)
+        {
+            var context = new ConfigurationViewModel();
+            Game1.activeClickableMenu = viewEngine.CreateMenuFromAsset(
+                $"Mods/{ModManifest.UniqueID}/Views/Configuration",
+                context
+            );
+            return;
+        }
+
         if (!Context.IsWorldReady || RemainingActivationDelayMs > 0 || Cursor.ActiveMenu is null)
         {
             return;
