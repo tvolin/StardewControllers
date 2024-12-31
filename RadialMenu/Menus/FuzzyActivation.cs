@@ -1,6 +1,4 @@
-﻿using StardewValley;
-using StardewValley.Locations;
-using SObject = StardewValley.Object;
+﻿using StardewValley.Locations;
 
 namespace RadialMenu.Menus;
 

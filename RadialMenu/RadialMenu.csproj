@@ -35,4 +35,14 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="StardewValley" />
+    <Using Include="StardewModdingAPI" />
+    <Using Alias="Object" Include="System.Object" />
+    <Using Alias="SObject" Include="StardewValley.Object" />
+    <Using Alias="Color" Include="Microsoft.Xna.Framework.Color" />
+    <Using Alias="Rectangle" Include="Microsoft.Xna.Framework.Rectangle" />
+    <Using Alias="Vector2" Include="Microsoft.Xna.Framework.Vector2" />
+  </ItemGroup>
 </Project>

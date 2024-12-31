@@ -8,7 +8,6 @@ using RadialMenu.Menus;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
-using StardewValley;
 
 namespace RadialMenu;
 
