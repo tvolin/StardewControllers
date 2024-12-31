@@ -1,4 +1,10 @@
 {
+  "config.tab.actions.title": "Actions",
+  "config.tab.controls.title": "Controls",
+  "config.tab.debug.title": "Debug",
+  "config.tab.mods.title": "Mods",
+  "config.tab.style.title": "Style",
+
   "error.missingbinding": "No keybinding is set up for this action.",
   "gmcm.controls": "Controls",
   "gmcm.controls.trigger.deadzone": "Trigger Dead Zone",

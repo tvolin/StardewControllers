@@ -14,16 +14,16 @@ internal class ConfigMenu(
     IModContentHelper modContent,
     TextureHelper textureHelper,
     IGameLoopEvents gameLoopEvents,
-    Func<Configuration> getConfig
+    Func<LegacyModConfig> getConfig
 )
 {
-    protected Configuration Config => getConfig();
+    protected LegacyModConfig Config => getConfig();
 
     // Primary ctor properties can't be read-only and we're OCD.
     private readonly IGenericModMenuConfigApi gmcm = gmcm;
     private readonly IGMCMOptionsAPI? gmcmOptions = gmcmOptions;
     private readonly IManifest mod = mod;
-    private readonly Func<Configuration> getConfig = getConfig;
+    private readonly Func<LegacyModConfig> getConfig = getConfig;
 
     // Sub-pages
     private readonly CustomMenuPage customMenuPage = new(

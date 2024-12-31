@@ -5,7 +5,7 @@ using RadialMenu.Graphics;
 namespace RadialMenu.Menus;
 
 /// <summary>
-/// Radial menu displaying the shortcuts set up in the <see cref="Config.Configuration.CustomMenuItems"/>, as well as
+/// Radial menu displaying the shortcuts set up in the <see cref="Config.LegacyModConfig.CustomMenuItems"/>, as well as
 /// any mod-added pages.
 /// </summary>
 internal class CustomMenu : IRadialMenu

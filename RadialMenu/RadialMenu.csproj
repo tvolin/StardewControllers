@@ -10,7 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="assets\ui\sprites\Cursors.json" />
-    <None Remove="assets\ui\views\configuration.sml" />
+    <None Remove="assets\ui\views\Actions.sml" />
+    <None Remove="assets\ui\views\Configuration.sml" />
+    <None Remove="assets\ui\views\Controls.sml" />
+    <None Remove="assets\ui\views\Style.sml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\ui\data\Kenney.buttonspritemap.json">
@@ -25,7 +28,16 @@
     <Content Include="assets\ui\sprites\UI.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\ui\views\Actions.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\ui\views\Configuration.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Controls.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Style.sml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

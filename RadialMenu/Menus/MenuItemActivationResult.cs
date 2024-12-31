@@ -57,7 +57,7 @@ public enum MenuItemActivationResult
     /// <remarks>
     /// This is primarily used in the inventory menu to signal tool selection, so that the active backpack page can be
     /// updated in response. For the secondary/custom menu, the exact behavior depends on user settings, specifically
-    /// <see cref="Config.Configuration.RememberSelection"/>. Non-inventory menus/items are <b>not</b> required to
+    /// <see cref="Config.LegacyModConfig.RememberSelection"/>. Non-inventory menus/items are <b>not</b> required to
     /// implement their own selection behavior, but if it is used, then the corresponding <see cref="IRadialMenuPage"/> must
     /// have a consistent <see cref="IRadialMenuPage.SelectedItemIndex"/> value.
     /// </remarks>

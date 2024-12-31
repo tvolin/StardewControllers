@@ -79,7 +79,7 @@ public class ModEntry : Mod
 
     // Global state
     private Api api = null!;
-    private Configuration config = null!;
+    private LegacyModConfig config = null!;
     private ConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
     private IGMCMOptionsAPI? gmcmOptionsApi;
@@ -96,7 +96,7 @@ public class ModEntry : Mod
 
     public override void Entry(IModHelper helper)
     {
-        config = Helper.ReadConfig<Configuration>();
+        config = Helper.ReadConfig<LegacyModConfig>();
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
         textureHelper = new(Helper.GameContent, Monitor);
@@ -277,7 +277,7 @@ public class ModEntry : Mod
     {
         if (Context.IsPlayerFree && e.Pressed.Contains(SButton.F10) && viewEngine is not null)
         {
-            var context = new ConfigurationViewModel();
+            var context = new ConfigurationViewModel(new(), ModManifest.UniqueID);
             Game1.activeClickableMenu = viewEngine.CreateMenuFromAsset(
                 $"Mods/{ModManifest.UniqueID}/Views/Configuration",
                 context

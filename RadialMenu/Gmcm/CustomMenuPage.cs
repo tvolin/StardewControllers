@@ -17,7 +17,7 @@ internal class CustomMenuPage(
     IManifest mod,
     TextureHelper textureHelper,
     IGameLoopEvents gameLoopEvents,
-    Func<Configuration> getConfig
+    Func<LegacyModConfig> getConfig
 )
 {
     public const string ID = "CustomMenu";
@@ -49,12 +49,12 @@ internal class CustomMenuPage(
     private readonly RegistrationHelper reg = new(gmcm, mod);
     private readonly IManifest mod = mod;
     private readonly IGameLoopEvents gameLoopEvents = gameLoopEvents;
-    private readonly Func<Configuration> getConfig = getConfig;
+    private readonly Func<LegacyModConfig> getConfig = getConfig;
     private readonly CustomItemListWidget itemList = new(textureHelper);
     private readonly IconSelectorWidget iconSelector = new();
     private readonly SpritePreviewWidget customImagePreview = new();
 
-    protected Configuration Config => getConfig();
+    protected LegacyModConfig Config => getConfig();
 
     // Filter Actions dropdown by this mod ID. Tracks current value in the GMCM Mod Name dropdown.
     // This setting isn't actually stored anywhere, since it's already part of the GmcmAssociation.

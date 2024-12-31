@@ -1,9 +1,8 @@
 ﻿using RadialMenu.Menus;
-using StardewModdingAPI;
 
 namespace RadialMenu.Config;
 
-public class Configuration : ICursorConfiguration
+public class LegacyModConfig : ICursorConfiguration
 {
     /// <summary>
     /// Dead zone for the left/right trigger buttons for activating/deactivating the menu.
