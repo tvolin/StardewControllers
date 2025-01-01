@@ -6,9 +6,17 @@ namespace RadialMenu.UI;
 
 internal partial class ConfigurationViewModel
 {
+    public Func<float, string> FormatActivationDelay { get; } = v => $"{v:f0} ms";
+    public Func<float, string> FormatDeadZone { get; } = v => v.ToString("f2");
+
+    public InputConfigurationViewModel Input { get; }
+
     public List<NavPageViewModel> Pages { get; }
 
     public Transform TabSelectionTransform => GetTabSelectionTransform(SelectedPageIndex);
+
+    [Notify]
+    private ModConfig config;
 
     [Notify]
     private Vector2 contentPanelSize;
@@ -18,6 +26,9 @@ internal partial class ConfigurationViewModel
 
     public ConfigurationViewModel(ModConfig config, string modId)
     {
+        this.config = config;
+        Input = new();
+        Input.Load(config.Input);
         Pages =
         [
             new(NavPage.Controls, I18n.Config_Tab_Controls_Title(), $"Mods/{modId}/Views/Controls"),

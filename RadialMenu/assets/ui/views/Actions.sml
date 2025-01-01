@@ -57,11 +57,12 @@
 
 <template name="form-row">
     <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
-        <panel layout="350px content">
-            <spacer layout="32px stretch" focusable="true" />
+        <frame layout="350px content">
             <label text={&title} tooltip={&description} />
-        </panel>
-        <outlet />
+        </frame>
+        <frame tooltip={&description}>
+            <outlet />
+        </frame>
     </lane>
 </template>
 

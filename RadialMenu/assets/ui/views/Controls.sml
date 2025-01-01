@@ -1,41 +1,60 @@
-<lane layout="stretch content" orientation="vertical">
-    <form-heading title="Button Mapping" />
-    <form-row title="Item menu">
-        <mini-keybind button="LeftTrigger" />
+<lane *context={^Input} layout="stretch content" orientation="vertical">
+    <form-heading title={#Config.Keybind.Heading} />
+    <form-row title={#Config.Keybind.Inventory.Title} description={#Config.Keybind.Inventory.Description}>
+        <mini-keybind button={<>InventoryMenuButton} />
     </form-row>
-    <form-row title="Mod menu">
-        <mini-keybind button="RightTrigger" />
+    <form-row title={#Config.Keybind.Mods.Title} description={#Config.Keybind.Mods.Description}>
+        <mini-keybind button={<>ModMenuButton} />
     </form-row>
-    <form-row title="Navigation" />
-    <form-row title="Previous page">
-        <mini-keybind button="LeftShoulder" />
+    <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
+        <enum-segments *context={:ThumbStickPreference} />
     </form-row>
-    <form-row title="Next page">
-        <mini-keybind button="RightShoulder" />
+    <form-row title={#Config.Keybind.PreviousPage.Title} description={#Config.Keybind.PreviousPage.Description}>
+        <mini-keybind button={<>PreviousPageButton} />
     </form-row>
-    <form-row title="Primary action (use)">
-        <mini-keybind button="ControllerA" />
+    <form-row title={#Config.Keybind.NextPage.Title} description={#Config.Keybind.NextPage.Description}>
+        <mini-keybind button={<>NextPageButton} />
     </form-row>
-    <form-row title="Secondary action (select)">
-        <mini-keybind button="ControllerX" />
+    <form-row title={#Config.Keybind.PrimaryAction.Title} description={#Config.Keybind.PrimaryAction.Description}>
+        <mini-keybind button={<>PrimaryActionButton} />
     </form-row>
-    <form-heading title="Selection" />
-    <form-row title="Open mode">
-        <label text="test" />
+    <form-row title={#Config.Keybind.SecondaryAction.Title} description={#Config.Keybind.SecondaryAction.Description}>
+        <mini-keybind button={<>SecondaryActionButton} />
     </form-row>
-    <form-row title="Delayed actions" />
-    <form-row title="Blink duration">
-        <slider track-width="300" min="0" max="1000" interval="50" />
+    <form-heading title={#Config.Selection.Heading} />
+    <form-row title={#Config.Selection.OpenMode.Title} description={#Config.Selection.OpenMode.Description}>
+        <enum-segments *context={:OpenMode} />
     </form-row>
-    <form-row title="Remember last selection">
-        <checkbox />
+    <form-row title={#Config.Selection.DelayedActions.Title} description={#Config.Selection.DelayedActions.Description}>
+        <enum-segments *context={:DelayedActions} />
     </form-row>
-    <form-heading title="Sensitivity" />
-    <form-row title="Trigger dead zone">
-        <slider track-width="300" min="0" max="1" interval="0.01" value="0.2" />
+    <form-row title={#Config.Selection.ActivationDelay.Title} description={#Config.Selection.ActivationDelay.Description}>
+        <slider track-width="300"
+                min="0"
+                max="1000"
+                interval="50"
+                value={<>ActivationDelayMs}
+                value-format={:^^FormatActivationDelay} />
     </form-row>
-    <form-row title="Thumbstick dead zone">
-        <slider track-width="300" min="0" max="1" interval="0.01" value="0.2" />
+    <form-row title={#Config.Selection.Remember.Title} description={#Config.Selection.Remember.Description}>
+        <checkbox is-checked={<>RememberSelection} />
+    </form-row>
+    <form-heading title={#Config.Sensitivity.Heading} />
+    <form-row title={#Config.Sensitivity.TriggerDeadZone.Title} description={#Config.Sensitivity.TriggerDeadZone.Description}>
+        <slider track-width="300"
+                min="0"
+                max="1"
+                interval="0.01"
+                value={<>TriggerDeadZone}
+                value-format={:^^FormatDeadZone} />
+    </form-row>
+    <form-row title={#Config.Sensitivity.ThumbstickDeadZone.Title} description={#Config.Sensitivity.ThumbstickDeadZone.Description}>
+        <slider track-width="300"
+                min="0"
+                max="1"
+                interval="0.01"
+                value={<>ThumbstickDeadZone}
+                value-format={:^^FormatDeadZone} />
     </form-row>
 </lane>
 
@@ -45,12 +64,32 @@
 
 <template name="form-row">
     <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
-        <panel layout="350px content">
-            <spacer layout="32px stretch" focusable="true" />
+        <frame layout="350px content">
             <label text={&title} tooltip={&description} />
-        </panel>
-        <outlet />
+        </frame>
+        <frame tooltip={&description}>
+            <outlet />
+        </frame>
     </lane>
+</template>
+
+<template name="enum-segments">
+    <frame background={@Mods/StardewUI/Sprites/MenuSlotTransparent} padding="4" tooltip="">
+        <segments balanced="true"
+                  highlight={@Mods/StardewUI/Sprites/White}
+                  highlight-tint="#39d"
+                  highlight-transition="150ms EaseOutQuart"
+                  separator={@Mods/StardewUI/Sprites/White}
+                  separator-tint="#c99"
+                  separator-width="2"
+                  selected-index={<>SelectedIndex}>
+            <label *repeat={Segments}
+                   margin="12, 8"
+                   bold={Selected}
+                   text={:Name}
+                   tooltip={:Description} />
+        </segments>
+    </frame>
 </template>
 
 <template name="mini-keybind">

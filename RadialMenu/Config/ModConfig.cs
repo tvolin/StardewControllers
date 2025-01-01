@@ -18,48 +18,6 @@ public partial class ModConfig
     private Styles style = new();
 }
 
-public partial class InputConfiguration
-{
-    [Notify]
-    private SButton inventoryMenuButton = SButton.LeftTrigger;
-
-    [Notify]
-    private SButton modMenuButton = SButton.RightTrigger;
-
-    [Notify]
-    private SButton previousPageButton = SButton.LeftShoulder;
-
-    [Notify]
-    private SButton nextPageButton = SButton.RightShoulder;
-
-    [Notify]
-    private SButton primaryActionButton = SButton.A;
-
-    [Notify]
-    private SButton secondaryActionButton = SButton.X;
-
-    [Notify]
-    private ThumbStickPreference thumbStickPreference = ThumbStickPreference.AlwaysLeft;
-
-    [Notify]
-    private MenuOpenMode openMode = MenuOpenMode.Toggle;
-
-    [Notify]
-    private DelayedActions delayedActions = DelayedActions.ToolSwitch;
-
-    [Notify]
-    private int activationDelayMs = 250;
-
-    [Notify]
-    private bool rememberSelection;
-
-    [Notify]
-    private float triggerDeadZone = 0.2f;
-
-    [Notify]
-    private float thumbstickDeadZone = 0.2f;
-}
-
 public enum MenuOpenMode
 {
     Hold,
