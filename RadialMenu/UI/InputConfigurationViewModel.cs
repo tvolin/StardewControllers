@@ -6,6 +6,8 @@ namespace RadialMenu.UI;
 internal partial class InputConfigurationViewModel
 {
     public EnumSegmentsViewModel<DelayedActions> DelayedActions { get; } = new();
+    public Func<float, string> FormatActivationDelay { get; } = v => $"{v:f0} ms";
+    public Func<float, string> FormatDeadZone { get; } = v => v.ToString("f2");
     public EnumSegmentsViewModel<MenuOpenMode> OpenMode { get; } = new();
     public EnumSegmentsViewModel<ThumbStickPreference> ThumbStickPreference { get; } = new();
 

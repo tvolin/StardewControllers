@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using PropertyChanged.SourceGenerator;
 
 namespace RadialMenu.Config;
 
@@ -9,25 +8,22 @@ namespace RadialMenu.Config;
 /// <remarks>
 /// All dimensions are in pixels unless otherwise specified.
 /// </remarks>
-public partial class Styles
+public class Styles
 {
     /// <summary>
     /// Background color of the inner area where a preview of the current selection is displayed.
     /// </summary>
-    [Notify]
-    private HexColor innerBackgroundColor = new(new Color(0.05f, 0.05f, 0.05f, 0.9f));
+    public HexColor InnerBackgroundColor { get; set; } = new(new Color(0.05f, 0.05f, 0.05f, 0.9f));
 
     /// <summary>
     /// Radius of the inner area where a preview of the current selection is displayed.
     /// </summary>
-    [Notify]
-    private float innerRadius = 300;
+    public float InnerRadius { get; set; } = 300;
 
     /// <summary>
     /// Background color of the outer area where menu items appear.
     /// </summary>
-    [Notify]
-    private HexColor outerBackgroundColor = new(new Color(0.91f, 0.73f, 0.49f, 0.9f));
+    public HexColor OuterBackgroundColor { get; set; } = new(new Color(0.91f, 0.73f, 0.49f, 0.9f));
 
     /// <summary>
     /// Radius of the outer area where menu items appear.
@@ -44,8 +40,7 @@ public partial class Styles
     /// than the configured <see cref="SelectionSpriteHeight"/>.
     /// </para>
     /// </remarks>
-    [Notify]
-    private float outerRadius = 110;
+    public float OuterRadius { get; set; } = 110;
 
     /// <summary>
     /// Contextual background color for the part of the outer menu that matches the player's current
@@ -53,16 +48,14 @@ public partial class Styles
     /// This is not an overlay color, the selection color completely replaces the
     /// <see cref="OuterBackgroundColor"/> for that slice.
     /// </summary>
-    [Notify]
-    private HexColor selectionColor = new(new Color(0.85f, 0.55f, 0.15f, 0.9f));
+    public HexColor SelectionColor { get; set; } = new(new Color(0.85f, 0.55f, 0.15f, 0.9f));
 
     /// <summary>
     /// Contextual background color for the part of the outer menu that is highlighted (focused).
     /// This is not an overlay color, the highlight completely replaces the
     /// <see cref="OuterBackgroundColor"/> for that slice.
     /// </summary>
-    [Notify]
-    private HexColor highlightColor = new(Color.RoyalBlue);
+    public HexColor HighlightColor { get; set; } = new(Color.RoyalBlue);
 
     /// <summary>
     /// Empty space between the inner circle and outer ring.
@@ -71,8 +64,7 @@ public partial class Styles
     /// The gap is not required for correct display; it is an aesthetic choice and can be removed
     /// entirely (set to <c>0</c>) if desired.
     /// </remarks>
-    [Notify]
-    private float gapWidth = 8;
+    public float GapWidth { get; set; } = 8;
 
     /// <summary>
     /// Suggested height of a sprite (icon) within the menu ring.
@@ -81,8 +73,7 @@ public partial class Styles
     /// Most sprites will typically be drawn with exactly this height; however, the height may be
     /// reduced in order to fit some sprites with very wide aspect ratios.
     /// </remarks>
-    [Notify]
-    private int menuSpriteHeight = 64;
+    public int MenuSpriteHeight { get; set; } = 64;
 
     /// <summary>
     /// Text color for the stack size displayed for stackable items. Generally applicable to the
@@ -93,15 +84,13 @@ public partial class Styles
     /// color represents the inner color and should therefore typically be a very light color, if
     /// not the default of <see cref="Color.White"/>.
     /// </remarks>
-    [Notify]
-    private HexColor stackSizeColor = new(Color.White);
+    public HexColor StackSizeColor { get; set; } = new(Color.White);
 
     /// <summary>
     /// Distance between the tip of the menu cursor (pointer showing the precise angle of the
     /// thumbstick) and the outer ring.
     /// </summary>
-    [Notify]
-    private float cursorDistance = 8;
+    public float CursorDistance { get; set; } = 8;
 
     /// <summary>
     /// Size of the cursor indicating the thumbstick angle.
@@ -110,14 +99,12 @@ public partial class Styles
     /// This is the height of the cursor when it is facing straight up. If the cursor is drawn as a
     /// simple triangle, it is the distance from base to tip.
     /// </remarks>
-    [Notify]
-    private float cursorSize = 32;
+    public float CursorSize { get; set; } = 32;
 
     /// <summary>
     /// Fill color for the cursor indicating the thumbstick angle.
     /// </summary>
-    [Notify]
-    private HexColor cursorColor = new(Color.LightGray);
+    public HexColor CursorColor { get; set; } = new(Color.LightGray);
 
     /// <summary>
     /// Height of the zoomed-in sprite displayed in the selection preview (inner circle). Typically
@@ -128,19 +115,16 @@ public partial class Styles
     /// preview area is assumed to have plenty of space to accommodate larger sprites, and therefore
     /// there are no explicit wideness checks.
     /// </remarks>
-    [Notify]
-    private int selectionSpriteHeight = 128;
+    public int SelectionSpriteHeight { get; set; } = 128;
 
     /// <summary>
     /// Color of the large title text displayed in the selection preview.
     /// </summary>
-    [Notify]
-    private HexColor selectionTitleColor = new(Color.White);
+    public HexColor SelectionTitleColor { get; set; } = new(Color.White);
 
     /// <summary>
     /// Color of the smaller description text displayed underneath the title in the selection
     /// preview.
     /// </summary>
-    [Notify]
-    private HexColor selectionDescriptionColor = new(Color.LightGray);
+    public HexColor SelectionDescriptionColor { get; set; } = new(Color.LightGray);
 }

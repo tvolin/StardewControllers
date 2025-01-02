@@ -34,7 +34,7 @@
                 max="1000"
                 interval="50"
                 value={<>ActivationDelayMs}
-                value-format={:^^FormatActivationDelay} />
+                value-format={:FormatActivationDelay} />
     </form-row>
     <form-row title={#Config.Selection.Remember.Title} description={#Config.Selection.Remember.Description}>
         <checkbox is-checked={<>RememberSelection} />
@@ -46,7 +46,7 @@
                 max="1"
                 interval="0.01"
                 value={<>TriggerDeadZone}
-                value-format={:^^FormatDeadZone} />
+                value-format={:FormatDeadZone} />
     </form-row>
     <form-row title={#Config.Sensitivity.ThumbstickDeadZone.Title} description={#Config.Sensitivity.ThumbstickDeadZone.Description}>
         <slider track-width="300"
@@ -54,7 +54,7 @@
                 max="1"
                 interval="0.01"
                 value={<>ThumbstickDeadZone}
-                value-format={:^^FormatDeadZone} />
+                value-format={:FormatDeadZone} />
     </form-row>
 </lane>
 

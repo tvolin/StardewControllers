@@ -3,48 +3,41 @@
 /// <summary>
 /// Configures the controller menu's interactions, including key bindings and activation behavior.
 /// </summary>
-public partial class InputConfiguration
+public class InputConfiguration
 {
     /// <summary>
     /// Button to open the inventory wheel during normal gameplay.
     /// </summary>
-
     public SButton InventoryMenuButton { get; set; } = SButton.LeftTrigger;
 
     /// <summary>
     /// Button to open the mod action wheel during normal gameplay.
     /// </summary>
-
     public SButton ModMenuButton { get; set; } = SButton.RightTrigger;
 
     /// <summary>
     /// Button to cycle to the previous page of any open wheel.
     /// </summary>
-
     public SButton PreviousPageButton { get; set; } = SButton.LeftShoulder;
 
     /// <summary>
     /// Button to cycle to the next page of any open wheel.
     /// </summary>
-
     public SButton NextPageButton { get; set; } = SButton.RightShoulder;
 
     /// <summary>
     /// Button to perform the primary action on the selected menu item (typically "use").
     /// </summary>
-
     public SButton PrimaryActionButton { get; set; } = SButton.ControllerA;
 
     /// <summary>
     /// Button to perform the secondary action on the selected menu item (typically "select").
     /// </summary>
-
     public SButton SecondaryActionButton { get; set; } = SButton.ControllerX;
 
     /// <summary>
     /// Selects which thumbstick is used to navigate the wheel after opening.
     /// </summary>
-
     public ThumbStickPreference ThumbStickPreference { get; set; } =
         ThumbStickPreference.AlwaysLeft;
 
@@ -52,14 +45,12 @@ public partial class InputConfiguration
     /// Whether the <see cref="InventoryMenuButton"/> or <see cref="ModMenu"/> are used to hold the
     /// menu open (default) or toggle it on/off.
     /// </summary>
-
     public MenuOpenMode OpenMode { get; set; } = MenuOpenMode.Hold;
 
     /// <summary>
     /// Specifies which actions chosen from the inventory/mod wheels should be delayed (blink)
     /// before being executed.
     /// </summary>
-
     public DelayedActions DelayedActions { get; set; } = DelayedActions.ToolSwitch;
 
     /// <summary>
@@ -67,7 +58,6 @@ public partial class InputConfiguration
     /// the selected item before the item activation completes. Only applies to actions meeting the
     /// <see cref="DelayedActions"/> criteria.
     /// </summary>
-
     public int ActivationDelayMs { get; set; } = 250;
 
     /// <summary>
@@ -78,7 +68,6 @@ public partial class InputConfiguration
     /// instead of resetting to the default (current backpack page for inventory, first page for
     /// custom menu).
     /// </remarks>
-
     public bool RememberSelection;
 
     /// <summary>
@@ -96,7 +85,6 @@ public partial class InputConfiguration
     /// <see cref="ModMenuButton"/> properties are set to use triggers.
     /// </para>
     /// </remarks>
-
     public float TriggerDeadZone { get; set; } = 0.2f;
 
     /// <summary>
@@ -113,6 +101,5 @@ public partial class InputConfiguration
     /// been moved.
     /// </para>
     /// </remarks>
-
     public float ThumbstickDeadZone { get; set; } = 0.2f;
 }
