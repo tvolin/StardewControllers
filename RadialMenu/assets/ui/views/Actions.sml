@@ -1,43 +1,49 @@
-<lane layout="stretch content" orientation="vertical">
-    <form-heading title="Inventory Menu" />
-    <form-row title="Page size">
-        <slider track-width="300" min="4" max="24" interval="1" value="12" />
+<lane *context={^Items} layout="stretch content" orientation="vertical" clip-size="stretch">
+    <form-heading title={#Config.Inventory.Heading} />
+    <form-row title={#Config.Inventory.PageSize.Title} description={#Config.Inventory.PageSize.Description}>
+        <slider track-width="300" min="4" max="24" interval="1" value={<>InventoryPageSize} />
     </form-row>
-    <form-row title="Show blanks">
-        <checkbox is-checked="true" />
+    <form-row title={#Config.Inventory.ShowBlanks.Title} description={#Config.Inventory.ShowBlanks.Description}>
+        <checkbox is-checked={<>ShowInventoryBlanks} />
     </form-row>
-    <form-heading title="Mod Menu" />
+    <form-heading title={#Config.ModMenu.Heading} />
     <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
-        <label margin="0, 0, 8, 0" text="Pages:" />
-        <button layout="48px 40px" margin="2, 0"><image layout="16px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:Number1} /></button>
-        <button layout="48px 40px" margin="2, 0"><image layout="16px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:Number2} /></button>
-        <button layout="48px 40px" margin="2, 0"><image layout="16px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:Number3} /></button>
-        <button layout="48px 40px" margin="2, 0"><image layout="16px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:Number4} /></button>
-        <button layout="48px 40px" margin="2, 0"><label color="#fff" text="+" shadow-offset="-2, 2" shadow-alpha="0.8" shadow-color="#333" /></button>
+        <label margin="0, 0, 8, 0" text={#Config.ModMenu.Pages.Title} tooltip={#Config.ModMenu.Pages.Description} />
+        <button *repeat={ModMenuPages}
+                layout="48px"
+                margin="2, 0"
+                default-background-tint={ButtonTint}
+                hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+                tooltip={#Config.ModMenu.Pages.Description}
+                left-click=|^SelectModMenuPage(Index)|>
+            <digits number={:Index} scale="3" />
+        </button>
+        <button layout="48px"
+                margin="2, 0"
+                hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+                tooltip={#Config.ModMenu.AddPage.Description}
+                left-click=|AddPage()|>
+            <label color="#fff" text="+" shadow-offset="-2, 2" shadow-alpha="0.8" shadow-color="#333" />
+        </button>
     </lane>
-    <label margin="16, 4, 0, 4" color="#666" text="Click on a slot below to edit or delete it, or click on the '+' slot to add a new item. To move items, press X or right-click." />
-    <grid layout="stretch content"
-          margin="16, 4"
-          item-layout="length: 80+"
-          item-spacing="0, 8"
-          horizontal-item-alignment="middle">
-        <mod-menu-slot icon={@Mods/focustense.RadialMenu/Sprites/UI:GamepadAlt} tooltip="Star Control Settings" />
-        <mod-menu-slot icon={@Item/(O)534} tooltip="Swap Rings" />
-        <mod-menu-slot icon={@Item/(O)911} tooltip="Summon Horse" />
-        <mod-menu-slot icon={@Item/(BC)42} tooltip="Event Lookup" />
-        <mod-menu-slot icon={@Item/(F)1402} tooltip="Calendar" />
-        <mod-menu-slot icon={@Item/(F)BulletinBoard} tooltip="Quest Board" />
-        <mod-menu-slot icon={@Item/(O)434} tooltip="Stardew Progress" />
-        <mod-menu-slot icon={@Item/(F)1543} tooltip="Data Layers" />
-        <mod-menu-slot icon={@Item/(F)2427} tooltip="Garbage In Garbage Can" />
-        <mod-menu-slot icon={@Item/(O)112} tooltip="Generic Mod Config Menu" />
-        <mod-menu-slot icon={@Item/(BC)130} tooltip="Convenient Inventory - Quick Stack" />
-        <mod-menu-slot icon={@Item/(F)1545} tooltip="NPC Location Compass" />
-        <mod-menu-slot icon={@Item/(O)128} tooltip="A Fishing Sea" />
-        <mod-menu-slot icon={@Mods/focustense.RadialMenu/Sprites/Cursors:BigPlus} tooltip="Add new item" />
-    </grid>
-    <form-heading title="Quick Actions" />
-    <label margin="16, 4, 0, 4" color="#666" text="Set your most frequently used tools and consumables here. To activate, press the associated button while the pie menu is open and nothing is selected." />
+    <label margin="16, 4, 0, 4" color="#666" text={#Config.ModMenu.Items.Help} />
+    <panel margin="16, 4">
+        <grid *repeat={ModMenuPages}
+              layout="stretch content"
+              item-layout="length: 80+"
+              item-spacing="0, 8"
+              horizontal-item-alignment="middle"
+              pointer-events-enabled={Selected}
+              transform={Transform}
+              +transition:transform="100ms EaseOutCubic"
+              visibility={Visible}>
+            <mod-menu-slot icon={@Mods/focustense.RadialMenu/Sprites/UI:GamepadAlt} tooltip="Star Control Settings" />
+            <mod-menu-slot *repeat={Items} id={:Id} icon={Icon} tooltip={Name} />
+            <mod-menu-slot icon={@Mods/focustense.RadialMenu/Sprites/Cursors:BigPlus} tooltip="Add new item" />
+        </grid>
+    </panel>
+    <form-heading title={#Config.QuickActions.Heading} />
+    <label margin="16, 4, 0, 4" color="#666" text={#Config.QuickActions.Items.Help} />
     <lane layout="stretch content" margin="12, 4, 12, 4">
         <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadLeft} icon={@Item/(O)287} tooltip="Bomb" />
         <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadUp} icon={@Item/(T)Pickaxe} tooltip="Pickaxe" />
@@ -78,7 +84,8 @@
            background={@Mods/StardewUI/Sprites/MenuBackground}
            border={@Mods/StardewUI/Sprites/MenuSlotTransparent}
            focusable="true"
-           tooltip={&tooltip}>
+           tooltip={&tooltip}
+           left-click=|~ItemsConfigurationViewModel.EditModMenuItem(&id)|>
         <image layout="64px"
                horizontal-alignment="middle"
                vertical-alignment="middle"

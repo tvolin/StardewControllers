@@ -13,6 +13,7 @@
     <None Remove="assets\ui\views\Actions.sml" />
     <None Remove="assets\ui\views\Configuration.sml" />
     <None Remove="assets\ui\views\Controls.sml" />
+    <None Remove="assets\ui\views\ModMenuItem.sml" />
     <None Remove="assets\ui\views\Style.sml" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\ui\views\Controls.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\ModMenuItem.sml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\ui\views\Style.sml">

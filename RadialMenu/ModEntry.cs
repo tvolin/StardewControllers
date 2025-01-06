@@ -22,8 +22,6 @@ public class ModEntry : Mod
     private readonly PageRegistry pageRegistry = new();
     private readonly PerScreen<PlayerState> playerState;
 
-    private IViewEngine? viewEngine;
-
     // Painter doesn't actually need to be per-screen in order to have correct output, but it does
     // some caching related to its current items/selection, so giving the same painter inputs from
     // different players would slow performance for both of them.
@@ -96,6 +94,7 @@ public class ModEntry : Mod
 
     public override void Entry(IModHelper helper)
     {
+        Logger.Monitor = Monitor;
         config = Helper.ReadConfig<LegacyModConfig>();
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
@@ -144,7 +143,7 @@ public class ModEntry : Mod
         LoadGmcmKeybindings();
         RegisterConfigMenu();
 
-        viewEngine = Helper.ModRegistry.GetApi<IViewEngine>("focustense.StardewUI");
+        var viewEngine = Helper.ModRegistry.GetApi<IViewEngine>("focustense.StardewUI");
         if (viewEngine is null)
         {
             Monitor.Log(
@@ -159,6 +158,8 @@ public class ModEntry : Mod
 #if DEBUG
         viewEngine.EnableHotReloadingWithSourceSync();
 #endif
+        ViewEngine.Instance = viewEngine;
+        ViewEngine.ViewAssetPrefix = $"Mods/{ModManifest.UniqueID}/Views";
     }
 
     private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
@@ -275,13 +276,14 @@ public class ModEntry : Mod
 
     private void Input_ButtonsChanged(object? sender, ButtonsChangedEventArgs e)
     {
-        if (Context.IsPlayerFree && e.Pressed.Contains(SButton.F10) && viewEngine is not null)
+        if (
+            Context.IsPlayerFree
+            && e.Pressed.Contains(SButton.F10)
+            && ViewEngine.Instance is not null
+        )
         {
             var context = new ConfigurationViewModel(new(), ModManifest.UniqueID);
-            Game1.activeClickableMenu = viewEngine.CreateMenuFromAsset(
-                $"Mods/{ModManifest.UniqueID}/Views/Configuration",
-                context
-            );
+            ViewEngine.OpenChildMenu("Configuration", context);
             return;
         }
 

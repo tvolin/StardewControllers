@@ -7,6 +7,7 @@ namespace RadialMenu.UI;
 internal partial class ConfigurationViewModel
 {
     public InputConfigurationViewModel Input { get; } = new();
+    public ItemsConfigurationViewModel Items { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
 
     public List<NavPageViewModel> Pages { get; }
@@ -78,6 +79,9 @@ internal partial class ConfigurationViewModel
     private void OnContentPanelSizeChanged()
     {
         UpdatePageTransforms();
+        // Explicitly assigning it here, as opposed to passing in a selector to the constructor, guarantees that the
+        // property change event will fire for the dependent models as well.
+        Items.ContentPanelSize = ContentPanelSize;
     }
 
     private void OnSelectedPageIndexChanged()

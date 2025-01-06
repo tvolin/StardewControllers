@@ -33,6 +33,9 @@
     },
     "Number9": {
       "SourceRect": "537, 136, 7, 8"
+    },
+    "LuckBuff": {
+      "SourceRect": "50, 428, 10, 10"
     }
   }
 }

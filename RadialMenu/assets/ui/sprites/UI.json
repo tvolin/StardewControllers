@@ -18,6 +18,9 @@
     "GamepadAlt": {
       "SourceRect": "80, 0, 16, 16"
     },
+    "MagnifyingGlass": {
+      "SourceRect": "96, 0, 16, 16"
+    },
     "GamepadUp": {
       "SourceRect": "0, 16, 16, 16"
     },
@@ -69,7 +72,7 @@
     "KeyboardBlank": {
       "SourceRect": "1, 49, 13, 14",
       "FixedEdges": "4, 3, 4, 5",
-      "Scale": 4
+      "Scale": 2
     },
     "MouseButtonLeft": {
       "SourceRect": "16, 48, 16, 16"
