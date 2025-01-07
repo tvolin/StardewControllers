@@ -256,7 +256,7 @@ internal partial class ModMenuItemConfigurationViewModel
 {
     public string Id { get; }
     public Sprite Icon =>
-        (IconType.SelectedValue == ItemIconType.Item ? iconFromItemId : CustomIcon)
+        (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
         ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
     public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
     public EnumSegmentsViewModel<ItemIconType> IconType { get; } = new();
@@ -296,6 +296,16 @@ internal partial class ModMenuItemConfigurationViewModel
         IconType.ValueChanged += IconType_ValueChanged;
         this.allItems = allItems;
         UpdateRawSearchResults();
+    }
+
+    public void SetIconFromSearchResults(Vector2 position)
+    {
+        SearchResults.ScrollToPoint(position);
+        if (SearchResults.SelectedItem?.QualifiedItemId is { } id && id != IconItemId)
+        {
+            Game1.playSound("smallSelect");
+            IconItemId = id;
+        }
     }
 
     private async Task<ParsedItemData[]> GetRawSearchResults(CancellationToken cancellationToken)

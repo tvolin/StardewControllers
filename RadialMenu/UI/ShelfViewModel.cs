@@ -9,6 +9,11 @@ internal partial class ShelfViewModel<T>
 
     private static readonly Transform DefaultTransform = new(Vector2.Zero);
 
+    public T? SelectedItem => items.Count > 0 ? items[SelectedIndex] : default;
+
+    [Notify]
+    private Vector2 layoutSize;
+
     [Notify]
     private int selectedIndex;
 
@@ -67,7 +72,7 @@ internal partial class ShelfViewModel<T>
         var itemStartIndex = selectedIndex - visibleCenterIndex;
         for (int i = 0; i < visibleItems.Length; i++)
         {
-            var item = GetItemAt(itemStartIndex + i);
+            var item = GetItemAtIndex(itemStartIndex + i);
             visibleItems[i] = new(item) { Transform = GetItemTransform(i - visibleCenterIndex) };
         }
         this.visibleItems = new(visibleItems);
@@ -90,18 +95,23 @@ internal partial class ShelfViewModel<T>
         }
     }
 
-    public void MoveNext()
+    public void MoveNext(bool withSound = true)
     {
         if (items.Count <= 1)
         {
             return;
         }
-        Game1.playSound("shiny4");
+        if (withSound)
+        {
+            Game1.playSound("shiny4");
+        }
         selectedIndex = (selectedIndex + 1) % items.Count;
         if (allowDuplication)
         {
             VisibleItems.RemoveAt(0);
-            var trailingItem = GetItemAt(selectedIndex + visibleItems.Count - visibleCenterIndex);
+            var trailingItem = GetItemAtIndex(
+                selectedIndex + visibleItems.Count - visibleCenterIndex
+            );
             VisibleItems.Add(new(trailingItem));
         }
         else
@@ -111,18 +121,21 @@ internal partial class ShelfViewModel<T>
         UpdateTransforms();
     }
 
-    public void MovePrevious()
+    public void MovePrevious(bool withSound = true)
     {
         if (items.Count <= 1)
         {
             return;
         }
-        Game1.playSound("shiny4");
+        if (withSound)
+        {
+            Game1.playSound("shiny4");
+        }
         selectedIndex = (selectedIndex - 1 + items.Count) % items.Count;
         if (allowDuplication)
         {
             VisibleItems.RemoveAt(VisibleItems.Count - 1);
-            var leadingItem = GetItemAt(selectedIndex - visibleCenterIndex);
+            var leadingItem = GetItemAtIndex(selectedIndex - visibleCenterIndex);
             VisibleItems.Insert(0, new(leadingItem));
         }
         else
@@ -132,7 +145,29 @@ internal partial class ShelfViewModel<T>
         UpdateTransforms();
     }
 
-    private T GetItemAt(int index)
+    public void ScrollToPoint(Vector2 position)
+    {
+        var x = position.X - layoutSize.X / 2;
+        var firstItemDistance = itemDistance / 2 + centerMargin;
+        if (x >= -firstItemDistance && x <= firstItemDistance)
+        {
+            return;
+        }
+        var absDistance = (int)((MathF.Abs(x) - firstItemDistance) / itemDistance) + 1;
+        for (int i = 0; i < absDistance; i++)
+        {
+            if (x > 0)
+            {
+                MoveNext(withSound: false);
+            }
+            else
+            {
+                MovePrevious(withSound: false);
+            }
+        }
+    }
+
+    private T GetItemAtIndex(int index)
     {
         var validIndex = (index + items.Count) % items.Count;
         return items[validIndex];

@@ -85,8 +85,12 @@
                    vertical-content-alignment="middle"
                    clip-origin="middle middle"
                    clip-size="95% stretch"
-                   button-press=|HandleButton($Button)|>
+                   outer-size={>LayoutSize}
+                   button-press=|HandleButton($Button)|
+                   button-repeat=|HandleButton($Button)|
+                   left-click=|^^SetIconFromSearchResults($Position)|>
                 <frame layout="80px"
+                       margin="2, 0, 0, 0"
                        padding="8"
                        background={@Mods/StardewUI/Sprites/MenuSlotInset}
                        background-tint="#def"
