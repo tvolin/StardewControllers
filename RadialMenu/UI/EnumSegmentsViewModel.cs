@@ -12,6 +12,11 @@ namespace RadialMenu.UI;
 public partial class EnumSegmentsViewModel<T>() : INotifyPropertyChanged
     where T : struct, Enum
 {
+    /// <summary>
+    /// Raised when the <see cref="SelectedValue"/> changes.
+    /// </summary>
+    public event EventHandler? ValueChanged;
+
     private static readonly T[] AllValues = Enum.GetValues<T>();
 
     /// <summary>
@@ -51,6 +56,7 @@ public partial class EnumSegmentsViewModel<T>() : INotifyPropertyChanged
     {
         Segments[oldValue].Selected = false;
         Segments[newValue].Selected = true;
+        ValueChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

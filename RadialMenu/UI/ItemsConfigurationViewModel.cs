@@ -14,6 +14,21 @@ internal partial class ItemsConfigurationViewModel
             ? ModMenuPages[SelectedPageIndex]
             : null;
 
+    private readonly Task<ParsedItemData[]> allItems = Task.Run(
+        () =>
+            ItemRegistry
+                .ItemTypes.SelectMany(t =>
+                    t.GetAllIds()
+                        .OrderBy(id =>
+                            int.TryParse(id, out var numericId) ? numericId : int.MaxValue
+                        )
+                        .ThenBy(id => id)
+                        .Select(id => t.Identifier + id)
+                )
+                .Select(ItemRegistry.GetDataOrErrorItem)
+                .ToArray()
+    );
+
     public ItemsConfigurationViewModel()
     {
         // Temporary - dummy config.
@@ -24,73 +39,73 @@ internal partial class ItemsConfigurationViewModel
             {
                 Items =
                 [
-                    new("1")
+                    new("1", allItems)
                     {
                         Name = "Swap Rings",
                         IconItemId = "(O)534",
                         Keybind = new(SButton.Z),
                     },
-                    new("2")
+                    new("2", allItems)
                     {
                         Name = "Summon Horse",
                         IconItemId = "(O)911",
                         Keybind = new(SButton.H),
                     },
-                    new("3")
+                    new("3", allItems)
                     {
                         Name = "Event Lookup",
                         IconItemId = "(BC)42",
                         Keybind = new(SButton.N),
                     },
-                    new("4")
+                    new("4", allItems)
                     {
                         Name = "Calendar",
                         IconItemId = "(F)1402",
                         Keybind = new(SButton.B),
                     },
-                    new("5")
+                    new("5", allItems)
                     {
                         Name = "Quest Board",
                         IconItemId = "(F)BulletinBoard",
                         Keybind = new(SButton.Q),
                     },
-                    new("6")
+                    new("6", allItems)
                     {
                         Name = "Stardew Progress",
                         IconItemId = "(O)434",
                         Keybind = new(SButton.F3),
                     },
-                    new("7")
+                    new("7", allItems)
                     {
                         Name = "Data Layers",
                         IconItemId = "(F)1543",
                         Keybind = new(SButton.F2),
                     },
-                    new("8")
+                    new("8", allItems)
                     {
                         Name = "Garbage In Garbage Can",
                         IconItemId = "(F)2427",
                         Keybind = new(SButton.G),
                     },
-                    new("9")
+                    new("9", allItems)
                     {
                         Name = "Generic Mod Config Menu",
                         IconItemId = "(O)112",
                         Keybind = new(SButton.LeftShift, SButton.F8),
                     },
-                    new("10")
+                    new("10", allItems)
                     {
                         Name = "Quick Stack",
                         IconItemId = "(BC)130",
                         Keybind = new(SButton.K),
                     },
-                    new("11")
+                    new("11", allItems)
                     {
                         Name = "NPC Location Compass",
                         IconItemId = "(F)1545",
                         Keybind = new(SButton.LeftAlt),
                     },
-                    new("12")
+                    new("12", allItems)
                     {
                         Name = "Toggle Fishing Overlays",
                         IconItemId = "(O)128",
@@ -237,18 +252,14 @@ internal enum ItemSyncType
     Gmcm,
 }
 
-internal partial class ModMenuItemConfigurationViewModel(string id)
+internal partial class ModMenuItemConfigurationViewModel
 {
-    // Extra hidden elements to include on either side of search results.
-    private const int VISIBLE_RESULT_BUFFER_SIZE = 2;
-
-    // Maximum number of results that should be visible in a non-transient state.
-    private const int VISIBLE_RESULT_COUNT = 5;
-
-    public string Id { get; } = id;
+    public string Id { get; }
     public Sprite Icon =>
-        (IconType == ItemIconType.Item ? iconFromItemId : CustomIcon)
+        (IconType.SelectedValue == ItemIconType.Item ? iconFromItemId : CustomIcon)
         ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
+    public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
+    public EnumSegmentsViewModel<ItemIconType> IconType { get; } = new();
 
     [Notify]
     private Sprite? customIcon;
@@ -263,46 +274,28 @@ internal partial class ModMenuItemConfigurationViewModel(string id)
     private Sprite? iconFromItemId;
 
     [Notify]
-    private ItemIconType iconType = ItemIconType.Item;
-
-    [Notify]
     private string? iconItemId = null;
 
     [Notify]
     private string name = "";
 
     [Notify]
-    private ObservableCollection<ModMenuItemIconSearchResultViewModel> searchResults = [];
+    private ShelfViewModel<ParsedItemData> searchResults = ShelfViewModel<ParsedItemData>.Empty;
 
     [Notify]
     private string searchText = "";
 
-    [Notify]
-    private ItemSyncType syncType = ItemSyncType.None;
+    private readonly Task<ParsedItemData[]> allItems;
+    private readonly object searchLock = new();
 
     private CancellationTokenSource searchCancellationTokenSource = new();
 
-    private readonly Task<ParsedItemData[]> allItems = Task.Run(
-        () =>
-            ItemRegistry
-                .ItemTypes.SelectMany(t => t.GetAllIds())
-                .AsParallel()
-                .WithDegreeOfParallelism(2)
-                .Select(ItemRegistry.GetDataOrErrorItem)
-                .ToArray()
-    );
-    private readonly object searchLock = new();
-
-    private ParsedItemData[] rawSearchResults = [];
-    private int searchResultIndex = -1;
-
-    public void AdvanceSearchResult(int step)
+    public ModMenuItemConfigurationViewModel(string id, Task<ParsedItemData[]> allItems)
     {
-        if (rawSearchResults.Length == 0)
-        {
-            return;
-        }
-        Game1.playSound("shiny4");
+        Id = id;
+        IconType.ValueChanged += IconType_ValueChanged;
+        this.allItems = allItems;
+        UpdateRawSearchResults();
     }
 
     private async Task<ParsedItemData[]> GetRawSearchResults(CancellationToken cancellationToken)
@@ -337,6 +330,11 @@ internal partial class ModMenuItemConfigurationViewModel(string id)
         }
     }
 
+    private void IconType_ValueChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(new(nameof(Icon)));
+    }
+
     private void OnIconItemIdChanged()
     {
         if (!string.IsNullOrEmpty(IconItemId))
@@ -344,6 +342,11 @@ internal partial class ModMenuItemConfigurationViewModel(string id)
             var data = ItemRegistry.GetDataOrErrorItem(IconItemId);
             IconFromItemId = new(data.GetTexture(), data.GetSourceRect());
         }
+    }
+
+    private void OnSearchTextChanged()
+    {
+        UpdateRawSearchResults();
     }
 
     private void UpdateRawSearchResults()
@@ -360,60 +363,23 @@ internal partial class ModMenuItemConfigurationViewModel(string id)
             }
             lock (searchLock)
             {
-                rawSearchResults = t.Result;
+                var previousIconItemId = IconItemId; // Save for thread safety
+                var selectedIndex = !string.IsNullOrEmpty(previousIconItemId)
+                    ? Math.Max(
+                        Array.FindIndex(t.Result, r => r.QualifiedItemId == previousIconItemId),
+                        0
+                    )
+                    : 0;
+                SearchResults = new(
+                    t.Result,
+                    visibleSize: 5,
+                    bufferSize: 2,
+                    centerMargin: 20,
+                    itemDistance: 80,
+                    initialSelectedIndex: selectedIndex
+                );
             }
-            UpdateVisibleSearchResults();
         });
-    }
-
-    private void UpdateVisibleSearchResults()
-    {
-        var previousIconItemId = IconItemId; // Save for thread safety
-        lock (searchLock)
-        {
-            if (rawSearchResults.Length == 0)
-            {
-                SearchResults.Clear();
-                return;
-            }
-            searchResultIndex = !string.IsNullOrEmpty(previousIconItemId)
-                ? Array.FindIndex(rawSearchResults, r => r.QualifiedItemId == previousIconItemId)
-                : 0;
-            var visibleResultCount = Math.Min(
-                rawSearchResults.Length,
-                VISIBLE_RESULT_COUNT + VISIBLE_RESULT_BUFFER_SIZE * 2
-            );
-            var visibleResults = new ModMenuItemIconSearchResultViewModel[visibleResultCount];
-            var midIndex = (visibleResultCount - 1) / 2;
-            visibleResults[midIndex] = new(rawSearchResults[searchResultIndex]);
-            var perSideCount = Math.Min(
-                visibleResultCount / 2,
-                VISIBLE_RESULT_COUNT / 2 + VISIBLE_RESULT_BUFFER_SIZE
-            );
-            for (int i = 1; i < perSideCount; i++)
-            {
-                var visibleIndexAfter = midIndex + 1;
-                if (visibleIndexAfter < visibleResults.Length)
-                {
-                    var sourceIndexAfter = (searchResultIndex + i) % rawSearchResults.Length;
-                    visibleResults[visibleIndexAfter] = new(
-                        rawSearchResults[sourceIndexAfter],
-                        20 + i * 80
-                    );
-                }
-                var visibleIndexBefore = midIndex - 1;
-                if (visibleIndexBefore >= 0)
-                {
-                    var sourceIndexBefore =
-                        (searchResultIndex - i + rawSearchResults.Length) % rawSearchResults.Length;
-                    visibleResults[visibleIndexBefore] = new(
-                        rawSearchResults[sourceIndexBefore],
-                        -20 - i * 80
-                    );
-                }
-            }
-            SearchResults = new(visibleResults);
-        }
     }
 }
 
