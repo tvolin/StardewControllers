@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Gmcm;
 using StardewModdingAPI.Utilities;
 using StardewValley.ItemTypeDefinitions;
 
@@ -258,14 +259,18 @@ internal partial class ModMenuItemConfigurationViewModel
     public Sprite Icon =>
         (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
         ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
-    public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
     public EnumSegmentsViewModel<ItemIconType> IconType { get; } = new();
+    public bool IsGmcmSyncVisible => SyncType.SelectedValue == ItemSyncType.Gmcm;
+    public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
 
     [Notify]
     private Sprite? customIcon;
 
     [Notify]
     private string description = "";
+
+    [Notify]
+    private GmcmSyncSettingsViewModel? gmcmSync;
 
     [Notify]
     private Keybind keybind = new();
@@ -293,6 +298,7 @@ internal partial class ModMenuItemConfigurationViewModel
     public ModMenuItemConfigurationViewModel(string id, Task<ParsedItemData[]> allItems)
     {
         Id = id;
+        SyncType.ValueChanged += SyncType_ValueChanged;
         IconType.ValueChanged += IconType_ValueChanged;
         this.allItems = allItems;
         UpdateRawSearchResults();
@@ -305,6 +311,30 @@ internal partial class ModMenuItemConfigurationViewModel
         {
             Game1.playSound("smallSelect");
             IconItemId = id;
+        }
+    }
+
+    private void GmcmSync_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (
+            e.PropertyName
+                is nameof(GmcmSyncSettingsViewModel.SelectedMod)
+                    or nameof(GmcmSyncSettingsViewModel.EnableTitleSync)
+            && GmcmSync?.SelectedMod is not null
+            && GmcmSync.EnableTitleSync
+        )
+        {
+            Name = GmcmSync.SelectedMod.Name;
+        }
+        else if (
+            e.PropertyName
+                is nameof(GmcmSyncSettingsViewModel.SelectedOption)
+                    or nameof(GmcmSyncSettingsViewModel.EnableDescriptionSync)
+            && GmcmSync?.SelectedOption is not null
+            && GmcmSync.EnableDescriptionSync
+        )
+        {
+            Description = GmcmSync.SelectedOption.SimpleName;
         }
     }
 
@@ -359,37 +389,53 @@ internal partial class ModMenuItemConfigurationViewModel
         UpdateRawSearchResults();
     }
 
+    private void SyncType_ValueChanged(object? sender, EventArgs e)
+    {
+        if (
+            SyncType.SelectedValue == ItemSyncType.Gmcm
+            && GenericModConfigKeybindings.Instance is not null
+        )
+        {
+            GmcmSync ??= new(GenericModConfigKeybindings.Instance);
+            GmcmSync.PropertyChanged += GmcmSync_PropertyChanged;
+        }
+        OnPropertyChanged(new(nameof(IsGmcmSyncVisible)));
+    }
+
     private void UpdateRawSearchResults()
     {
         searchCancellationTokenSource.Cancel();
         searchCancellationTokenSource = new();
         var cancellationToken = searchCancellationTokenSource.Token;
         var searchTask = Task.Run(() => GetRawSearchResults(cancellationToken), cancellationToken);
-        searchTask.ContinueWith(t =>
-        {
-            if (t.IsFaulted)
+        searchTask.ContinueWith(
+            t =>
             {
-                Logger.Log($"Failed searching for items: {t.Exception}", LogLevel.Error);
-            }
-            lock (searchLock)
-            {
-                var previousIconItemId = IconItemId; // Save for thread safety
-                var selectedIndex = !string.IsNullOrEmpty(previousIconItemId)
-                    ? Math.Max(
-                        Array.FindIndex(t.Result, r => r.QualifiedItemId == previousIconItemId),
-                        0
-                    )
-                    : 0;
-                SearchResults = new(
-                    t.Result,
-                    visibleSize: 5,
-                    bufferSize: 2,
-                    centerMargin: 20,
-                    itemDistance: 80,
-                    initialSelectedIndex: selectedIndex
-                );
-            }
-        });
+                if (t.IsFaulted)
+                {
+                    Logger.Log($"Failed searching for items: {t.Exception}", LogLevel.Error);
+                }
+                lock (searchLock)
+                {
+                    var previousIconItemId = IconItemId; // Save for thread safety
+                    var selectedIndex = !string.IsNullOrEmpty(previousIconItemId)
+                        ? Math.Max(
+                            Array.FindIndex(t.Result, r => r.QualifiedItemId == previousIconItemId),
+                            0
+                        )
+                        : 0;
+                    SearchResults = new(
+                        t.Result,
+                        visibleSize: 5,
+                        bufferSize: 2,
+                        centerMargin: 20,
+                        itemDistance: 80,
+                        initialSelectedIndex: selectedIndex
+                    );
+                }
+            },
+            cancellationToken
+        );
     }
 }
 

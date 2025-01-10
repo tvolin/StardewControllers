@@ -478,7 +478,8 @@ public class ModEntry : Mod
         Monitor.Log("Generic Mod Config Menu is loaded; reading keybindings.", LogLevel.Info);
         try
         {
-            gmcmKeybindings = GenericModConfigKeybindings.Load();
+            GenericModConfigKeybindings.Instance = gmcmKeybindings =
+                GenericModConfigKeybindings.Load();
             Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
             if (config.DumpAvailableKeyBindingsOnStartup)
             {

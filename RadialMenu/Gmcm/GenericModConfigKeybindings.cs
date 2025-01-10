@@ -12,7 +12,7 @@ internal record GenericModConfigKeybindOption(
     Func<string> GetSectionTitle,
     Func<string> GetFieldName,
     Func<string> GetTooltip,
-    Func<IEnumerable<SButton>> GetCurrentBinding
+    Func<Keybind> GetCurrentBinding
 )
 {
     // Used for GMCM; not displayed in UI.
@@ -37,19 +37,16 @@ internal record GenericModConfigKeybindOption(
         }
     }
 
-    public bool MatchesBinding(IEnumerable<SButton> otherBinding)
-    {
-        return GetCurrentBinding().SequenceEqual(otherBinding);
-    }
-
     public bool MatchesBinding(Keybind? otherBinding)
     {
-        return otherBinding is not null && MatchesBinding(otherBinding.Buttons);
+        return GetCurrentBinding().Equals(otherBinding);
     }
 }
 
 internal class GenericModConfigKeybindings
 {
+    public static GenericModConfigKeybindings? Instance { get; set; }
+
     public static GenericModConfigKeybindings Load()
     {
         var allOptions = new List<GenericModConfigKeybindOption>();
@@ -64,15 +61,12 @@ internal class GenericModConfigKeybindings
                     {
                         getSectionTitle = sectionTitle.Name;
                     }
-                    Func<IEnumerable<SButton>>? getValue = option switch
+                    Func<Keybind>? getValue = option switch
                     {
-                        SimpleModOption<SButton> buttonOption => () => [buttonOption.GetValue()],
+                        SimpleModOption<SButton> buttonOption => () => new(buttonOption.GetValue()),
                         SimpleModOption<KeybindList> keybindListOption => () =>
-                            keybindListOption
-                                .GetValue()
-                                ?.Keybinds.Where(kb => kb.IsBound)
-                                .FirstOrDefault()
-                                ?.Buttons ?? [],
+                            keybindListOption.GetValue()?.Keybinds.FirstOrDefault(kb => kb.IsBound)
+                            ?? new(),
                         _ => null,
                     };
                     if (getValue is not null)
@@ -98,14 +92,14 @@ internal class GenericModConfigKeybindings
     public IReadOnlyDictionary<string, IManifest> AllMods { get; }
     public IReadOnlyList<GenericModConfigKeybindOption> AllOptions { get; }
 
-    private readonly ILookup<
-        (string, string),
-        GenericModConfigKeybindOption
-    > optionsByModAndFieldName = EmptyLookup<(string, string), GenericModConfigKeybindOption>();
     private readonly Dictionary<
         (string, string),
         GenericModConfigKeybindOption
-    > optionsByModAndFieldId = [];
+    > optionsByModAndFieldId;
+    private readonly ILookup<
+        (string, string),
+        GenericModConfigKeybindOption
+    > optionsByModAndFieldName;
 
     private GenericModConfigKeybindings(IReadOnlyList<GenericModConfigKeybindOption> allOptions)
     {

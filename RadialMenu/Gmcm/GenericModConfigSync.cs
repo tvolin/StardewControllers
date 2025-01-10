@@ -1,5 +1,4 @@
 ﻿using RadialMenu.Config;
-using StardewModdingAPI;
 
 namespace RadialMenu.Gmcm;
 
@@ -42,7 +41,7 @@ internal class GenericModConfigSync(
         }
         gmcm.FieldId = keybindOption.FieldId;
         gmcm.FieldName = keybindOption.UniqueFieldName;
-        item.Keybind = new(keybindOption.GetCurrentBinding().ToArray());
+        item.Keybind = keybindOption.GetCurrentBinding();
         monitor.Log($"Synced GMCM keybinding for item '{item.Name}'.", LogLevel.Info);
     }
 

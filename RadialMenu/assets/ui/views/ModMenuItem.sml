@@ -8,13 +8,85 @@
                 <label margin="0, 8, 0, 0"
                        font="dialogue"
                        horizontal-alignment="middle"
+                       max-lines="1"
                        shadow-alpha="0.3"
                        shadow-color="#3339"
                        shadow-offset="-4, 4"
                        text={Name} />
                 <label margin="0, 8, 0, 0"
                        horizontal-alignment="middle"
+                       max-lines="2"
                        text={Description} />
+            </lane>
+        </frame>
+    </frame>
+    <frame *float="after; 8, 0" layout="350px stretch" clip-size="400px stretch">
+        <frame *context={GmcmSync}
+               padding="24"
+               background={@Mods/StardewUI/Sprites/ControlBorder}
+               opacity="0"
+               transform="translateX: -350"
+               +state:enabled={IsGmcmSyncVisible}
+               +state:enabled:opacity="1"
+               +state:enabled:transform=""
+               +transition:opacity="150ms"
+               +transition:transform="200ms EaseOutQuart">
+            <lane layout="stretch content" orientation="vertical">
+                <label font="dialogue" text="GMCM Sync" shadow-alpha="0.5" shadow-offset="-3, 3" />
+                <image layout="stretch 4px"
+                       margin="0, 8"
+                       fit="stretch"
+                       sprite={@Mods/StardewUI/Sprites/ThinHorizontalDivider}
+                       tint="#8888" />
+                <lane vertical-content-alignment="middle">
+                    <label margin="0, 0, 8, 0" text="Mod:" />
+                    <dropdown options={:AvailableMods}
+                              option-format={:FormatModName}
+                              option-max-lines="3"
+                              selection-frame-layout="stretch content"
+                              selected-option={<>SelectedMod}
+                              tooltip={#Config.ModMenuItem.Gmcm.Mod.Description} />
+                </lane>
+                <checkbox margin="0, 4"
+                          label-text={#Config.ModMenuItem.Gmcm.SyncName.Title}
+                          tooltip={#Config.ModMenuItem.Gmcm.SyncName.Description}
+                          is-checked={<>EnableTitleSync} />
+                <checkbox margin="0, 4"
+                          label-text={#Config.ModMenuItem.Gmcm.SyncDetails.Title}
+                          tooltip={#Config.ModMenuItem.Gmcm.SyncDetails.Description}
+                          is-checked={<>EnableDescriptionSync} />
+                <image layout="stretch 4px"
+                       margin="0, 8"
+                       fit="stretch"
+                       sprite={@Mods/StardewUI/Sprites/ThinHorizontalDivider}
+                       tint="#8888" />
+                <frame layout="stretch content"
+                       background={@Mods/StardewUI/Sprites/White}
+                       background-tint="#8888"
+                       border={@Mods/StardewUI/Sprites/WhiteBorder}
+                       border-tint="#c60"
+                       padding="8, 4">
+                    <scrollable layout="stretch" scrollbar-margin="32, 0, 0, -32">
+                        <lane layout="stretch content" orientation="vertical">
+                            <lane *repeat={AvailableOptions}
+                                  layout="stretch content"
+                                  margin="0, 4"
+                                  vertical-content-alignment="middle">
+                                <image layout="48px 32px"
+                                       sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:TargetBlue}
+                                       shadow-alpha="0.5"
+                                       shadow-offset="-1, 2"
+                                       opacity="0"
+                                       +state:selected={Selected}
+                                       +state:selected:opacity="1"
+                                       +transition:opacity="100ms" />
+                                <label text={:DisplayName}
+                                       +hover:bold="true"
+                                       left-click=|^SelectOption(this)| />
+                            </lane>
+                        </lane>
+                    </scrollable>
+                </frame>
             </lane>
         </frame>
     </frame>

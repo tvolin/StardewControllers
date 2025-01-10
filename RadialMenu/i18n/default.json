@@ -1,12 +1,12 @@
 {
-  // Config menu - navigation
+  // Config menu - Navigation
   "Config.Tab.Controls.Title": "Controls",
   "Config.Tab.Style.Title": "Style",
   "Config.Tab.Actions.Title": "Actions",
   "Config.Tab.Mods.Title": "Mods",
   "Config.Tab.Debug.Title": "Debug",
 
-  // Config menu - controls page
+  // Config menu - Controls page
   "Config.Keybind.Heading": "Button Mapping",
   "Config.Keybind.Inventory.Title": "Item Wheel",
   "Config.Keybind.Inventory.Description": "Which button shows the item wheel for selecting/using items in your backpack.",
@@ -37,7 +37,7 @@
   "Config.Sensitivity.ThumbstickDeadZone.Title": "Thumbstick Dead Zone",
   "Config.Sensitivity.ThumbstickDeadZone.Description": "Corrects for inaccuracy or drift on thumbsticks for many controllers.",
 
-  // Config menu - style page
+  // Config menu - Style page
   "Config.Layout.Heading": "Layout",
   "Config.Layout.InnerRadius.Title": "Inner (spotlight) radius",
   "Config.Layout.InnerRadius.Description": "Radius of the inner circle showing detailed item info.",
@@ -71,7 +71,7 @@
   "Config.Palette.ItemCount.Title": "Item count",
   "Config.Palette.ItemCount.Description": "Text color for the quantity associated with the item, e.g. the stack size in the player inventory, or remaining times a limited mod action can be used.",
 
-  // Config menu - actions page
+  // Config menu - Actions page
   "Config.Inventory.Heading": "Inventory Menu",
   "Config.Inventory.PageSize.Title": "Page Size",
   "Config.Inventory.PageSize.Description": "Maximum number of items to show on a single page of the inventory wheel. Empty backpack slots are counted against the limit. The default of 12 is the same as the vanilla toolbar.",
@@ -87,9 +87,16 @@
   "Config.QuickActions.Items.Help": "Set your most frequently used tools and consumables here. To activate, press the associated button while the wheel is open and nothing is selected.",
   "Config.QuickActions.EmptySlot.Title": "Unassigned",
 
-  // Config menu - mod menu item editor
+  // Config menu - Mod menu item editor
   "Config.ModMenuItem.SyncType.Title": "Sync",
   "Config.ModMenuItem.SyncType.Description": "Choose how to sync this item's settings - such as title, description and keys - with another mod.",
+  "Config.ModMenuItem.Gmcm.Mod.Title": "Mod:",
+  "Config.ModMenuItem.Gmcm.Mod.Description": "The mod that provides the action that should appear in the menu. Only mods that have registered at least one keybind option with GMCM will show up in this list.",
+  "Config.ModMenuItem.Gmcm.SyncName.Title": "Sync Title",
+  "Config.ModMenuItem.Gmcm.SyncName.Description": "Set this item's Title to the exact mod name chosen above, and keep it sync if the mod name changes. Uncheck this to choose your own title.",
+  "Config.ModMenuItem.Gmcm.SyncDetails.Title": "Sync Description",
+  "Config.ModMenuItem.Gmcm.SyncDetails.Description": "Set this item's Description to the action name chosen below. Uncheck this to write your own description.",
+  "Config.ModMenuItem.Gmcm.Option.MissingKeybind": "This action has no hotkey assigned and will be disabled in the menu. To assign a hotkey, open the GMCM settings for the target mod and configure the option with the selected name.",
   "Config.ModMenuItem.Name.Title": "Title",
   "Config.ModMenuItem.Name.Description": "Short name for the action. Displayed as large text in the spotlight when the item is focused.",
   "Config.ModMenuItem.Details.Title": "Description",

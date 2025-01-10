@@ -36,6 +36,9 @@
     },
     "LuckBuff": {
       "SourceRect": "50, 428, 10, 10"
+    },
+    "TargetBlue": {
+      "SourceRect": "288, 1199, 16, 16"
     }
   }
 }
