@@ -129,32 +129,26 @@ internal partial class ModMenuItemConfigurationViewModel
     {
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            return await allItems;
+            return await this.allItems;
         }
-        else if (ItemRegistry.IsQualifiedItemId(SearchText))
+        if (ItemRegistry.IsQualifiedItemId(SearchText))
         {
             var exactItem = ItemRegistry.GetData(SearchText);
             return exactItem is not null ? [exactItem] : [];
         }
-        else if (int.TryParse(SearchText, out var objectId))
+        if (int.TryParse(SearchText, out var objectId))
         {
-            var exactItem = ItemRegistry.GetData("(O)" + SearchText);
+            var exactItem = ItemRegistry.GetData("(O)" + objectId);
             return exactItem is not null ? [exactItem] : [];
         }
-        else
-        {
-            var allItems = await this.allItems;
-            var matches = allItems
-                .Where(item =>
-                    !cancellationToken.IsCancellationRequested
-                    && item.DisplayName.Contains(
-                        SearchText,
-                        StringComparison.CurrentCultureIgnoreCase
-                    )
-                )
-                .ToArray();
-            return !cancellationToken.IsCancellationRequested ? matches : [];
-        }
+        var allItems = await this.allItems;
+        var matches = allItems
+            .Where(item =>
+                !cancellationToken.IsCancellationRequested
+                && item.DisplayName.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)
+            )
+            .ToArray();
+        return !cancellationToken.IsCancellationRequested ? matches : [];
     }
 
     private void IconType_ValueChanged(object? sender, EventArgs e)
@@ -204,6 +198,7 @@ internal partial class ModMenuItemConfigurationViewModel
                 if (t.IsFaulted)
                 {
                     Logger.Log($"Failed searching for items: {t.Exception}", LogLevel.Error);
+                    return;
                 }
                 lock (searchLock)
                 {

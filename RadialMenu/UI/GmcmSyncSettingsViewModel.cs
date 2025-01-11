@@ -67,6 +67,16 @@ internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption 
 
     public string DisplayName => option.UniqueFieldName;
 
+    public bool IsMissingKeybind => !CurrentKeybind.IsBound;
+
+    public string MissingKeybindDescription =>
+        IsMissingKeybind
+            ? I18n.Config_ModMenuItem_Gmcm_MissingKeybind_Description(
+                option.ModManifest.Name,
+                option.UniqueFieldName
+            )
+            : "";
+
     public string SimpleName => option.GetFieldName();
 
     [Notify]

@@ -97,6 +97,8 @@
   "Config.ModMenuItem.Gmcm.SyncDetails.Title": "Sync Description",
   "Config.ModMenuItem.Gmcm.SyncDetails.Description": "Set this item's Description to the action name chosen below. Uncheck this to write your own description.",
   "Config.ModMenuItem.Gmcm.Option.MissingKeybind": "This action has no hotkey assigned and will be disabled in the menu. To assign a hotkey, open the GMCM settings for the target mod and configure the option with the selected name.",
+  "Config.ModMenuItem.Gmcm.MissingKeybind.Title": "No hotkey set",
+  "Config.ModMenuItem.Gmcm.MissingKeybind.Description": "This action won't be usable until you open the {{ModName}} configuration and configure a hotkey for {{OptionName}}.",
   "Config.ModMenuItem.Name.Title": "Title",
   "Config.ModMenuItem.Name.Description": "Short name for the action. Displayed as large text in the spotlight when the item is focused.",
   "Config.ModMenuItem.Details.Title": "Description",

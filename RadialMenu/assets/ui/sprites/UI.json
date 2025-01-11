@@ -21,6 +21,9 @@
     "MagnifyingGlass": {
       "SourceRect": "96, 0, 16, 16"
     },
+    "Error": {
+      "SourceRect": "112, 0, 16, 16"
+    },
     "GamepadUp": {
       "SourceRect": "0, 16, 16, 16"
     },
