@@ -255,6 +255,11 @@ internal enum ItemSyncType
 
 internal partial class ModMenuItemConfigurationViewModel
 {
+    public bool CanEditDescription =>
+        SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableDescriptionSync != true;
+    public bool CanEditKeybind => SyncType.SelectedValue == ItemSyncType.None;
+    public bool CanEditName =>
+        SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableTitleSync != true;
     public string Id { get; }
     public Sprite Icon =>
         (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
@@ -336,6 +341,23 @@ internal partial class ModMenuItemConfigurationViewModel
         {
             Description = GmcmSync.SelectedOption.SimpleName;
         }
+
+        if (
+            e.PropertyName == nameof(GmcmSyncSettingsViewModel.SelectedOption)
+            && GmcmSync?.SelectedOption is { } option
+        )
+        {
+            Keybind = option.CurrentKeybind;
+        }
+
+        if (e.PropertyName == nameof(GmcmSyncSettingsViewModel.EnableTitleSync))
+        {
+            OnPropertyChanged(new(nameof(CanEditName)));
+        }
+        if (e.PropertyName == nameof(GmcmSyncSettingsViewModel.EnableDescriptionSync))
+        {
+            OnPropertyChanged(new(nameof(CanEditDescription)));
+        }
     }
 
     private async Task<ParsedItemData[]> GetRawSearchResults(CancellationToken cancellationToken)
@@ -400,6 +422,9 @@ internal partial class ModMenuItemConfigurationViewModel
             GmcmSync.PropertyChanged += GmcmSync_PropertyChanged;
         }
         OnPropertyChanged(new(nameof(IsGmcmSyncVisible)));
+        OnPropertyChanged(new(nameof(CanEditName)));
+        OnPropertyChanged(new(nameof(CanEditDescription)));
+        OnPropertyChanged(new(nameof(CanEditKeybind)));
     }
 
     private void UpdateRawSearchResults()

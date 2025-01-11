@@ -101,18 +101,26 @@
             <enum-segments *context={:SyncType} />
         </form-row>
         <form-row title={#Config.ModMenuItem.Name.Title} description={#Config.ModMenuItem.Name.Description}>
-            <textinput layout="stretch 52px" margin="-6, 0, 0, 0" max-length="30" text={<>Name} />
+            <textinput layout="stretch 52px"
+                       margin="-6, 0, 0, 0"
+                       max-length="30"
+                       enabled={CanEditName}
+                       text={<>Name} />
         </form-row>
         <form-row title={#Config.ModMenuItem.Details.Title} description={#Config.ModMenuItem.Details.Description}>
-            <textinput layout="stretch 52px" margin="-6, 0, 0, 0" text={<>Description} />
+            <textinput layout="stretch 52px"
+                       margin="-6, 0, 0, 0"
+                       enabled={CanEditDescription}
+                       text={<>Description} />
         </form-row>
         <form-row title={#Config.ModMenuItem.Keybind.Title} description={#Config.ModMenuItem.Keybind.Description}>
             <keybind-editor button-height="48"
-                            editable-type="SingleKeybind"
                             focusable="true"
                             empty-text={#Config.ModMenuItem.Keybind.EmptyText}
                             sprite-map={@Mods/focustense.RadialMenu/SpriteMaps/Kenney}
-                            keybind-list={Keybind} />
+                            keybind-list={Keybind}
+                            +state:enabled={CanEditKeybind}
+                            +state:enabled:editable-type="SingleKeybind" />
         </form-row>
         <form-row title={#Config.ModMenuItem.IconType.Title} description={#Config.ModMenuItem.IconType.Description}>
             <lane vertical-content-alignment="middle">
