@@ -151,69 +151,110 @@
                 </lane>
             </form-row>
             <image layout="stretch content" margin="0, 8" fit="stretch" sprite={@Mods/StardewUI/Sprites/ThinHorizontalDivider} tint="#8888" />
-            <frame layout="stretch content"
-                   margin="100, 8, 100, 0"
-                   horizontal-content-alignment="middle">
-                <panel layout="stretch content"
-                       vertical-content-alignment="middle">
-                    <textinput layout="stretch 52px"
-                               margin="-6, 0, 0, 0"
-                               border-thickness="56, 12, 12, 12"
-                               placeholder={#Config.ModMenuItem.Search.Placeholder}
-                               text={<>SearchText} />
-                    <image layout="32px"
-                           margin="12, 2, 0, 0"
-                           sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
-                           shadow-alpha="0.25"
-                           shadow-offset="-2, 2" />
-                </panel>
-            </frame>
-            <lane *context={SearchResults}
-                  layout="stretch content"
-                  margin="0, 8, 0, 0"
-                  vertical-content-alignment="middle">
-                <image layout="64px"
-                       sprite={@Mods/StardewUI/Sprites/LargeLeftArrow}
-                       tooltip={#Config.ModMenuItem.Search.Previous}
-                       z-index="1"
-                       transform-origin="0.5, 0.5"
-                       +hover:transform="scale: 1.2"
-                       +transition:transform="150ms EaseOutCubic"
-                       click=|MovePrevious()| />
-                <panel layout="stretch content"
-                       horizontal-content-alignment="middle"
-                       vertical-content-alignment="middle"
-                       clip-origin="middle middle"
-                       clip-size="95% stretch"
-                       outer-size={>LayoutSize}
-                       button-press=|HandleButton($Button)|
-                       button-repeat=|HandleButton($Button)|
-                       left-click=|^^SetIconFromSearchResults($Position)|>
-                    <frame layout="80px"
-                           margin="2, 0, 0, 0"
-                           padding="8"
-                           background={@Mods/StardewUI/Sprites/MenuSlotInset}
-                           background-tint="#def"
-                           horizontal-content-alignment="end"
-                           vertical-content-alignment="end" />
-                    <image *repeat={VisibleItems}
-                           layout="64px"
+            <panel layout="stretch content" clip-size="stretch">
+                <lane layout="stretch content"
+                      orientation="vertical"
+                      pointer-events-enabled={IsStandardIcon}
+                      transform="translateY: -180"
+                      +state:enabled={IsStandardIcon}
+                      +state:enabled:transform=""
+                      +transition:transform="150ms EaseOutCubic">
+                    <frame layout="stretch content"
+                           margin="100, 8, 100, 0"
+                           horizontal-content-alignment="middle">
+                        <panel layout="stretch content"
+                               vertical-content-alignment="middle">
+                            <textinput layout="stretch 52px"
+                                       margin="-6, 0, 0, 0"
+                                       border-thickness="56, 12, 12, 12"
+                                       placeholder={#Config.ModMenuItem.Search.Placeholder}
+                                       text={<>SearchText} />
+                            <image layout="32px"
+                                   margin="12, 2, 0, 0"
+                                   sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
+                                   shadow-alpha="0.25"
+                                   shadow-offset="-2, 2" />
+                        </panel>
+                    </frame>
+                    <lane *context={SearchResults}
+                          layout="stretch content"
+                          margin="0, 8, 0, 0"
+                          vertical-content-alignment="middle">
+                        <image layout="64px"
+                               sprite={@Mods/StardewUI/Sprites/LargeLeftArrow}
+                               tooltip={#Config.ModMenuItem.Search.Previous}
+                               z-index="1"
+                               transform-origin="0.5, 0.5"
+                               +hover:transform="scale: 1.2"
+                               +transition:transform="150ms EaseOutCubic"
+                               click=|MovePrevious()| />
+                        <panel layout="stretch content"
+                               horizontal-content-alignment="middle"
+                               vertical-content-alignment="middle"
+                               clip-origin="middle middle"
+                               clip-size="95% stretch"
+                               outer-size={>LayoutSize}
+                               button-press=|HandleButton($Button)|
+                               button-repeat=|HandleButton($Button)|
+                               left-click=|^^SetIconFromSearchResults($Position)|>
+                            <frame layout="80px"
+                                   margin="2, 0, 0, 0"
+                                   padding="8"
+                                   background={@Mods/StardewUI/Sprites/MenuSlotInset}
+                                   background-tint="#def"
+                                   horizontal-content-alignment="end"
+                                   vertical-content-alignment="end" />
+                            <image *repeat={VisibleItems}
+                                   layout="64px"
+                                   horizontal-alignment="middle"
+                                   vertical-alignment="middle"
+                                   sprite={:Data}
+                                   transform={Transform}
+                                   +transition:transform="120ms EaseOutCubic" />
+                            <spacer layout="24px" margin="48, 48, 0, 0" z-index="2" focusable="true" />
+                        </panel>
+                        <image layout="64px"
+                               sprite={@Mods/StardewUI/Sprites/LargeRightArrow}
+                               tooltip={#Config.ModMenuItem.Search.Next}
+                               z-index="1"
+                               transform-origin="0.5, 0.5"
+                               +hover:transform="scale: 1.2"
+                               +transition:transform="150ms EaseOutCubic"
+                               click=|MoveNext()| />
+                    </lane>
+                </lane>
+                <lane layout="stretch content"
+                      orientation="vertical"
+                      pointer-events-enabled={IsCustomIcon}
+                      transform="translateY: 180"
+                      +state:enabled={IsCustomIcon}
+                      +state:enabled:transform=""
+                      +transition:transform="150ms EaseOutCubic">
+                    <label layout="stretch content"
+                           margin="0, 0, 0, 8"
                            horizontal-alignment="middle"
-                           vertical-alignment="middle"
-                           sprite={:Data}
-                           transform={Transform}
-                           +transition:transform="120ms EaseOutCubic" />
-                    <spacer layout="24px" margin="48, 48, 0, 0" z-index="2" focusable="true" />
-                </panel>
-                <image layout="64px"
-                       sprite={@Mods/StardewUI/Sprites/LargeRightArrow}
-                       tooltip={#Config.ModMenuItem.Search.Next}
-                       z-index="1"
-                       transform-origin="0.5, 0.5"
-                       +hover:transform="scale: 1.2"
-                       +transition:transform="150ms EaseOutCubic"
-                       click=|MoveNext()| />
-            </lane>
+                           bold="true"
+                           color="Maroon"
+                           text=">>> Advanced users only @@@"
+                           shadow-alpha="0.1"
+                           shadow-color="#3339"
+                           shadow-offset="-3, 3" />
+                    <form-row title={#Config.ModMenuItem.CustomIcon.AssetPath.Title}
+                              description={#Config.ModMenuItem.CustomIcon.AssetPath.Description}>
+                        <textinput layout="stretch 52px"
+                                   margin="-6, 0, 0, 0"
+                                   placeholder={#Config.ModMenuItem.CustomIcon.AssetPath.Placeholder}
+                                   text={<>IconAssetPath} />
+                    </form-row>
+                    <form-row title={#Config.ModMenuItem.CustomIcon.SourceRectangle.Title}
+                              description={#Config.ModMenuItem.CustomIcon.SourceRectangle.Description}>
+                        <textinput layout="300px 52px"
+                                   margin="-6, 0, 0, 0"
+                                   placeholder={#Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder}
+                                   text={<>IconSourceRectText} />
+                    </form-row>
+                </lane>
+            </panel>
         </lane>
     </frame>
 </frame>

@@ -1,9 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
-using RadialMenu.Gmcm;
-using StardewModdingAPI.Utilities;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
@@ -289,15 +286,9 @@ internal partial class QuickSlotConfigurationViewModel
 
     private Sprite? GetIcon()
     {
-        if (ItemData is not null)
-        {
-            return new(ItemData.GetTexture(), ItemData.GetSourceRect());
-        }
-        if (ModAction is not null)
-        {
-            return ModAction.Icon;
-        }
-        return null;
+        return ItemData is not null
+            ? new(ItemData.GetTexture(), ItemData.GetSourceRect())
+            : ModAction?.Icon;
     }
 
     private object GetTooltip()
@@ -352,5 +343,3 @@ internal partial class QuickSlotConfigurationViewModel
         }
     }
 }
-
-internal record Sprite(Texture2D Texture, Rectangle SourceRect);

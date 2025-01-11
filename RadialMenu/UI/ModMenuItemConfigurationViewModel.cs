@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
 using RadialMenu.Gmcm;
 using StardewModdingAPI.Utilities;
@@ -30,7 +32,9 @@ internal partial class ModMenuItemConfigurationViewModel
         (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
         ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
     public EnumSegmentsViewModel<ItemIconType> IconType { get; } = new();
+    public bool IsCustomIcon => IconType.SelectedValue == ItemIconType.Custom;
     public bool IsGmcmSyncVisible => SyncType.SelectedValue == ItemSyncType.Gmcm;
+    public bool IsStandardIcon => IconType.SelectedValue == ItemIconType.Item;
     public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
 
     [Notify]
@@ -46,10 +50,19 @@ internal partial class ModMenuItemConfigurationViewModel
     private Keybind keybind = new();
 
     [Notify]
+    private string iconAssetPath = "";
+
+    [Notify]
     private Sprite? iconFromItemId;
 
     [Notify]
     private string? iconItemId = null;
+
+    [Notify]
+    private Rectangle iconSourceRect = Rectangle.Empty;
+
+    [Notify]
+    private string iconSourceRectText = "";
 
     [Notify]
     private string name = "";
@@ -154,6 +167,21 @@ internal partial class ModMenuItemConfigurationViewModel
     private void IconType_ValueChanged(object? sender, EventArgs e)
     {
         OnPropertyChanged(new(nameof(Icon)));
+        OnPropertyChanged(new(nameof(IsCustomIcon)));
+        OnPropertyChanged(new(nameof(IsStandardIcon)));
+    }
+
+    private void OnIconAssetPathChanged()
+    {
+        try
+        {
+            var texture = Game1.content.Load<Texture2D>(IconAssetPath);
+            CustomIcon = new(texture, IconSourceRect);
+        }
+        catch (ContentLoadException)
+        {
+            CustomIcon = null;
+        }
     }
 
     private void OnIconItemIdChanged()
@@ -163,6 +191,21 @@ internal partial class ModMenuItemConfigurationViewModel
             var data = ItemRegistry.GetDataOrErrorItem(IconItemId);
             IconFromItemId = new(data.GetTexture(), data.GetSourceRect());
         }
+    }
+
+    private void OnIconSourceRectChanged()
+    {
+        if (CustomIcon is not null)
+        {
+            CustomIcon = new(CustomIcon.Texture, IconSourceRect);
+        }
+    }
+
+    private void OnIconSourceRectTextChanged()
+    {
+        IconSourceRect = Sprite.TryParseRectangle(IconSourceRectText, out var rect)
+            ? rect
+            : Rectangle.Empty;
     }
 
     private void OnSearchTextChanged()

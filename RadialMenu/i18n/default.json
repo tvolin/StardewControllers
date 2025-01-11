@@ -96,7 +96,8 @@
   "Config.ModMenuItem.Gmcm.SyncName.Description": "Set this item's Title to the exact mod name chosen above, and keep it sync if the mod name changes. Uncheck this to choose your own title.",
   "Config.ModMenuItem.Gmcm.SyncDetails.Title": "Sync Description",
   "Config.ModMenuItem.Gmcm.SyncDetails.Description": "Set this item's Description to the action name chosen below. Uncheck this to write your own description.",
-  "Config.ModMenuItem.Gmcm.Option.MissingKeybind": "This action has no hotkey assigned and will be disabled in the menu. To assign a hotkey, open the GMCM settings for the target mod and configure the option with the selected name.",
+  "Config.ModMenuItem.Gmcm.ConflictingKeybind.Title": "Possible conflict detected.",
+  "Config.ModMenuItem.Gmcm.ConflictingKeybind.Description": "Hotkey is assigned to multiple mods/features and may behave incorrectly. To fix this, open the GMCM settings for the other mod(s) and change the hotkey.\n\nAlso used by:\n",
   "Config.ModMenuItem.Gmcm.MissingKeybind.Title": "No hotkey set",
   "Config.ModMenuItem.Gmcm.MissingKeybind.Description": "This action won't be usable until you open the {{ModName}} configuration and configure a hotkey for {{OptionName}}.",
   "Config.ModMenuItem.Name.Title": "Title",
@@ -112,6 +113,13 @@
   "Config.ModMenuItem.Search.Placeholder": "Item ID or search text",
   "Config.ModMenuItem.Search.Previous": "Previous icon",
   "Config.ModMenuItem.Search.Next": "Next icon",
+  "Config.ModMenuItem.CustomIcon.Warning": ">>> Advanced users only @@@",
+  "Config.ModMenuItem.CustomIcon.AssetPath.Title": "Asset Path",
+  "Config.ModMenuItem.CustomIcon.AssetPath.Description": "Path to the texture relative to the game data. If the asset was added by a mod, then consult the mod author or check the mod's source.",
+  "Config.ModMenuItem.CustomIcon.AssetPath.Placeholder": "e.g. maps/spring_town",
+  "Config.ModMenuItem.CustomIcon.SourceRectangle.Title": "Pixel Region",
+  "Config.ModMenuItem.CustomIcon.SourceRectangle.Description": "The area (source rectangle) within the sprite sheet asset where the specific sprite (icon) is located.",
+  "Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder": "X, Y, Width, Height",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
