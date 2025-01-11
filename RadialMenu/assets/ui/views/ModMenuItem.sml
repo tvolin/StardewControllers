@@ -20,7 +20,10 @@
             </lane>
         </frame>
     </frame>
-    <frame *float="after; 8, 0" layout="350px stretch" clip-size="400px stretch">
+    <frame *float="after; 8, 0"
+           layout="350px stretch"
+           clip-size="400px stretch"
+           pointer-events-enabled={IsGmcmSyncVisible}>
         <frame *context={GmcmSync}
                padding="24"
                background={@Mods/StardewUI/Sprites/ControlBorder}
@@ -66,7 +69,9 @@
                        border={@Mods/StardewUI/Sprites/WhiteBorder}
                        border-tint="#c60"
                        padding="8, 4">
-                    <scrollable layout="stretch" scrollbar-margin="32, 0, 0, -32">
+                    <scrollable layout="stretch"
+                                peeking="64"
+                                scrollbar-margin="32, 0, 0, -32">
                         <lane layout="stretch content" orientation="vertical">
                             <lane *repeat={AvailableOptions}
                                   layout="stretch content"
@@ -81,6 +86,7 @@
                                        +state:selected:opacity="1"
                                        +transition:opacity="100ms" />
                                 <label text={:DisplayName}
+                                       focusable="true"
                                        +hover:bold="true"
                                        left-click=|^SelectOption(this)| />
                             </lane>
