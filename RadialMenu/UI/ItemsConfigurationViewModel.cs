@@ -4,6 +4,10 @@ using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
 
+// TODO: Limit number of items that can be added per page (stop showing + button).
+// TODO: Make minimum window height match max number of item rows, test with different row counts.
+// TODO: Implement item reordering.
+
 internal partial class ItemsConfigurationViewModel
 {
     public ModMenuPageConfigurationViewModel? SelectedPage =>

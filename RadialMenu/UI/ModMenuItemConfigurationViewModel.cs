@@ -20,6 +20,8 @@ internal enum ItemSyncType
     Gmcm,
 }
 
+// TODO: Add function/UI to remove this item.
+
 internal partial class ModMenuItemConfigurationViewModel
 {
     public bool CanEditDescription =>
