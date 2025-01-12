@@ -75,12 +75,12 @@ internal partial class ModMenuItemConfigurationViewModel
     [Notify]
     private string searchText = "";
 
-    private readonly Task<ParsedItemData[]> allItems;
+    private readonly ParsedItemData[] allItems;
     private readonly object searchLock = new();
 
     private CancellationTokenSource searchCancellationTokenSource = new();
 
-    public ModMenuItemConfigurationViewModel(string id, Task<ParsedItemData[]> allItems)
+    public ModMenuItemConfigurationViewModel(string id, ParsedItemData[] allItems)
     {
         Id = id;
         SyncType.ValueChanged += SyncType_ValueChanged;
@@ -98,7 +98,6 @@ internal partial class ModMenuItemConfigurationViewModel
     {
         Game1.playSound("smallSelect");
         IconType.SelectedValue = ItemIconType.Item;
-        var allItems = this.allItems.Result;
         int index = Random.Shared.Next(allItems.Length);
         IconItemId = allItems[index].QualifiedItemId;
         UpdateRawSearchResults();
@@ -155,11 +154,11 @@ internal partial class ModMenuItemConfigurationViewModel
         }
     }
 
-    private async Task<ParsedItemData[]> GetRawSearchResults(CancellationToken cancellationToken)
+    private ParsedItemData[] GetRawSearchResults(CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            return await this.allItems;
+            return allItems;
         }
         if (ItemRegistry.IsQualifiedItemId(SearchText))
         {
@@ -171,7 +170,6 @@ internal partial class ModMenuItemConfigurationViewModel
             var exactItem = ItemRegistry.GetData("(O)" + objectId);
             return exactItem is not null ? [exactItem] : [];
         }
-        var allItems = await this.allItems;
         var matches = allItems
             .Where(item =>
                 !cancellationToken.IsCancellationRequested
