@@ -128,13 +128,17 @@
                            text={<>Description} />
             </form-row>
             <form-row title={#Config.ModMenuItem.Keybind.Title} description={#Config.ModMenuItem.Keybind.Description}>
-                <keybind-editor button-height="48"
+                <keybind-editor background-color="#863c"
+                                button-height="48"
+                                opacity="0.6"
                                 focusable="true"
                                 empty-text={#Config.ModMenuItem.Keybind.EmptyText}
                                 sprite-map={@Mods/focustense.RadialMenu/SpriteMaps/Kenney}
                                 keybind-list={Keybind}
                                 +state:enabled={CanEditKeybind}
-                                +state:enabled:editable-type="SingleKeybind" />
+                                +state:enabled:background-color="#0000"
+                                +state:enabled:editable-type="SingleKeybind"
+                                +state:enabled:opacity="1" />
             </form-row>
             <form-row title={#Config.ModMenuItem.IconType.Title} description={#Config.ModMenuItem.IconType.Description}>
                 <lane vertical-content-alignment="middle">
