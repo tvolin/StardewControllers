@@ -248,7 +248,7 @@
                     </form-row>
                     <form-row title={#Config.ModMenuItem.CustomIcon.SourceRectangle.Title}
                               description={#Config.ModMenuItem.CustomIcon.SourceRectangle.Description}>
-                        <textinput layout="300px 52px"
+                        <textinput layout="280px 52px"
                                    margin="-6, 0, 0, 0"
                                    placeholder={#Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder}
                                    text={<>IconSourceRectText} />
