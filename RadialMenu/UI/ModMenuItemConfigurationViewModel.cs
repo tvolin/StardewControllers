@@ -87,6 +87,21 @@ internal partial class ModMenuItemConfigurationViewModel
         UpdateRawSearchResults();
     }
 
+    public void OnRandomizeButtonHover()
+    {
+        Game1.playSound("Cowboy_Footstep");
+    }
+
+    public void PickRandomIcon()
+    {
+        Game1.playSound("smallSelect");
+        IconType.SelectedValue = ItemIconType.Item;
+        var allItems = this.allItems.Result;
+        int index = Random.Shared.Next(allItems.Length);
+        IconItemId = allItems[index].QualifiedItemId;
+        UpdateRawSearchResults();
+    }
+
     public void SetIconFromSearchResults(Vector2 position)
     {
         SearchResults.ScrollToPoint(position);

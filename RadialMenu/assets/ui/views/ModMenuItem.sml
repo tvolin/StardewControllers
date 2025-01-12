@@ -149,7 +149,9 @@
                             tooltip={#Config.ModMenuItem.RandomizeIcon.Description}
                             transform-origin="0.5, 0.5"
                             +hover:transform="scale: 1.1"
-                            +transition:transform="150ms EaseOutQuint">
+                            +transition:transform="150ms EaseOutQuint"
+                            pointer-enter=|OnRandomizeButtonHover()|
+                            left-click=|PickRandomIcon()|>
                         <image layout="30px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:LuckBuff} />
                     </button>
                 </lane>
