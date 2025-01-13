@@ -1,4 +1,4 @@
-<lane *context={^Style} layout="stretch content" orientation="vertical">
+<lane *context={:~ConfigurationViewModel.Style} layout="stretch content" orientation="vertical">
     <form-heading title={#Config.Layout.Heading} />
     <form-row title={#Config.Layout.InnerRadius.Title} description={#Config.Layout.InnerRadius.Description}>
         <slider track-width="300"

@@ -1,4 +1,4 @@
-<lane *context={^Items} layout="stretch content" orientation="vertical" clip-size="stretch">
+<lane *context={:~ConfigurationViewModel.Items} layout="stretch content" orientation="vertical" clip-size="stretch">
     <form-heading title={#Config.Inventory.Heading} />
     <form-row title={#Config.Inventory.PageSize.Title} description={#Config.Inventory.PageSize.Description}>
         <slider track-width="300" min="4" max="24" interval="1" value={<>InventoryPageSize} />
@@ -7,28 +7,28 @@
         <checkbox is-checked={<>ShowInventoryBlanks} />
     </form-row>
     <form-heading title={#Config.ModMenu.Heading} />
-    <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
+    <lane *context={:Pager} margin="16, 4, 0, 4" vertical-content-alignment="middle">
         <label margin="0, 0, 8, 0" text={#Config.ModMenu.Pages.Title} tooltip={#Config.ModMenu.Pages.Description} />
-        <button *repeat={ModMenuPages}
+        <button *repeat={Pages}
                 layout="48px"
                 margin="2, 0"
                 default-background-tint={ButtonTint}
                 hover-background={@Mods/StardewUI/Sprites/ButtonLight}
                 tooltip={#Config.ModMenu.Pages.Description}
-                left-click=|^SelectModMenuPage(Index)|>
-            <digits number={:Index} scale="3" />
+                left-click=|^SelectPage(Index)|>
+            <digits number={:DisplayIndex} scale="3" />
         </button>
         <button layout="48px"
                 margin="2, 0"
                 hover-background={@Mods/StardewUI/Sprites/ButtonLight}
                 tooltip={#Config.ModMenu.AddPage.Description}
-                left-click=|AddPage()|>
+                left-click=|^AddPage()|>
             <label color="#fff" text="+" shadow-offset="-2, 2" shadow-alpha="0.8" shadow-color="#333" />
         </button>
     </lane>
     <label margin="16, 4, 0, 4" color="#666" text={#Config.ModMenu.Items.Help} />
-    <panel margin="16, 4">
-        <grid *repeat={ModMenuPages}
+    <panel *context={:Pager} margin="16, 4">
+        <grid *repeat={Pages}
               layout="stretch content"
               item-layout="length: 80+"
               item-spacing="0, 8"

@@ -1,19 +1,19 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using PropertyChanged.SourceGenerator;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
 
+// TODO: Add new item when clicking "+".
 // TODO: Limit number of items that can be added per page (stop showing + button).
 // TODO: Make minimum window height match max number of item rows, test with different row counts.
 // TODO: Implement item reordering.
 
 internal partial class ItemsConfigurationViewModel
 {
-    public ModMenuPageConfigurationViewModel? SelectedPage =>
-        SelectedPageIndex >= 0 && SelectedPageIndex < ModMenuPages.Count
-            ? ModMenuPages[SelectedPageIndex]
-            : null;
+    public PagerViewModel<ModMenuPageConfigurationViewModel> Pager { get; } = new();
 
     private readonly Task<ParsedItemData[]> allItemsTask = Task.Run(
         () =>
@@ -37,9 +37,9 @@ internal partial class ItemsConfigurationViewModel
         allItemsTask.ContinueWith(t =>
         {
             var allItems = t.Result;
-            ModMenuPages =
+            Pager.Pages =
             [
-                new(1)
+                new(0)
                 {
                     Items =
                     [
@@ -126,13 +126,10 @@ internal partial class ItemsConfigurationViewModel
                 DPadDown = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(BC)71") },
                 West = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(O)424") },
                 North = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(O)253") },
-                South = new() { ModAction = ModMenuPages[0].Items[0] },
+                South = new() { ModAction = Pager.Pages[0].Items[0] },
             };
         });
     }
-
-    [Notify]
-    private Vector2 contentPanelSize;
 
     [Notify]
     private int inventoryPageSize;
@@ -141,29 +138,21 @@ internal partial class ItemsConfigurationViewModel
     private bool showInventoryBlanks;
 
     [Notify]
-    private ObservableCollection<ModMenuPageConfigurationViewModel> modMenuPages = [];
-
-    [Notify]
     private QuickSlotGroupConfigurationViewModel quickSlots = new();
-
-    [Notify]
-    private int selectedPageIndex = -1;
 
     public void AddPage()
     {
         Game1.playSound("smallSelect");
-        var nextIndex = ModMenuPages.Count;
-        ModMenuPages.Add(new(nextIndex + 1));
-        SelectedPageIndex = nextIndex;
+        var nextIndex = Pager.Pages.Count;
+        Pager.Pages.Add(new(nextIndex));
+        Pager.SelectedPageIndex = nextIndex;
     }
 
     public void EditModMenuItem(string id)
     {
         // The most extreme configuration might have a few dozen items, not enough to justify
         // keeping a separate dictionary in sync.
-        var item = ModMenuPages
-            .SelectMany(page => page.Items)
-            .FirstOrDefault(item => item.Id == id);
+        var item = Pager.Pages.SelectMany(page => page.Items).FirstOrDefault(item => item.Id == id);
         if (item is null)
         {
             Logger.Log($"Item not found on any page: {id}", LogLevel.Warn);
@@ -171,75 +160,27 @@ internal partial class ItemsConfigurationViewModel
         }
         ViewEngine.OpenChildMenu("ModMenuItem", item);
     }
-
-    public void SelectModMenuPage(int pageIndex)
-    {
-        pageIndex--; // Index comes from the view model's Index which is 1-based.
-        if (pageIndex == SelectedPageIndex)
-        {
-            return;
-        }
-        Game1.playSound("smallSelect");
-        SelectedPageIndex = pageIndex;
-    }
-
-    private void OnContentPanelSizeChanged()
-    {
-        UpdatePageTransforms();
-    }
-
-    private void OnModMenuPagesChanged()
-    {
-        SelectedPageIndex = 0;
-    }
-
-    private void OnSelectedPageIndexChanged(int oldValue, int newValue)
-    {
-        if (oldValue >= 0 && oldValue < ModMenuPages.Count)
-        {
-            ModMenuPages[oldValue].Selected = false;
-        }
-        if (newValue >= 0 && newValue < ModMenuPages.Count)
-        {
-            ModMenuPages[newValue].Selected = true;
-        }
-        UpdatePageTransforms();
-    }
-
-    private void UpdatePageTransforms()
-    {
-        for (int i = 0; i < ModMenuPages.Count; i++)
-        {
-            var page = ModMenuPages[i];
-            if (ContentPanelSize != Vector2.Zero)
-            {
-                page.Transform = new(new(ContentPanelSize.X * (i - SelectedPageIndex), 0));
-                // Setting visible only when the page - or a subsequent page - is actually selected
-                // prevents awkward transition animations from playing when the menu is first shown.
-                if (i <= SelectedPageIndex)
-                {
-                    page.Visible = true;
-                }
-            }
-        }
-    }
 }
 
-internal partial class ModMenuPageConfigurationViewModel(int index)
+internal partial class ModMenuPageConfigurationViewModel(int index) : PageViewModel(index)
 {
     public Color ButtonTint => Selected ? new Color(0xaa, 0xcc, 0xee) : Color.White;
-
-    public int Index { get; } = index;
 
     [Notify]
     private ObservableCollection<ModMenuItemConfigurationViewModel> items = [];
 
-    [Notify]
-    private bool selected;
-
-    [Notify]
-    private Transform transform = new(Vector2.Zero);
-
-    [Notify]
-    private bool visible = false;
+    // Hopefully temporary workaround for the source generator not generating overrides.
+    // https://github.com/canton7/PropertyChanged.SourceGenerator/issues/47
+    [SuppressMessage(
+        "PropertyChanged.SourceGenerator.Generation",
+        "INPC021:Do not define your own overrides of the method to raise PropertyChanged events"
+    )]
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName == nameof(Selected))
+        {
+            OnPropertyChanged(new(nameof(ButtonTint)));
+        }
+    }
 }

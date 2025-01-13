@@ -1,4 +1,4 @@
-<lane *context={^Input} layout="stretch content" orientation="vertical">
+<lane *context={:~ConfigurationViewModel.Input} layout="stretch content" orientation="vertical">
     <form-heading title={#Config.Keybind.Heading} />
     <form-row title={#Config.Keybind.Inventory.Title} description={#Config.Keybind.Inventory.Description}>
         <mini-keybind button={<>InventoryMenuButton} />

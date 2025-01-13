@@ -6,27 +6,30 @@
        border-size={>ContentPanelSize}
        button-press=|HandleButtonPress($Button)|>
     <frame *float="above; 0, 16"
+           *context={:Pager}
            layout="stretch content"
            margin="36, 0"
            background={@Mods/StardewUI/Sprites/MenuSlotInset}
            padding="12">
-        <panel>
-            <image layout="1px"
-                   margin="0, 2"
-                   sprite={@Mods/StardewUI/Sprites/White}
-                   tint="#39d"
-                   transform={TabSelectionTransform}
-                   +transition:transform="200ms EaseOutExpo" />
-            <lane>
-                <nav-tab *repeat={:Pages} />
-            </lane>
-        </panel>
+        <segments highlight={@Mods/StardewUI/Sprites/White}
+                  highlight-tint="#39d"
+                  highlight-transition="200ms EaseOutExpo"
+                  selected-index={<>SelectedPageIndex}>
+            <nav-tab *repeat={Pages}
+                     margin="12, 8"
+                     bold={Selected}
+                     text={:Name}
+                     tooltip={:Description} />
+        </segments>
     </frame>
-    <panel layout="stretch content" margin="0, 0, 0, 4" clip-size="stretch">
+    <panel *context={:Pager}
+           layout="stretch content"
+           margin="0, 0, 0, 4"
+           clip-size="stretch">
         <frame *repeat={Pages}
                layout="stretch content"
                pointer-events-enabled={Selected}
-               transform={PageTransform}
+               transform={Transform}
                +transition:transform="200ms EaseOutCubic"
                visibility={Visible}>
             <include name={:PageAssetName} />
@@ -40,9 +43,8 @@
           margin="12, 0"
           padding="8"
           horizontal-content-alignment="middle"
-          outer-size={>TabSize}
           focusable="true"
-          click=|^SetPage(Id)|>
+          click=|^SelectPage(Index)|>
         <!--
             Not the cleanest way to handle images per tab, but the alternative is hard-coding
             the source rectangles in code, because API code can't reference sprite assets.

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using PropertyChanged.SourceGenerator;
+﻿using PropertyChanged.SourceGenerator;
 using RadialMenu.Config;
 
 namespace RadialMenu.UI;
@@ -8,11 +7,8 @@ internal partial class ConfigurationViewModel
 {
     public InputConfigurationViewModel Input { get; } = new();
     public ItemsConfigurationViewModel Items { get; } = new();
+    public PagerViewModel<NavPageViewModel> Pager { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
-
-    public List<NavPageViewModel> Pages { get; }
-
-    public Transform TabSelectionTransform => GetTabSelectionTransform(SelectedPageIndex);
 
     [Notify]
     private ModConfig config;
@@ -20,15 +16,12 @@ internal partial class ConfigurationViewModel
     [Notify]
     private Vector2 contentPanelSize;
 
-    [Notify]
-    private int selectedPageIndex;
-
     public ConfigurationViewModel(ModConfig config, string modId)
     {
         this.config = config;
         Input.Load(config.Input);
         Style.Load(config.Style);
-        Pages =
+        Pager.Pages =
         [
             new(NavPage.Controls, I18n.Config_Tab_Controls_Title(), $"Mods/{modId}/Views/Controls"),
             new(NavPage.Style, I18n.Config_Tab_Style_Title(), $"Mods/{modId}/Views/Style"),
@@ -36,12 +29,6 @@ internal partial class ConfigurationViewModel
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), ""),
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), ""),
         ];
-        Pages[0].Selected = true;
-        foreach (var page in Pages)
-        {
-            page.PropertyChanged += Page_PropertyChanged;
-        }
-        UpdatePageTransforms();
     }
 
     public void HandleButtonPress(SButton button)
@@ -49,82 +36,21 @@ internal partial class ConfigurationViewModel
         switch (button)
         {
             case SButton.LeftTrigger:
-                SetPageIndex((SelectedPageIndex + Pages.Count - 1) % Pages.Count);
+                Pager.SelectedPageIndex =
+                    (Pager.SelectedPageIndex + Pager.Pages.Count - 1) % Pager.Pages.Count;
                 break;
             case SButton.RightTrigger:
-                SetPageIndex((SelectedPageIndex + 1) % Pages.Count);
+                Pager.SelectedPageIndex = (Pager.SelectedPageIndex + 1) % Pager.Pages.Count;
                 break;
         }
-    }
-
-    public void SetPage(NavPage id)
-    {
-        var index = Pages.FindIndex(x => x.Id == id);
-        SetPageIndex(index);
-    }
-
-    private Transform GetTabSelectionTransform(int pageIndex)
-    {
-        float translateX = 0;
-        for (int i = 0; i < pageIndex; i++)
-        {
-            translateX += Pages[i].TabSize.X;
-        }
-        var selectedPage = Pages[pageIndex];
-        var scale = new Vector2(selectedPage.TabSize.X, selectedPage.TabSize.Y);
-        var translation = new Vector2(translateX, 0);
-        return new(translation, scale);
     }
 
     private void OnContentPanelSizeChanged()
     {
-        UpdatePageTransforms();
         // Explicitly assigning it here, as opposed to passing in a selector to the constructor, guarantees that the
         // property change event will fire for the dependent models as well.
-        Items.ContentPanelSize = ContentPanelSize;
-    }
-
-    private void OnSelectedPageIndexChanged()
-    {
-        UpdatePageTransforms();
-    }
-
-    private void Page_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(NavPageViewModel.TabSize))
-        {
-            OnPropertyChanged(new(nameof(TabSelectionTransform)));
-        }
-    }
-
-    private void SetPageIndex(int index)
-    {
-        if (index < 0 || index == SelectedPageIndex)
-        {
-            return;
-        }
-        Game1.playSound("smallSelect");
-        Pages[SelectedPageIndex].Selected = false;
-        SelectedPageIndex = index;
-        Pages[index].Selected = true;
-    }
-
-    private void UpdatePageTransforms()
-    {
-        for (int i = 0; i < Pages.Count; i++)
-        {
-            var page = Pages[i];
-            if (ContentPanelSize != Vector2.Zero)
-            {
-                page.PageTransform = new(new(ContentPanelSize.X * (i - SelectedPageIndex), 0));
-                // Setting visible only when the page - or a subsequent page - is actually selected
-                // prevents awkward transition animations from playing when the menu is first shown.
-                if (i <= SelectedPageIndex)
-                {
-                    page.Visible = true;
-                }
-            }
-        }
+        Pager.ContentPanelSize = contentPanelSize;
+        Items.Pager.ContentPanelSize = ContentPanelSize;
     }
 }
 
@@ -138,26 +64,9 @@ internal enum NavPage
 }
 
 internal partial class NavPageViewModel(NavPage id, string title, string pageAssetName)
+    : PageViewModel((int)id)
 {
     public NavPage Id { get; } = id;
     public string PageAssetName { get; } = pageAssetName;
     public string Title { get; } = title;
-
-    [Notify]
-    private Transform pageTransform = new(Vector2.Zero);
-
-    [Notify]
-    private bool selected;
-
-    [Notify]
-    private Vector2 tabSize;
-
-    [Notify]
-    private bool visible = false;
-}
-
-internal record Transform(Vector2 Translation, Vector2 Scale)
-{
-    public Transform(Vector2 translation)
-        : this(translation, Vector2.One) { }
 }

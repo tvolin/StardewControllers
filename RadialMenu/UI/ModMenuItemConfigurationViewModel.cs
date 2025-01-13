@@ -154,31 +154,6 @@ internal partial class ModMenuItemConfigurationViewModel
         }
     }
 
-    private ParsedItemData[] GetRawSearchResults(CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
-            return allItems;
-        }
-        if (ItemRegistry.IsQualifiedItemId(SearchText))
-        {
-            var exactItem = ItemRegistry.GetData(SearchText);
-            return exactItem is not null ? [exactItem] : [];
-        }
-        if (int.TryParse(SearchText, out var objectId))
-        {
-            var exactItem = ItemRegistry.GetData("(O)" + objectId);
-            return exactItem is not null ? [exactItem] : [];
-        }
-        var matches = allItems
-            .Where(item =>
-                !cancellationToken.IsCancellationRequested
-                && item.DisplayName.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase)
-            )
-            .ToArray();
-        return !cancellationToken.IsCancellationRequested ? matches : [];
-    }
-
     private void IconType_ValueChanged(object? sender, EventArgs e)
     {
         OnPropertyChanged(new(nameof(Icon)));
@@ -253,7 +228,10 @@ internal partial class ModMenuItemConfigurationViewModel
         searchCancellationTokenSource.Cancel();
         searchCancellationTokenSource = new();
         var cancellationToken = searchCancellationTokenSource.Token;
-        var searchTask = Task.Run(() => GetRawSearchResults(cancellationToken), cancellationToken);
+        var searchTask = Task.Run(
+            () => allItems.Search(SearchText, cancellationToken),
+            cancellationToken
+        );
         searchTask.ContinueWith(
             t =>
             {
@@ -269,14 +247,18 @@ internal partial class ModMenuItemConfigurationViewModel
                 lock (searchLock)
                 {
                     var previousIconItemId = IconItemId; // Save for thread safety
+                    var foundItems = t.Result.ToArray();
                     var selectedIndex = !string.IsNullOrEmpty(previousIconItemId)
                         ? Math.Max(
-                            Array.FindIndex(t.Result, r => r.QualifiedItemId == previousIconItemId),
+                            Array.FindIndex(
+                                foundItems,
+                                r => r.QualifiedItemId == previousIconItemId
+                            ),
                             0
                         )
                         : 0;
                     SearchResults = new(
-                        t.Result,
+                        foundItems,
                         visibleSize: 5,
                         bufferSize: 2,
                         centerMargin: 20,
