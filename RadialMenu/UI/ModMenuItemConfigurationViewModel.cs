@@ -205,6 +205,10 @@ internal partial class ModMenuItemConfigurationViewModel
         {
             var data = ItemRegistry.GetDataOrErrorItem(IconItemId);
             IconFromItemId = new(data.GetTexture(), data.GetSourceRect());
+            if (SearchResults.SelectedItem?.QualifiedItemId != IconItemId)
+            {
+                UpdateRawSearchResults();
+            }
         }
     }
 
@@ -256,6 +260,10 @@ internal partial class ModMenuItemConfigurationViewModel
                 if (t.IsFaulted)
                 {
                     Logger.Log($"Failed searching for items: {t.Exception}", LogLevel.Error);
+                    return;
+                }
+                if (t.IsCanceled)
+                {
                     return;
                 }
                 lock (searchLock)
