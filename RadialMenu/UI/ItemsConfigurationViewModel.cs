@@ -160,6 +160,14 @@ internal partial class ItemsConfigurationViewModel
         }
         ViewEngine.OpenChildMenu("ModMenuItem", item);
     }
+
+    public void EditQuickSlot(QuickSlotConfigurationViewModel slot)
+    {
+        ViewEngine.OpenChildMenu(
+            "QuickSlotPicker",
+            new QuickSlotPickerViewModel(slot, allItemsTask.Result)
+        );
+    }
 }
 
 internal partial class ModMenuPageConfigurationViewModel(int index) : PageViewModel(index)

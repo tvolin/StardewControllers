@@ -44,16 +44,16 @@
     </panel>
     <form-heading title={#Config.QuickActions.Heading} />
     <label margin="16, 4, 0, 4" color="#666" text={#Config.QuickActions.Items.Help} />
-    <lane layout="stretch content" margin="12, 4, 12, 4">
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadLeft} icon={@Item/(O)287} tooltip="Bomb" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadUp} icon={@Item/(T)Pickaxe} tooltip="Pickaxe" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadRight} icon={@Item/(W)4} tooltip="Galaxy Sword" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadDown} icon={@Item/(BC)71} tint="#4444" tooltip="Staircase" />
+    <lane *context={QuickSlots} layout="stretch content" margin="12, 4, 12, 4">
+        <quick-slot *context={DPadLeft} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadLeft} />
+        <quick-slot *context={DPadUp} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadUp} />
+        <quick-slot *context={DPadRight} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadRight} />
+        <quick-slot *context={DPadDown} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadDown} />
         <spacer layout="stretch 0px" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadX} icon={@Item/(O)424} tooltip="Cheese" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadY} icon={@Item/(O)253} tooltip="Triple Shot Espresso" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadB} tooltip="Unassigned" />
-        <quick-slot prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadA} icon={@Item/(O)534} tooltip="Swap Rings" />
+        <quick-slot *context={West} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadX} />
+        <quick-slot *context={North} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadY} />
+        <quick-slot *context={East} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadB} />
+        <quick-slot *context={South} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadA} />
     </lane>
 </lane>
 
@@ -73,8 +73,12 @@
 </template>
 
 <template name="quick-slot">
-    <lane margin="4, 0" orientation="vertical" horizontal-content-alignment="middle">
-        <mod-menu-slot icon={&icon} tint={&tint} tooltip={&tooltip} />
+    <lane margin="4, 0"
+          orientation="vertical"
+          horizontal-content-alignment="middle"
+          focusable="true"
+          left-click=|~ItemsConfigurationViewModel.EditQuickSlot(this)|>
+        <mod-menu-slot icon={Icon} tint={Tint} tooltip={Tooltip} />
         <image layout="32px" margin="0, -8, 0, 0" sprite={&prompt} />
     </lane>
 </template>

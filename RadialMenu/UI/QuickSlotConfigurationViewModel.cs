@@ -9,8 +9,11 @@ internal partial class QuickSlotConfigurationViewModel
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public Sprite? Icon => GetIcon();
 
+    // TODO: Tint #4444 for unavailable (not in inventory) items.
+    public Color Tint => Color.White;
+
     [DependsOn(nameof(ItemData), nameof(ModAction))]
-    public object Tooltip => GetTooltip();
+    public TooltipData Tooltip => GetTooltip();
 
     [Notify]
     private ParsedItemData? itemData;
@@ -31,17 +34,21 @@ internal partial class QuickSlotConfigurationViewModel
             : ModAction?.Icon;
     }
 
-    private object GetTooltip()
+    private TooltipData GetTooltip()
     {
         if (ItemData is not null)
         {
-            return ItemData;
+            return new(
+                Title: ItemData.DisplayName,
+                Text: ItemData.Description,
+                Item: ItemRegistry.Create(ItemData.QualifiedItemId)
+            );
         }
         if (ModAction is not null)
         {
-            return Tuple.Create(ModAction.Name, ModAction.Description);
+            return new(Title: ModAction.Name, Text: ModAction.Description);
         }
-        return I18n.Config_QuickActions_EmptySlot_Title();
+        return new(I18n.Config_QuickActions_EmptySlot_Title());
     }
 
     private void ModAction_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -50,10 +57,7 @@ internal partial class QuickSlotConfigurationViewModel
         {
             OnPropertyChanged(new(nameof(Icon)));
         }
-        else if (
-            e.PropertyName == nameof(ModAction.Name)
-            || e.PropertyName == nameof(ModAction.Description)
-        )
+        else if (e.PropertyName is nameof(ModAction.Name) or nameof(ModAction.Description))
         {
             OnPropertyChanged(new(nameof(Tooltip)));
         }
@@ -83,3 +87,5 @@ internal partial class QuickSlotConfigurationViewModel
         }
     }
 }
+
+public record TooltipData(string Text = "", string? Title = null, Item? Item = null);

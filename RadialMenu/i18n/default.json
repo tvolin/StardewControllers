@@ -120,6 +120,13 @@
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Title": "Pixel Region",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Description": "The area (source rectangle) within the sprite sheet asset where the specific sprite (icon) is located.",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder": "X, Y, Width, Height",
+  
+  // Config menu - Quick slot editor
+  "Config.QuickSlot.ItemSource.Title": "Source",
+  "Config.QuickSlot.ItemSource.Description": "Choose where to search for the item to use in this slot.",
+  "Config.QuickSlot.Inventory.Description": "Showing items are in your current inventory (backpack). To assign other items, use the \"All Items\" tab to search.",
+  "Config.QuickSlot.Inventory.Unavailable": "Inventory is not available because no game is loaded. To see current inventory, load a game and then reopen the Star Control settings.\n\nIf you know the exact items you want to assign, you can still assign them from the \"All Items\" tab above.",
+  "Config.QuickSlot.Search.LimitedResults": "Showing the first {{MaxResults}} results. Try narrowing down the list by typing in the search box.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
@@ -140,6 +147,12 @@
   "Enum.MenuOpenMode.Hold.Description": "The wheel will stay open while the associated button is held, or until an item is activated.",
   "Enum.MenuOpenMode.Toggle.Name": "Toggle",
   "Enum.MenuOpenMode.Toggle.Description": "The wheel will stay open until the associated button is pressed a second time, or until an item is activated.",
+  "Enum.QuickSlotItemSource.Inventory.Name": "Inventory",
+  "Enum.QuickSlotItemSource.Inventory.Description": "Choose an item in your current inventory. Only available while a game is loaded.",
+  "Enum.QuickSlotItemSource.GameItems.Name": "All Items",
+  "Enum.QuickSlotItemSource.GameItems.Description": "Search for any regular in-game item.\n\nSPOILER WARNING: Results may include items you haven't acquired or seen yet.",
+  "Enum.QuickSlotItemSource.ModItems.Name": "Mod Actions",
+  "Enum.QuickSlotItemSource.ModItems.Description": "Choose any action from any page of the Mod Menu.\n\nIf you later remove the item from the Mod Menu, this slot will become unassigned.",
   "Enum.ThumbStickPreference.AlwaysLeft.Name": "Left",
   "Enum.ThumbStickPreference.AlwaysLeft.Description": "Always use the left stick for wheel navigation.",
   "Enum.ThumbStickPreference.AlwaysRight.Name": "Right",
