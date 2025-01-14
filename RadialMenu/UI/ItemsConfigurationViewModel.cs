@@ -165,7 +165,11 @@ internal partial class ItemsConfigurationViewModel
     {
         ViewEngine.OpenChildMenu(
             "QuickSlotPicker",
-            new QuickSlotPickerViewModel(slot, allItemsTask.Result)
+            new QuickSlotPickerViewModel(
+                slot,
+                allItemsTask.Result,
+                Pager.Pages.Select(page => page.Clone()).ToList()
+            )
         );
     }
 }
@@ -176,6 +180,14 @@ internal partial class ModMenuPageConfigurationViewModel(int index) : PageViewMo
 
     [Notify]
     private ObservableCollection<ModMenuItemConfigurationViewModel> items = [];
+
+    // View model also holds the selection state, so in order to copy this view model from the main
+    // configuration menu to submenus like the Quick Slot editor, we clone them so that they have an
+    // independent selection state (and visibility, transforms, etc).
+    public ModMenuPageConfigurationViewModel Clone()
+    {
+        return new(Index) { Items = Items };
+    }
 
     // Hopefully temporary workaround for the source generator not generating overrides.
     // https://github.com/canton7/PropertyChanged.SourceGenerator/issues/47

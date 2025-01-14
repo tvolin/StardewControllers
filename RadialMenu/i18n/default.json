@@ -122,11 +122,15 @@
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder": "X, Y, Width, Height",
   
   // Config menu - Quick slot editor
-  "Config.QuickSlot.ItemSource.Title": "Source",
+  "Config.QuickSlot.Assigned.Title": "Assigned",
+  "Config.QuickSlot.Unassigned.Title": "Empty",
+  "Config.QuickSlot.ItemSource.Title": "Source:",
   "Config.QuickSlot.ItemSource.Description": "Choose where to search for the item to use in this slot.",
+  "Config.QuickSlot.Unassign.Description": "Clear this slot and leave it unassigned.",
   "Config.QuickSlot.Inventory.Description": "Showing items are in your current inventory (backpack). To assign other items, use the \"All Items\" tab to search.",
   "Config.QuickSlot.Inventory.Unavailable": "Inventory is not available because no game is loaded. To see current inventory, load a game and then reopen the Star Control settings.\n\nIf you know the exact items you want to assign, you can still assign them from the \"All Items\" tab above.",
   "Config.QuickSlot.Search.LimitedResults": "Showing the first {{MaxResults}} results. Try narrowing down the list by typing in the search box.",
+  "Config.QuickSlot.ModItems.LimitedResults": "Showing the first {{MaxResults}} actions. Select a specific page above to narrow down the list.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",

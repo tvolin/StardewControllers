@@ -46,7 +46,9 @@ internal partial class QuickSlotConfigurationViewModel
         }
         if (ModAction is not null)
         {
-            return new(Title: ModAction.Name, Text: ModAction.Description);
+            return !string.IsNullOrEmpty(ModAction.Description)
+                ? new(Title: ModAction.Name, Text: ModAction.Description)
+                : new(ModAction.Name);
         }
         return new(I18n.Config_QuickActions_EmptySlot_Title());
     }

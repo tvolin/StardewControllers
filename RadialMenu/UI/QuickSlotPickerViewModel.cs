@@ -13,36 +13,58 @@ internal enum QuickSlotItemSource
 
 internal partial class QuickSlotPickerViewModel
 {
-    private const int MAX_SEARCH_RESULTS = 40;
+    private const int MAX_RESULTS = 40;
 
-    public bool HasLoadedGame => Game1.hasLoadedGame;
-    public IEnumerable<QuickSlotPickerItemViewModel> InventoryItems =>
-        Game1
-            .player.Items.Where(item => item is not null)
-            .Select(QuickSlotPickerItemViewModel.ForItem)
-            .ToArray();
+    private static readonly Color AssignedColor = new(50, 100, 50);
+    private static readonly Color UnassignedColor = new(60, 60, 60);
 
+    public Color AllModPagesTint =>
+        ModMenuPageIndex < 0 ? new Color(0xaa, 0xcc, 0xee) : Color.White;
     public Vector2 ContentPanelSize
     {
         get => Pager.ContentPanelSize;
         set => Pager.ContentPanelSize = value;
     }
+
+    public Color CurrentAssignmentColor =>
+        Slot.ItemData is not null || Slot.ModAction is not null ? AssignedColor : UnassignedColor;
+    public string CurrentAssignmentLabel =>
+        Slot.ItemData is not null || Slot.ModAction is not null
+            ? I18n.Config_QuickSlot_Assigned_Title()
+            : I18n.Config_QuickSlot_Unassigned_Title();
+    public bool HasLoadedGame => Game1.hasLoadedGame;
+    public bool HasMoreModItems =>
+        ModMenuPageIndex < 0 && ModMenuPages.Sum(page => page.Items.Count) > MAX_RESULTS;
+    public IEnumerable<QuickSlotPickerItemViewModel> InventoryItems =>
+        Game1
+            .player.Items.Where(item => item is not null)
+            .Select(QuickSlotPickerItemViewModel.ForItem)
+            .ToArray();
     public EnumSegmentsViewModel<QuickSlotItemSource> ItemSource { get; } = new();
+    public IEnumerable<QuickSlotPickerItemViewModel> ModMenuItems =>
+        (
+            ModMenuPageIndex < 0
+                ? ModMenuPages.SelectMany(page => page.Items).Take(MAX_RESULTS)
+                : ModMenuPages[ModMenuPageIndex].Items
+        ).Select(QuickSlotPickerItemViewModel.ForModAction);
+    public IReadOnlyList<ModMenuPageConfigurationViewModel> ModMenuPages { get; }
+    public string MoreModItemsMessage =>
+        HasMoreModItems ? I18n.Config_QuickSlot_ModItems_LimitedResults(MAX_RESULTS) : "";
     public string MoreResultsMessage =>
-        HasMoreSearchResults ? I18n.Config_QuickSlot_Search_LimitedResults(MAX_SEARCH_RESULTS) : "";
+        HasMoreSearchResults ? I18n.Config_QuickSlot_Search_LimitedResults(MAX_RESULTS) : "";
     public PagerViewModel<PageViewModel> Pager { get; } =
         new() { Pages = [new(0), new(1), new(2)] };
     public QuickSlotConfigurationViewModel Slot { get; }
 
     private readonly IReadOnlyList<ParsedItemData> allItems;
 
-    [Notify]
+    [Notify(Setter.Private)]
     private bool hasMoreSearchResults;
 
     [Notify]
-    private IEnumerable<ModMenuItemConfigurationViewModel> modMenuItems = [];
+    private int modMenuPageIndex = -1; // Use -1 for "all", if they fit
 
-    [Notify]
+    [Notify(Setter.Private)]
     private IReadOnlyList<QuickSlotPickerItemViewModel> searchResults = [];
 
     [Notify]
@@ -54,18 +76,47 @@ internal partial class QuickSlotPickerViewModel
 
     public QuickSlotPickerViewModel(
         QuickSlotConfigurationViewModel slot,
-        IReadOnlyList<ParsedItemData> allItems
+        IReadOnlyList<ParsedItemData> allItems,
+        IReadOnlyList<ModMenuPageConfigurationViewModel> modMenuPages
     )
     {
         Slot = slot;
         this.allItems = allItems;
+        ModMenuPages = modMenuPages;
         UpdateSearchResults();
         ItemSource.PropertyChanged += ItemSource_PropertyChanged;
+    }
+
+    public bool HandleButtonPress(SButton button)
+    {
+        return Pager.HandleButtonPress(button);
+    }
+
+    public void SelectModMenuPage(int index)
+    {
+        if (index == ModMenuPageIndex)
+        {
+            return;
+        }
+        Game1.playSound("smallSelect");
+        ModMenuPageIndex = index;
     }
 
     private void ItemSource_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         Pager.SelectedPageIndex = ItemSource.SelectedIndex;
+    }
+
+    private void OnModMenuPageIndexChanged(int oldValue, int newValue)
+    {
+        if (oldValue >= 0)
+        {
+            ModMenuPages[oldValue].Selected = false;
+        }
+        if (newValue >= 0)
+        {
+            ModMenuPages[newValue].Selected = true;
+        }
     }
 
     private void OnSearchTextChanged()
@@ -100,7 +151,7 @@ internal partial class QuickSlotPickerViewModel
                     // Results can easily be limited using .Take(limit), but we also need to know if there are more,
                     // which no Linq extension can tell us.
                     using var resultEnumerator = t.Result.GetEnumerator();
-                    while (results.Count < MAX_SEARCH_RESULTS && resultEnumerator.MoveNext())
+                    while (results.Count < MAX_RESULTS && resultEnumerator.MoveNext())
                     {
                         results.Add(
                             QuickSlotPickerItemViewModel.ForItemData(resultEnumerator.Current)

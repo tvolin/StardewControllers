@@ -14,6 +14,7 @@ namespace RadialMenu.UI;
 /// cases, the item must be drawn with a tint or overlay, which is actually a second sprite.
 /// </para>
 /// </remarks>
+/// <param name="update">Delegate to update a quick slot to reference this item.</param>
 /// <param name="sourceTexture">The texture where the item image is located; both the base image and
 /// the overlay (if applicable) are expected to be found in this texture.</param>
 /// <param name="sourceRect">The region of the <paramref name="sourceTexture"/> where the base image
@@ -24,6 +25,7 @@ namespace RadialMenu.UI;
 /// <paramref name="tintRect"/>, if one is specified, or the base image (in
 /// <paramref name="sourceRect"/>) if no <paramref name="tintRect"/> is specified.</param>
 internal class QuickSlotPickerItemViewModel(
+    Action<QuickSlotConfigurationViewModel> update,
     Texture2D sourceTexture,
     Rectangle? sourceRect,
     Rectangle? tintRect = null,
@@ -67,17 +69,18 @@ internal class QuickSlotPickerItemViewModel(
     /// <param name="item">The item to display.</param>
     public static QuickSlotPickerItemViewModel ForItem(Item item)
     {
+        var data = ItemRegistry.GetDataOrErrorItem(item.QualifiedItemId);
         if (item is SObject obj && obj.preserve.Value == SObject.PreserveType.SmokedFish)
         {
             var fishData = ItemRegistry.GetDataOrErrorItem(obj.GetPreservedItemId());
             return new(
+                slot => slot.ItemData = data,
                 fishData.GetTexture(),
                 fishData.GetSourceRect(),
                 fishData.GetSourceRect(),
                 SmokedFishTintColor
             );
         }
-        var data = ItemRegistry.GetDataOrErrorItem(item.QualifiedItemId);
         Color? tintColor = null;
         Rectangle? tintRect = null;
         if (item is ColoredObject co)
@@ -91,14 +94,52 @@ internal class QuickSlotPickerItemViewModel(
         TooltipData tooltip = !string.IsNullOrEmpty(item.getDescription())
             ? new(Title: item.DisplayName, Text: item.getDescription(), Item: item)
             : new(Text: item.getDescription(), Item: item);
-        return new(data.GetTexture(), data.GetSourceRect(), tintRect, tintColor, tooltip);
+        return new(
+            slot => slot.ItemData = data,
+            data.GetTexture(),
+            data.GetSourceRect(),
+            tintRect,
+            tintColor,
+            tooltip
+        );
     }
 
+    /// <summary>
+    /// Creates a new instance using the base data for an in-game item.
+    /// </summary>
+    /// <param name="data">The item data.</param>
     public static QuickSlotPickerItemViewModel ForItemData(ParsedItemData data)
     {
         TooltipData tooltip = !string.IsNullOrEmpty(data.Description)
             ? new(Title: data.DisplayName, Text: data.Description)
             : new(data.DisplayName);
-        return new(data.GetTexture(), data.GetSourceRect(), tooltip: tooltip);
+        return new(
+            slot => slot.ItemData = data,
+            data.GetTexture(),
+            data.GetSourceRect(),
+            tooltip: tooltip
+        );
+    }
+
+    /// <summary>
+    /// Creates a new instance using the configuration for a mod action.
+    /// </summary>
+    /// <param name="item">The mod action.</param>
+    public static QuickSlotPickerItemViewModel ForModAction(ModMenuItemConfigurationViewModel item)
+    {
+        var icon = item.Icon;
+        var tooltip = !string.IsNullOrEmpty(item.Description)
+            ? new TooltipData(item.Description, item.Name)
+            : new(item.Name);
+        return new(slot => slot.ModAction = item, icon.Texture, icon.SourceRect, tooltip: tooltip);
+    }
+
+    /// <summary>
+    /// Updates a quick slot to point to this item.
+    /// </summary>
+    /// <param name="slot">The quick slot to be updated.</param>
+    public void UpdateSlot(QuickSlotConfigurationViewModel slot)
+    {
+        update(slot);
     }
 }

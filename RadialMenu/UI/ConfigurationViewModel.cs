@@ -31,18 +31,9 @@ internal partial class ConfigurationViewModel
         ];
     }
 
-    public void HandleButtonPress(SButton button)
+    public bool HandleButtonPress(SButton button)
     {
-        switch (button)
-        {
-            case SButton.LeftTrigger:
-                Pager.SelectedPageIndex =
-                    (Pager.SelectedPageIndex + Pager.Pages.Count - 1) % Pager.Pages.Count;
-                break;
-            case SButton.RightTrigger:
-                Pager.SelectedPageIndex = (Pager.SelectedPageIndex + 1) % Pager.Pages.Count;
-                break;
-        }
+        return Pager.HandleButtonPress(button);
     }
 
     private void OnContentPanelSizeChanged()

@@ -18,6 +18,21 @@ internal partial class PagerViewModel<T>
     [Notify]
     private int selectedPageIndex = -1;
 
+    public bool HandleButtonPress(SButton button)
+    {
+        switch (button)
+        {
+            case SButton.LeftTrigger:
+                SelectedPageIndex = (SelectedPageIndex + Pages.Count - 1) % Pages.Count;
+                return true;
+            case SButton.RightTrigger:
+                SelectedPageIndex = (SelectedPageIndex + 1) % Pages.Count;
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void SelectPage(int index)
     {
         if (index < 0 || index == SelectedPageIndex)
