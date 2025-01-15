@@ -36,15 +36,17 @@ internal static class ViewEngine
             );
         }
         var assetName = ViewAssetPrefix + '/' + viewName;
-        var menu = Instance.CreateMenuFromAsset(assetName, context);
         var parent = Game1.activeClickableMenu;
         for (; parent?.GetChildMenu() is not null; parent = parent.GetChildMenu()) { }
         if (parent is not null)
         {
-            parent.SetChildMenu(menu);
+            var controller = Instance.CreateMenuControllerFromAsset(assetName, context);
+            controller.CloseOnOutsideClick = true;
+            parent.SetChildMenu(controller.Menu);
         }
         else
         {
+            var menu = Instance.CreateMenuFromAsset(assetName, context);
             Game1.activeClickableMenu = menu;
         }
     }
