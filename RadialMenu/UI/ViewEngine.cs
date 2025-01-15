@@ -27,7 +27,7 @@ internal static class ViewEngine
     /// <param name="context">View model for the menu.</param>
     /// <exception cref="InvalidOperationException">Thrown when the <see cref="Instance"/> has not
     /// been assigned by the mod's entry point.</exception>
-    public static void OpenChildMenu(string viewName, object? context)
+    public static IMenuController OpenChildMenu(string viewName, object? context)
     {
         if (Instance is null)
         {
@@ -36,18 +36,18 @@ internal static class ViewEngine
             );
         }
         var assetName = ViewAssetPrefix + '/' + viewName;
+        var controller = Instance.CreateMenuControllerFromAsset(assetName, context);
         var parent = Game1.activeClickableMenu;
         for (; parent?.GetChildMenu() is not null; parent = parent.GetChildMenu()) { }
         if (parent is not null)
         {
-            var controller = Instance.CreateMenuControllerFromAsset(assetName, context);
             controller.CloseOnOutsideClick = true;
             parent.SetChildMenu(controller.Menu);
         }
         else
         {
-            var menu = Instance.CreateMenuFromAsset(assetName, context);
-            Game1.activeClickableMenu = menu;
+            Game1.activeClickableMenu = controller.Menu;
         }
+        return controller;
     }
 }

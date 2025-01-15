@@ -23,7 +23,8 @@
                 <spacer layout="stretch 0px" />
                 <button layout="48px"
                         hover-background={@Mods/StardewUI/Sprites/ButtonLight}
-                        tooltip={#Config.QuickSlot.Unassign.Description}>
+                        tooltip={#Config.QuickSlot.Unassign.Description}
+                        left-click=|ClearAssignment()|>
                     <image sprite={@Mods/StardewUI/Sprites/TinyTrashCan} scale="3" />
                 </button>
             </lane>
@@ -155,7 +156,8 @@
            focusable="true"
            tooltip={:Tooltip}
            +hover:background-tint="#39d"
-           +transition:background-tint="100ms">
+           +transition:background-tint="100ms"
+           left-click=|~QuickSlotPickerViewModel.AssignItem(this)|>
         <panel>
             <image layout="64px"
                    horizontal-alignment="middle"

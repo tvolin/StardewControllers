@@ -163,14 +163,13 @@ internal partial class ItemsConfigurationViewModel
 
     public void EditQuickSlot(QuickSlotConfigurationViewModel slot)
     {
-        ViewEngine.OpenChildMenu(
-            "QuickSlotPicker",
-            new QuickSlotPickerViewModel(
-                slot,
-                allItemsTask.Result,
-                Pager.Pages.Select(page => page.Clone()).ToList()
-            )
+        var context = new QuickSlotPickerViewModel(
+            slot,
+            allItemsTask.Result,
+            Pager.Pages.Select(page => page.Clone()).ToList()
         );
+        var controller = ViewEngine.OpenChildMenu("QuickSlotPicker", context);
+        context.Close = controller.Close;
     }
 }
 

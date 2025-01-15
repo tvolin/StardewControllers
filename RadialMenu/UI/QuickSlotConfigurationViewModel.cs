@@ -6,11 +6,15 @@ namespace RadialMenu.UI;
 
 internal partial class QuickSlotConfigurationViewModel
 {
+    private static readonly Color UnavailableColor = new(0x44, 0x44, 0x44, 0x44);
+
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public Sprite? Icon => GetIcon();
 
-    // TODO: Tint #4444 for unavailable (not in inventory) items.
-    public Color Tint => Color.White;
+    public Color Tint =>
+        ItemData is not null && Game1.player.Items.FindUsableItem(ItemData.QualifiedItemId) is null
+            ? UnavailableColor
+            : Color.White;
 
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public TooltipData Tooltip => GetTooltip();

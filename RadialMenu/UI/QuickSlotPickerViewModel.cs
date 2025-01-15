@@ -20,6 +20,8 @@ internal partial class QuickSlotPickerViewModel
 
     public Color AllModPagesTint =>
         ModMenuPageIndex < 0 ? new Color(0xaa, 0xcc, 0xee) : Color.White;
+    public Action Close { get; set; } = () => { };
+
     public Vector2 ContentPanelSize
     {
         get => Pager.ContentPanelSize;
@@ -85,6 +87,19 @@ internal partial class QuickSlotPickerViewModel
         ModMenuPages = modMenuPages;
         UpdateSearchResults();
         ItemSource.PropertyChanged += ItemSource_PropertyChanged;
+    }
+
+    public void AssignItem(QuickSlotPickerItemViewModel item)
+    {
+        item.UpdateSlot(Slot);
+        Close();
+    }
+
+    public void ClearAssignment()
+    {
+        Slot.ItemData = null;
+        Slot.ModAction = null;
+        Close();
     }
 
     public bool HandleButtonPress(SButton button)

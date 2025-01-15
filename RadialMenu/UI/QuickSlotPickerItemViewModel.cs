@@ -95,7 +95,7 @@ internal class QuickSlotPickerItemViewModel(
             ? new(Title: item.DisplayName, Text: item.getDescription(), Item: item)
             : new(Text: item.getDescription(), Item: item);
         return new(
-            slot => slot.ItemData = data,
+            slot => slot.ItemData = data.GetBaseItem(),
             data.GetTexture(),
             data.GetSourceRect(),
             tintRect,
@@ -114,7 +114,7 @@ internal class QuickSlotPickerItemViewModel(
             ? new(Title: data.DisplayName, Text: data.Description)
             : new(data.DisplayName);
         return new(
-            slot => slot.ItemData = data,
+            slot => slot.ItemData = data.GetBaseItem(),
             data.GetTexture(),
             data.GetSourceRect(),
             tooltip: tooltip
