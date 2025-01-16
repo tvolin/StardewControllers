@@ -75,7 +75,7 @@ internal partial class ConfigurationViewModel
                 Controller?.SetCursorAttachment(
                     item.Icon.Texture,
                     item.Icon.SourceRect,
-                    new(64, 64)
+                    new(64 * item.Icon.SourceRect.Width / item.Icon.SourceRect.Height, 64)
                 );
             }
             else

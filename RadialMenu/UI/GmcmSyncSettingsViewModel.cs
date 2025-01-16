@@ -30,7 +30,7 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
         {
             return;
         }
-        Game1.playSound("smallSelect");
+        Game1.playSound("drumkit6");
         SelectedOption = option;
     }
 
