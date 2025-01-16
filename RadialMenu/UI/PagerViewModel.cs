@@ -1,9 +1,10 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using PropertyChanged.SourceGenerator;
 
 namespace RadialMenu.UI;
 
-internal partial class PagerViewModel<T>
+internal partial class PagerViewModel<T> : INotifyPropertyChanged, INotifyPropertyChanging
     where T : PageViewModel
 {
     public T? SelectedPage =>
@@ -33,14 +34,15 @@ internal partial class PagerViewModel<T>
         }
     }
 
-    public void SelectPage(int index)
+    public bool SelectPage(int index)
     {
         if (index < 0 || index == SelectedPageIndex)
         {
-            return;
+            return false;
         }
         Game1.playSound("smallSelect");
         SelectedPageIndex = index;
+        return true;
     }
 
     private void OnContentPanelSizeChanged()

@@ -1,18 +1,27 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
 
-// TODO: Add new item when clicking "+".
-// TODO: Limit number of items that can be added per page (stop showing + button).
 // TODO: Make minimum window height match max number of item rows, test with different row counts.
-// TODO: Implement item reordering.
 
 internal partial class ItemsConfigurationViewModel
 {
+    private const int MAX_PAGE_SIZE = 16;
+
+    public string AddButtonTooltip =>
+        IsPageFull
+            ? I18n.Config_ModMenu_MaxItems_Description()
+            : I18n.Config_ModMenu_AddItem_Description();
+    public bool CanAddItem => !IsReordering;
+    public bool CanRemoveItem => IsReordering;
+    public bool IsPageFull => SelectedPageSize >= MAX_PAGE_SIZE;
+    public bool IsReordering => GrabbedItem is not null;
     public PagerViewModel<ModMenuPageConfigurationViewModel> Pager { get; } = new();
 
     private readonly Task<ParsedItemData[]> allItemsTask = Task.Run(
@@ -30,19 +39,54 @@ internal partial class ItemsConfigurationViewModel
                 .ToArray()
     );
 
+    [Notify]
+    private ModMenuItemConfigurationViewModel? grabbedItem;
+
+    [Notify]
+    private int inventoryPageSize;
+
+    [Notify]
+    private bool isTrashCanHovered;
+
+    [Notify]
+    private int selectedPageSize;
+
+    [Notify]
+    private bool showInventoryBlanks;
+
+    [Notify]
+    private QuickSlotGroupConfigurationViewModel quickSlots = new();
+
+    private int grabbedItemIndex; // Within the page
+    private int grabbedItemPageIndex;
+
     public ItemsConfigurationViewModel()
     {
         // Temporary - dummy config.
         InventoryPageSize = 12;
+        Pager.PropertyChanging += Pager_PropertyChanging;
+        Pager.PropertyChanged += Pager_PropertyChanged;
         allItemsTask.ContinueWith(t =>
         {
             var allItems = t.Result;
+            var settingsItem = new ModMenuItemConfigurationViewModel("0", allItems)
+            {
+                Name = I18n.Config_ModMenu_SettingsItem_Name(),
+                Description = I18n.Config_ModMenu_SettingsItem_Description(),
+                CustomIcon = new(
+                    Game1.content.Load<Texture2D>("Mods/focustense.RadialMenu/Sprites/UI"),
+                    new(80, 0, 16, 16)
+                ),
+                Editable = false,
+                IconType = { SelectedValue = ItemIconType.Custom },
+            };
             Pager.Pages =
             [
                 new(0)
                 {
                     Items =
                     [
+                        settingsItem,
                         new("1", allItems)
                         {
                             Name = "Swap Rings",
@@ -131,37 +175,56 @@ internal partial class ItemsConfigurationViewModel
         });
     }
 
-    [Notify]
-    private int inventoryPageSize;
+    public bool AddNewItem()
+    {
+        if (!CanAddItem || IsPageFull)
+        {
+            return false;
+        }
+        var newItem = new ModMenuItemConfigurationViewModel(
+            IdGenerator.NewId(6),
+            allItemsTask.Result
+        );
+        Pager.SelectedPage!.Items.Add(newItem);
+        EditModMenuItem(newItem);
+        return true;
+    }
 
-    [Notify]
-    private bool showInventoryBlanks;
-
-    [Notify]
-    private QuickSlotGroupConfigurationViewModel quickSlots = new();
-
-    public void AddPage()
+    public bool AddPage()
     {
         Game1.playSound("smallSelect");
         var nextIndex = Pager.Pages.Count;
         Pager.Pages.Add(new(nextIndex));
         Pager.SelectedPageIndex = nextIndex;
+        return true;
     }
 
-    public void EditModMenuItem(string id)
+    public bool BeginReordering(ModMenuItemConfigurationViewModel item)
     {
-        // The most extreme configuration might have a few dozen items, not enough to justify
-        // keeping a separate dictionary in sync.
-        var item = Pager.Pages.SelectMany(page => page.Items).FirstOrDefault(item => item.Id == id);
-        if (item is null)
+        var itemIndex = Pager.SelectedPage?.Items.IndexOf(item) ?? -1;
+        if (itemIndex < 0)
         {
-            Logger.Log($"Item not found on any page: {id}", LogLevel.Warn);
-            return;
+            return false;
+        }
+        Game1.playSound("dwop");
+        GrabbedItem = item;
+        grabbedItemPageIndex = Pager.SelectedPageIndex;
+        grabbedItemIndex = itemIndex;
+        item.IsReordering = true;
+        return true;
+    }
+
+    public bool EditModMenuItem(ModMenuItemConfigurationViewModel item)
+    {
+        if (!item.Editable)
+        {
+            return false;
         }
         ViewEngine.OpenChildMenu("ModMenuItem", item);
+        return true;
     }
 
-    public void EditQuickSlot(QuickSlotConfigurationViewModel slot)
+    public bool EditQuickSlot(QuickSlotConfigurationViewModel slot)
     {
         var context = new QuickSlotPickerViewModel(
             slot,
@@ -170,6 +233,78 @@ internal partial class ItemsConfigurationViewModel
         );
         var controller = ViewEngine.OpenChildMenu("QuickSlotPicker", context);
         context.Close = controller.Close;
+        return true;
+    }
+
+    public bool EndReordering(ModMenuItemConfigurationViewModel? target = null)
+    {
+        if (GrabbedItem is null)
+        {
+            return false;
+        }
+        if (target is not null)
+        {
+            var targetIndex = Pager.SelectedPage?.Items.IndexOf(target) ?? -1;
+            if (targetIndex < 0)
+            {
+                return false;
+            }
+            Game1.playSound("stoneStep");
+            Pager.SelectedPage!.Items[targetIndex] = GrabbedItem;
+            Pager.Pages[grabbedItemPageIndex].Items[grabbedItemIndex] = target;
+        }
+        GrabbedItem.IsReordering = false;
+        GrabbedItem = null;
+        return true;
+    }
+
+    public void HoverTrashCan()
+    {
+        Game1.playSound("trashcanlid");
+        IsTrashCanHovered = true;
+    }
+
+    public void LeaveTrashCan()
+    {
+        IsTrashCanHovered = false;
+    }
+
+    public bool RemoveGrabbedItem()
+    {
+        if (GrabbedItem is null || !GrabbedItem.Editable)
+        {
+            return false;
+        }
+        Game1.playSound("trashcan");
+        Pager.Pages[grabbedItemPageIndex].Items.Remove(GrabbedItem);
+        GrabbedItem = null;
+        IsTrashCanHovered = false;
+        return true;
+    }
+
+    private void Pager_PropertyChanging(object? sender, PropertyChangingEventArgs e)
+    {
+        if (e.PropertyName == nameof(Pager.SelectedPage) && Pager.SelectedPage is { } page)
+        {
+            page.Items.CollectionChanged += Pager_SelectedPage_ItemsChanged;
+        }
+    }
+
+    private void Pager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Pager.SelectedPage))
+        {
+            SelectedPageSize = Pager.SelectedPage?.Items.Count ?? 0;
+            if (Pager.SelectedPage is { } page)
+            {
+                page.Items.CollectionChanged += Pager_SelectedPage_ItemsChanged;
+            }
+        }
+    }
+
+    private void Pager_SelectedPage_ItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SelectedPageSize = Pager.SelectedPage?.Items.Count ?? 0;
     }
 }
 

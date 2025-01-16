@@ -20,8 +20,6 @@ internal enum ItemSyncType
     Gmcm,
 }
 
-// TODO: Add function/UI to remove this item.
-
 internal partial class ModMenuItemConfigurationViewModel
 {
     public bool CanEditDescription =>
@@ -29,6 +27,7 @@ internal partial class ModMenuItemConfigurationViewModel
     public bool CanEditKeybind => SyncType.SelectedValue == ItemSyncType.None;
     public bool CanEditName =>
         SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableTitleSync != true;
+    public bool Editable { get; set; } = true;
     public string Id { get; }
     public Sprite Icon =>
         (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
@@ -38,6 +37,8 @@ internal partial class ModMenuItemConfigurationViewModel
     public bool IsGmcmSyncVisible => SyncType.SelectedValue == ItemSyncType.Gmcm;
     public bool IsStandardIcon => IconType.SelectedValue == ItemIconType.Item;
     public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
+    public TooltipData Tooltip =>
+        !string.IsNullOrEmpty(Description) ? new TooltipData(Description, Name) : new(Name);
 
     [Notify]
     private Sprite? customIcon;
@@ -65,6 +66,9 @@ internal partial class ModMenuItemConfigurationViewModel
 
     [Notify]
     private string iconSourceRectText = "";
+
+    [Notify]
+    private bool isReordering;
 
     [Notify]
     private string name = "";

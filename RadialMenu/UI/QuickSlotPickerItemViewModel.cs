@@ -128,10 +128,12 @@ internal class QuickSlotPickerItemViewModel(
     public static QuickSlotPickerItemViewModel ForModAction(ModMenuItemConfigurationViewModel item)
     {
         var icon = item.Icon;
-        var tooltip = !string.IsNullOrEmpty(item.Description)
-            ? new TooltipData(item.Description, item.Name)
-            : new(item.Name);
-        return new(slot => slot.ModAction = item, icon.Texture, icon.SourceRect, tooltip: tooltip);
+        return new(
+            slot => slot.ModAction = item,
+            icon.Texture,
+            icon.SourceRect,
+            tooltip: item.Tooltip
+        );
     }
 
     /// <summary>

@@ -93,5 +93,3 @@ internal partial class QuickSlotConfigurationViewModel
         }
     }
 }
-
-public record TooltipData(string Text = "", string? Title = null, Item? Item = null);

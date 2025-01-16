@@ -39,6 +39,12 @@
     },
     "TargetBlue": {
       "SourceRect": "288, 1199, 16, 16"
+    },
+    "TrashCan": {
+      "SourceRect": "564, 102, 18, 26"
+    },
+    "TrashCanLid": {
+      "SourceRect": "564, 129, 18, 10"
     }
   }
 }

@@ -1,11 +1,14 @@
-﻿using PropertyChanged.SourceGenerator;
+﻿using System.ComponentModel;
+using PropertyChanged.SourceGenerator;
 using RadialMenu.Config;
 
 namespace RadialMenu.UI;
 
 internal partial class ConfigurationViewModel
 {
+    public IMenuController? Controller { get; set; }
     public InputConfigurationViewModel Input { get; } = new();
+    public bool IsNavigationDisabled => !IsNavigationEnabled;
     public ItemsConfigurationViewModel Items { get; } = new();
     public PagerViewModel<NavPageViewModel> Pager { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
@@ -15,6 +18,9 @@ internal partial class ConfigurationViewModel
 
     [Notify]
     private Vector2 contentPanelSize;
+
+    [Notify]
+    private bool isNavigationEnabled = true;
 
     public ConfigurationViewModel(ModConfig config, string modId)
     {
@@ -29,11 +35,54 @@ internal partial class ConfigurationViewModel
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), ""),
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), ""),
         ];
+        Items.PropertyChanged += Items_PropertyChanged;
+    }
+
+    public bool CancelBlockingAction()
+    {
+        if (Items.IsReordering)
+        {
+            return Items.EndReordering();
+        }
+        return false;
     }
 
     public bool HandleButtonPress(SButton button)
     {
+        if (!IsNavigationEnabled && IsCancelButton(button))
+        {
+            return CancelBlockingAction();
+        }
         return Pager.HandleButtonPress(button);
+    }
+
+    private static bool IsCancelButton(SButton button)
+    {
+        return button is SButton.ControllerB or SButton.ControllerBack
+            || (
+                button.TryGetStardewInput(out var inputButton)
+                && Game1.options.menuButton.Contains(inputButton)
+            );
+    }
+
+    private void Items_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ItemsConfigurationViewModel.GrabbedItem))
+        {
+            IsNavigationEnabled = Items.GrabbedItem is null;
+            if (Items.GrabbedItem is { } item)
+            {
+                Controller?.SetCursorAttachment(
+                    item.Icon.Texture,
+                    item.Icon.SourceRect,
+                    new(64, 64)
+                );
+            }
+            else
+            {
+                Controller?.ClearCursorAttachment();
+            }
+        }
     }
 
     private void OnContentPanelSizeChanged()

@@ -283,7 +283,8 @@ public class ModEntry : Mod
         )
         {
             var context = new ConfigurationViewModel(new(), ModManifest.UniqueID);
-            ViewEngine.OpenChildMenu("Configuration", context);
+            context.Controller = ViewEngine.OpenChildMenu("Configuration", context);
+            context.Controller.CanClose = () => context.IsNavigationEnabled;
             return;
         }
 
