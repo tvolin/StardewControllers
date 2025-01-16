@@ -47,6 +47,9 @@ internal partial class ModMenuItemConfigurationViewModel
     private string description = "";
 
     [Notify]
+    private bool enabled = true;
+
+    [Notify]
     private GmcmSyncSettingsViewModel? gmcmSync;
 
     [Notify]
@@ -100,7 +103,7 @@ internal partial class ModMenuItemConfigurationViewModel
 
     public void PickRandomIcon()
     {
-        Game1.playSound("smallSelect");
+        Game1.playSound("drumkit6");
         IconType.SelectedValue = ItemIconType.Item;
         int index = Random.Shared.Next(allItems.Length);
         IconItemId = allItems[index].QualifiedItemId;

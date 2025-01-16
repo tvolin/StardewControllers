@@ -161,6 +161,10 @@
                            +transition:tint="150ms" />
                 </frame>
                 <slotted-item icon={Icon} />
+                <image *!if={Enabled}
+                       layout="stretch"
+                       sprite={@Item/Error_Invalid}
+                       pointer-events-enabled="false" />
             </panel>
         </item-slot>
     </frame>

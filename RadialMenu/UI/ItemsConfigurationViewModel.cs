@@ -216,11 +216,15 @@ internal partial class ItemsConfigurationViewModel
 
     public bool EditModMenuItem(ModMenuItemConfigurationViewModel item)
     {
-        if (!item.Editable)
+        if (item.Editable)
         {
-            return false;
+            ViewEngine.OpenChildMenu("ModMenuItem", item);
         }
-        ViewEngine.OpenChildMenu("ModMenuItem", item);
+        else
+        {
+            Game1.playSound("drumkit6");
+            item.Enabled = !item.Enabled;
+        }
         return true;
     }
 
@@ -278,7 +282,6 @@ internal partial class ItemsConfigurationViewModel
         Game1.playSound("trashcan");
         Pager.Pages[grabbedItemPageIndex].Items.Remove(GrabbedItem);
         GrabbedItem = null;
-        IsTrashCanHovered = false;
         return true;
     }
 
