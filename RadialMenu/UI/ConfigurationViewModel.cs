@@ -10,6 +10,7 @@ internal partial class ConfigurationViewModel
     public InputConfigurationViewModel Input { get; } = new();
     public bool IsNavigationDisabled => !IsNavigationEnabled;
     public ItemsConfigurationViewModel Items { get; } = new();
+    public ModIntegrationsViewModel Mods { get; } = new();
     public PagerViewModel<NavPageViewModel> Pager { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
 
@@ -27,12 +28,24 @@ internal partial class ConfigurationViewModel
         this.config = config;
         Input.Load(config.Input);
         Style.Load(config.Style);
+        Mods.Priorities =
+        [
+            ModPriorityViewModel.Self(modId, Items),
+            new("furyx639.ToolbarIcons")
+            {
+                Name = "Iconic Framework",
+                Description = "Adds shortcut icons to vanilla and mod functions.",
+            },
+            new("foo.Test1") { Name = "Test Mod 1", Description = "Test Description 1" },
+            new("foo.Test2") { Name = "Test Mod 2", Description = "Test Description 2" },
+            new("foo.Test3") { Name = "Test Mod 3", Description = "Test Description 3" },
+        ];
         Pager.Pages =
         [
             new(NavPage.Controls, I18n.Config_Tab_Controls_Title(), $"Mods/{modId}/Views/Controls"),
             new(NavPage.Style, I18n.Config_Tab_Style_Title(), $"Mods/{modId}/Views/Style"),
             new(NavPage.Actions, I18n.Config_Tab_Actions_Title(), $"Mods/{modId}/Views/Actions"),
-            new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), ""),
+            new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), $"Mods/{modId}/Views/ModIntegrations"),
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), ""),
         ];
         Items.PropertyChanged += Items_PropertyChanged;

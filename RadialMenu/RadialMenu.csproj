@@ -48,6 +48,10 @@
     <Content Include="assets\ui\views\QuickSlotPicker.sml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="assets\ui\views\ModIntegrations.sml" />
+    <Content Include="assets\ui\views\ModIntegrations.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,7 @@
 {
+  // Common strings
+  "ModTitle": "Star Control",
+  
   // Config menu - Navigation
   "Config.Tab.Controls.Title": "Controls",
   "Config.Tab.Style.Title": "Style",
@@ -135,6 +138,11 @@
   "Config.QuickSlot.Inventory.Unavailable": "Inventory is not available because no game is loaded. To see current inventory, load a game and then reopen the Star Control settings.\n\nIf you know the exact items you want to assign, you can still assign them from the \"All Items\" tab above.",
   "Config.QuickSlot.Search.LimitedResults": "Showing the first {{MaxResults}} results. Try narrowing down the list by typing in the search box.",
   "Config.QuickSlot.ModItems.LimitedResults": "Showing the first {{MaxResults}} actions. Select a specific page above to narrow down the list.",
+  
+  // Config menu - Mod integrations page
+  "Config.ModIntegrations.CustomItems": "Includes the {{PageCount}} page(s) of your personal Mod Menu, as configured in the Actions tab.",
+  "Config.ModPriorities.Heading": "Mod Priorities",
+  "Config.ModPriorities.Help": "Click the checkbox or mod name to enable or disable its menus.\n\nTo change the page order, drag items with the mouse, or press the secondary (X) button on your controller.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
