@@ -235,8 +235,7 @@ internal partial class ItemsConfigurationViewModel
             allItemsTask.Result,
             Pager.Pages.Select(page => page.Clone()).ToList()
         );
-        var controller = ViewEngine.OpenChildMenu("QuickSlotPicker", context);
-        context.Close = controller.Close;
+        ViewEngine.OpenChildMenu("QuickSlotPicker", context);
         return true;
     }
 

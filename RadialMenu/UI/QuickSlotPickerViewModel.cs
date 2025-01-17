@@ -15,12 +15,8 @@ internal partial class QuickSlotPickerViewModel
 {
     private const int MAX_RESULTS = 40;
 
-    private static readonly Color AssignedColor = new(50, 100, 50);
-    private static readonly Color UnassignedColor = new(60, 60, 60);
-
     public Color AllModPagesTint =>
         ModMenuPageIndex < 0 ? new Color(0xaa, 0xcc, 0xee) : Color.White;
-    public Action Close { get; set; } = () => { };
 
     public Vector2 ContentPanelSize
     {
@@ -28,12 +24,6 @@ internal partial class QuickSlotPickerViewModel
         set => Pager.ContentPanelSize = value;
     }
 
-    public Color CurrentAssignmentColor =>
-        Slot.ItemData is not null || Slot.ModAction is not null ? AssignedColor : UnassignedColor;
-    public string CurrentAssignmentLabel =>
-        Slot.ItemData is not null || Slot.ModAction is not null
-            ? I18n.Config_QuickSlot_Assigned_Title()
-            : I18n.Config_QuickSlot_Unassigned_Title();
     public bool HasLoadedGame => Game1.hasLoadedGame;
     public bool HasMoreModItems =>
         ModMenuPageIndex < 0 && ModMenuPages.Sum(page => page.Items.Count) > MAX_RESULTS;
@@ -56,6 +46,7 @@ internal partial class QuickSlotPickerViewModel
         HasMoreSearchResults ? I18n.Config_QuickSlot_Search_LimitedResults(MAX_RESULTS) : "";
     public PagerViewModel<PageViewModel> Pager { get; } =
         new() { Pages = [new(0), new(1), new(2)] };
+    public bool SecondaryActionProhibited => !SecondaryActionAllowed;
     public QuickSlotConfigurationViewModel Slot { get; }
 
     private readonly IReadOnlyList<ParsedItemData> allItems;
@@ -72,6 +63,9 @@ internal partial class QuickSlotPickerViewModel
     [Notify]
     private string searchText = "";
 
+    [Notify]
+    private bool secondaryActionAllowed;
+
     private readonly object searchLock = new();
 
     private CancellationTokenSource searchCancellationTokenSource = new();
@@ -83,6 +77,7 @@ internal partial class QuickSlotPickerViewModel
     )
     {
         Slot = slot;
+        SecondaryActionAllowed = Slot.ItemData is not null;
         this.allItems = allItems;
         ModMenuPages = modMenuPages;
         UpdateSearchResults();
@@ -91,15 +86,22 @@ internal partial class QuickSlotPickerViewModel
 
     public void AssignItem(QuickSlotPickerItemViewModel item)
     {
+        Game1.playSound("drumkit6");
         item.UpdateSlot(Slot);
-        Close();
+        SecondaryActionAllowed = Slot.ItemData is not null;
     }
 
     public void ClearAssignment()
     {
+        if (Slot.ItemData is null && Slot.ModAction is null)
+        {
+            return;
+        }
+        Game1.playSound("trashcan");
         Slot.ItemData = null;
         Slot.ModAction = null;
-        Close();
+        Slot.UseSecondaryAction = false;
+        SecondaryActionAllowed = false;
     }
 
     public bool HandleButtonPress(SButton button)

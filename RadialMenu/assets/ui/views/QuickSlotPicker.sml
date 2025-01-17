@@ -6,14 +6,37 @@
            *context={:Slot}
            padding="24"
            background={@Mods/StardewUI/Sprites/ControlBorder}>
-        <lane orientation="vertical" horizontal-content-alignment="middle">
+        <lane layout="content[105..] content" orientation="vertical" horizontal-content-alignment="middle">
             <image layout="64px"
                    horizontal-alignment="middle"
                    vertical-alignment="middle"
                    sprite={Icon}
                    tint={Tint}
                    tooltip={Tooltip} />
-            <label margin="0, 8, 0, 0" color={:^CurrentAssignmentColor} text={:^CurrentAssignmentLabel} />
+            <label margin="0, 8, 0, 0"
+                   color={CurrentAssignmentColor}
+                   text={CurrentAssignmentLabel}
+                   shadow-alpha="0.9"
+                   shadow-offset="-2, 2" />
+        </lane>
+    </frame>
+    <frame *float="below; 0, 4"
+           *context={:Slot}
+           layout="stretch content"
+           padding="24"
+           background={@Mods/StardewUI/Sprites/ControlBorder}>
+        <lane padding="4">
+            <checkbox label-text={#Config.QuickSlot.RequireConfirmation.Title}
+                      tooltip={#Config.QuickSlot.RequireConfirmation.Description}
+                      is-checked={<>RequireConfirmation} />
+            <spacer layout="32px 0px" />
+            <checkbox label-text={#Config.QuickSlot.SecondaryAction.Title}
+                      tooltip={#Config.QuickSlot.SecondaryAction.Description}
+                      is-checked={<>UseSecondaryAction}
+                      +state:disabled={^SecondaryActionProhibited}
+                      +state:disabled:opacity="0.5"
+                      +state:disabled:pointer-events-enabled="false"
+                      +transition:opacity="150ms EaseOutSine" />
         </lane>
     </frame>
     <lane layout="stretch content" orientation="vertical">

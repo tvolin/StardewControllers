@@ -6,7 +6,16 @@ namespace RadialMenu.UI;
 
 internal partial class QuickSlotConfigurationViewModel
 {
+    private static readonly Color AssignedColor = new(50, 100, 50);
+    private static readonly Color UnassignedColor = new(60, 60, 60);
     private static readonly Color UnavailableColor = new(0x44, 0x44, 0x44, 0x44);
+
+    public Color CurrentAssignmentColor =>
+        ItemData is not null || ModAction is not null ? AssignedColor : UnassignedColor;
+    public string CurrentAssignmentLabel =>
+        ItemData is not null || ModAction is not null
+            ? I18n.Config_QuickSlot_Assigned_Title()
+            : I18n.Config_QuickSlot_Unassigned_Title();
 
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public Sprite? Icon => GetIcon();
@@ -25,11 +34,9 @@ internal partial class QuickSlotConfigurationViewModel
     [Notify]
     private ModMenuItemConfigurationViewModel? modAction;
 
-    // TODO: Add confirmation setting to config UI
     [Notify]
     private bool requireConfirmation;
 
-    // TODO: Add secondary action setting to config UI
     [Notify]
     private bool useSecondaryAction;
 

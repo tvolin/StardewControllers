@@ -138,6 +138,10 @@
   "Config.QuickSlot.Inventory.Unavailable": "Inventory is not available because no game is loaded. To see current inventory, load a game and then reopen the Star Control settings.\n\nIf you know the exact items you want to assign, you can still assign them from the \"All Items\" tab above.",
   "Config.QuickSlot.Search.LimitedResults": "Showing the first {{MaxResults}} results. Try narrowing down the list by typing in the search box.",
   "Config.QuickSlot.ModItems.LimitedResults": "Showing the first {{MaxResults}} actions. Select a specific page above to narrow down the list.",
+  "Config.QuickSlot.RequireConfirmation.Title": "Require Confirmation",
+  "Config.QuickSlot.RequireConfirmation.Description": "Show a confirmation dialog before using the item or performing the action. Good for avoiding accidental uses of expensive or destructive items, but may not pause the game in multiplayer.",
+  "Config.QuickSlot.SecondaryAction.Title": "Secondary Action",
+  "Config.QuickSlot.SecondaryAction.Description": "Perform the item's secondary action instead of the primary action (e.g. for consumable items, Select instead of Use).\n\nSome items, including all Tools, only have a single action (Select) and will ignore this setting.",
   
   // Config menu - Mod integrations page
   "Config.ModIntegrations.CustomItems": "Includes the {{PageCount}} page(s) of your personal Mod Menu, as configured in the Actions tab.",
