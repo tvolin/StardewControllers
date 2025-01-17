@@ -24,10 +24,10 @@ internal partial class PagerViewModel<T> : INotifyPropertyChanged, INotifyProper
         switch (button)
         {
             case SButton.LeftTrigger:
-                SelectedPageIndex = (SelectedPageIndex + Pages.Count - 1) % Pages.Count;
+                SelectPage((SelectedPageIndex + Pages.Count - 1) % Pages.Count);
                 return true;
             case SButton.RightTrigger:
-                SelectedPageIndex = (SelectedPageIndex + 1) % Pages.Count;
+                SelectPage((SelectedPageIndex + 1) % Pages.Count);
                 return true;
             default:
                 return false;

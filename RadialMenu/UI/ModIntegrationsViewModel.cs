@@ -14,6 +14,7 @@ internal partial class ModIntegrationsViewModel
     [Notify]
     private ObservableCollection<ModPriorityViewModel> priorities = [];
 
+    private ModPriorityViewModel? controllerReorderingItem;
     private int dragFrameCount;
 
     public void BeginDrag(ModPriorityViewModel mod)
@@ -27,12 +28,7 @@ internal partial class ModIntegrationsViewModel
         mod.Dragging = true;
     }
 
-    public void EndDrag(ModPriorityViewModel mod)
-    {
-        mod.Dragging = false;
-    }
-
-    public void HandleDrag(ModPriorityViewModel mod, Vector2 position)
+    public void Drag(ModPriorityViewModel mod, Vector2 position)
     {
         if (dragFrameCount < DRAG_THROTTLE_FRAMES)
         {
@@ -48,6 +44,87 @@ internal partial class ModIntegrationsViewModel
             MoveDown(mod, fromDrag: true);
             dragFrameCount = 0;
         }
+    }
+
+    public void EndDrag(ModPriorityViewModel mod)
+    {
+        mod.Dragging = false;
+    }
+
+    public bool HandleItemButton(ModPriorityViewModel mod, SButton button)
+    {
+        if (controllerReorderingItem is null)
+        {
+            if (button != SButton.ControllerX)
+            {
+                return false;
+            }
+            Game1.playSound("dwop");
+            dragFrameCount = 0;
+            mod.Dragging = true;
+            controllerReorderingItem = mod;
+            return true;
+        }
+
+        if (controllerReorderingItem != mod)
+        {
+            return false;
+        }
+
+        switch (button)
+        {
+            case SButton.DPadUp
+            or SButton.LeftThumbstickUp:
+                MoveUp(mod);
+                return true;
+            case SButton.DPadDown
+            or SButton.LeftThumbstickDown:
+                MoveDown(mod);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public bool HandleListButton(SButton button)
+    {
+        if (controllerReorderingItem is null)
+        {
+            return false;
+        }
+        if (
+            button
+                is SButton.ControllerX
+                    or SButton.ControllerY
+                    or SButton.ControllerA
+                    or SButton.ControllerB
+                    or SButton.ControllerBack
+            || (
+                button.TryGetStardewInput(out var inputButton)
+                && Game1.options.menuButton.Contains(inputButton)
+            )
+        )
+        {
+            Game1.playSound("stoneStep");
+            controllerReorderingItem.Dragging = false;
+            // Silly and probably very fragile hack to work around the A button (click) being handled
+            // at the level underneath this one and therefore not being suppressed. It will always
+            // flip the enabled state, so we just flip it back.
+            if (button == SButton.ControllerA)
+            {
+                controllerReorderingItem.Enabled = !controllerReorderingItem.Enabled;
+            }
+            controllerReorderingItem = null;
+            return true;
+        }
+        // Trigger buttons would navigate away from this page.
+        // Release the item but don't block the page change.
+        if (button is SButton.LeftTrigger or SButton.RightTrigger)
+        {
+            controllerReorderingItem.Dragging = false;
+            controllerReorderingItem = null;
+        }
+        return false;
     }
 
     public bool MoveDown(ModPriorityViewModel mod, bool fromDrag = false)
