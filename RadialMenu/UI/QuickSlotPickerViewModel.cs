@@ -104,7 +104,12 @@ internal partial class QuickSlotPickerViewModel
 
     public bool HandleButtonPress(SButton button)
     {
-        return Pager.HandleButtonPress(button);
+        if (!Pager.HandleButtonPress(button))
+        {
+            return false;
+        }
+        ItemSource.SelectedIndex = Pager.SelectedPageIndex;
+        return true;
     }
 
     public void SelectModMenuPage(int index)
