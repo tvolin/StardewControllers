@@ -324,19 +324,4 @@ internal partial class ModMenuPageConfigurationViewModel(int index) : PageViewMo
     {
         return new(Index) { Items = Items };
     }
-
-    // Hopefully temporary workaround for the source generator not generating overrides.
-    // https://github.com/canton7/PropertyChanged.SourceGenerator/issues/47
-    [SuppressMessage(
-        "PropertyChanged.SourceGenerator.Generation",
-        "INPC021:Do not define your own overrides of the method to raise PropertyChanged events"
-    )]
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-        if (e.PropertyName == nameof(Selected))
-        {
-            OnPropertyChanged(new(nameof(ButtonTint)));
-        }
-    }
 }

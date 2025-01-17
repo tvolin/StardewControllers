@@ -72,7 +72,7 @@
     <PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="2.2.0">
         <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="PropertyChanged.SourceGenerator" Version="1.0.8">
+    <PackageReference Include="PropertyChanged.SourceGenerator" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
