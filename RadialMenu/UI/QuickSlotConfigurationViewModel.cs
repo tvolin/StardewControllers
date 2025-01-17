@@ -25,9 +25,11 @@ internal partial class QuickSlotConfigurationViewModel
     [Notify]
     private ModMenuItemConfigurationViewModel? modAction;
 
+    // TODO: Add confirmation setting to config UI
     [Notify]
     private bool requireConfirmation;
 
+    // TODO: Add secondary action setting to config UI
     [Notify]
     private bool useSecondaryAction;
 

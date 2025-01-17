@@ -7,6 +7,7 @@ namespace RadialMenu.UI;
 internal partial class ConfigurationViewModel
 {
     public IMenuController? Controller { get; set; }
+    public DebugSettingsViewModel Debug { get; } = new();
     public InputConfigurationViewModel Input { get; } = new();
     public bool IsNavigationDisabled => !IsNavigationEnabled;
     public ItemsConfigurationViewModel Items { get; } = new();
@@ -46,7 +47,7 @@ internal partial class ConfigurationViewModel
             new(NavPage.Style, I18n.Config_Tab_Style_Title(), $"Mods/{modId}/Views/Style"),
             new(NavPage.Actions, I18n.Config_Tab_Actions_Title(), $"Mods/{modId}/Views/Actions"),
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), $"Mods/{modId}/Views/ModIntegrations"),
-            new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), ""),
+            new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), $"Mods/{modId}/Views/Debug"),
         ];
         Items.PropertyChanged += Items_PropertyChanged;
     }

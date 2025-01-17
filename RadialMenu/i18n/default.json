@@ -143,6 +143,22 @@
   "Config.ModIntegrations.CustomItems": "Includes the {{PageCount}} page(s) of your personal Mod Menu, as configured in the Actions tab.",
   "Config.ModPriorities.Heading": "Mod Priorities",
   "Config.ModPriorities.Help": "Click the checkbox or mod name to enable or disable its menus.\n\nTo change the page order, drag items with the mouse, or press the secondary (X) button on your controller.",
+  
+  // Config menu - Debug settings page
+  "Config.Logging.Heading": "Logging",
+  "Config.Logging.Help": "Star Control always logs warnings and critical failures when something isn't working right. Developers, API users and anyone submitting a bug report can enable more detailed logs to help with troubleshooting.\n\nIt is not recommended to leave these enabled at all items, as the log output will quickly fill up the console and may slow down your gameplay.",
+  "Config.Logging.All.Title": "Everything",
+  "Config.Logging.All.Description": "Enable/disable all other logging options. Useful for submitting detailed bug reports.",
+  "Config.Logging.MenuInteraction.Title": "Menu interactions",
+  "Config.Logging.MenuInteraction.Description": "Log details about opening and closing the menu, pointing at or selecting items, and any other direct interactions between you and the menu.",
+  "Config.Logging.QuickSlots.Title": "Quick slots",
+  "Config.Logging.QuickSlots.Description": "Log when a quick slot combo is pressed, what item was in the slot, how/why it did or did not activate, etc.",
+  "Config.Logging.ItemActivation.Title": "Item activation",
+  "Config.Logging.ItemActivation.Description": "Log every activation of a menu item, including the specific action taken, the reason for taking it, and the outcome (if known).",
+  "Config.Logging.GmcmSync.Title": "GMCM Sync",
+  "Config.Logging.GmcmSync.Description": "Log when keybinds are synced from Generic Mod Config Menu, on startup and when the mod configuration changes.",
+  "Config.Logging.GmcmDetailed.Title": "GMCM Verbose",
+  "Config.Logging.GmcmDetailed.Description": "Log detailed information about Generic Mod Config Menu integration, including a list of all available key binding settings and field names/IDs on startup.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
