@@ -4,9 +4,10 @@
 /// Configuration for a radial menu item associated with a Generic Mod Config Menu key binding.
 /// </summary>
 /// <remarks>
-/// GMCM bindings will, by default, use the mod name as the <see cref="CustomMenuItemConfiguration.Name"/>
-/// and the field name as the <see cref="CustomMenuItemConfiguration.Description"/>. These can be overridden
-/// by setting <see cref="UseCustomName"/> to <c>true</c>.
+/// GMCM bindings will, by default, use the mod name as the
+/// <see cref="ModMenuItemConfiguration.Name"/> and the option name as the
+/// <see cref="ModMenuItemConfiguration.Description"/>. These can be overridden by changing
+/// the <see cref="EnableNameSync"/> and <see cref="EnableDescriptionSync"/> values.
 /// </remarks>
 public class GmcmAssociation
 {
@@ -22,11 +23,11 @@ public class GmcmAssociation
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This is populated automatically as a backup in case <see cref="GmcmFieldName"/> fails to
-    /// turn up any result, e.g. due to a language change. End users generally will not know
-    /// this ID as it is internal to GMCM. If changing the <see cref="GmcmFieldName"/> manually
-    /// in <c>config.json</c> instead of using GMCM to configure the menu, clear this field so
-    /// that it does not accidentally pick up the old value.
+    /// This is populated automatically as a backup in case <see cref="FieldName"/> fails to turn up
+    /// any result, e.g. due to a language change. End users generally will not know this ID as it
+    /// is internal to GMCM. If changing the <see cref="FieldName"/> manually in <c>config.json</c>
+    /// instead of using GMCM to configure the menu, clear this field so that it does not
+    /// accidentally pick up the old value.
     /// </para>
     /// <para>
     /// One special case is if a mod defines multiple keybindings with the same name, under the
@@ -50,9 +51,9 @@ public class GmcmAssociation
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Lookups are attempted by name first, then by ID (<see cref="GmcmFieldId"/>), so that
-    /// users can change the value in <c>config.json</c> without needing to know the ID. If no
-    /// match is found, the <see cref="GmcmFieldId"/> is used as fallback lookup.
+    /// Lookups are attempted by name first, then by ID (<see cref="FieldId"/>), so that users can
+    /// change the value in <c>config.json</c> without needing to know the ID. If no match is found,
+    /// the <see cref="FieldId"/> is used as fallback lookup.
     /// </para>
     /// <para>
     /// In many if not most cases, the field ID is not stable because the mod author has not
@@ -74,6 +75,28 @@ public class GmcmAssociation
     public string FieldName { get; set; } = "";
 
     /// <summary>
+    /// Whether to sync the menu item's name with the name of the associated mod as set in its
+    /// <see cref="IManifest.Name"/>.
+    /// </summary>
+    /// <remarks>
+    /// Many mods have exactly one major interactive feature and therefore the mod name is an
+    /// accurate description of what action will be taken. For mods with many features, or where the
+    /// name is simply unclear as the title of a menu item, this can be disabled in order to specify
+    /// and keep a custom <see cref="ModMenuItemConfiguration.Name"/>.
+    /// </remarks>
+    public bool EnableNameSync { get; set; } = true;
+
+    /// <summary>
+    /// Whether to sync the menu item's description with the name of the mod's keybind option
+    /// registered in GMCM.
+    /// </summary>
+    /// <remarks>
+    /// In many cases, the name is something non-descriptive such as "keybind", so it is often
+    /// useful to turn this off in order to preserve a custom description.
+    /// </remarks>
+    public bool EnableDescriptionSync { get; set; } = true;
+
+    /// <summary>
     /// If set, only the <see cref="CustomMenuItemConfiguration.Keybind"/> will track the current setting in
     /// GMCM; <see cref="CustomMenuItemConfiguration.Name"/> and <see cref="CustomMenuItemConfiguration.Description"/>
     /// will retain their current values even if they change in GMCM.
@@ -83,7 +106,16 @@ public class GmcmAssociation
     /// very generic or confusing in the context of a radial menu, e.g. to change a name like
     /// "Keybind" to "Toggle &lt;Feature Name&gt;".
     /// </remarks>
-    public bool UseCustomName { get; set; }
+    [Obsolete("Use EnableNameSync and EnableDescriptionSync instead")]
+    public bool UseCustomName
+    {
+        get => !EnableNameSync;
+        set
+        {
+            EnableNameSync = !value;
+            EnableDescriptionSync = !value;
+        }
+    }
 
     /// <summary>
     /// Creates a copy of this instance.
@@ -95,7 +127,8 @@ public class GmcmAssociation
             ModId = ModId,
             FieldId = FieldId,
             FieldName = FieldName,
-            UseCustomName = UseCustomName,
+            EnableNameSync = EnableNameSync,
+            EnableDescriptionSync = EnableDescriptionSync,
         };
     }
 }

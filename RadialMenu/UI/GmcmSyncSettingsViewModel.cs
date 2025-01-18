@@ -22,7 +22,7 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
     private GmcmKeybindOptionViewModel? selectedOption;
 
     [Notify]
-    private IManifest? selectedMod = null;
+    private IManifest? selectedMod;
 
     public void SelectOption(GmcmKeybindOptionViewModel option)
     {
@@ -67,6 +67,8 @@ internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption 
 
     public string DisplayName => option.UniqueFieldName;
 
+    public string FieldId => option.FieldId;
+
     public bool IsMissingKeybind => !CurrentKeybind.IsBound;
 
     public string MissingKeybindDescription =>
@@ -78,6 +80,8 @@ internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption 
             : "";
 
     public string SimpleName => option.GetFieldName();
+
+    public string UniqueFieldName => option.UniqueFieldName;
 
     [Notify]
     private bool selected;

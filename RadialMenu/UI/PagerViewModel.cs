@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using PropertyChanged.SourceGenerator;
 
@@ -18,6 +19,11 @@ internal partial class PagerViewModel<T> : INotifyPropertyChanged, INotifyProper
 
     [Notify]
     private int selectedPageIndex = -1;
+
+    public PagerViewModel()
+    {
+        Pages.CollectionChanged += Pages_CollectionChanged;
+    }
 
     public bool HandleButtonPress(SButton button)
     {
@@ -50,9 +56,20 @@ internal partial class PagerViewModel<T> : INotifyPropertyChanged, INotifyProper
         UpdatePageTransforms();
     }
 
-    private void OnPagesChanged()
+    private void OnPagesChanged(
+        ObservableCollection<T>? oldValue,
+        ObservableCollection<T>? newValue
+    )
     {
+        if (oldValue is not null)
+        {
+            oldValue.CollectionChanged -= Pages_CollectionChanged;
+        }
         SelectedPageIndex = Pages.Count > 0 ? 0 : -1;
+        if (newValue is not null)
+        {
+            newValue.CollectionChanged += Pages_CollectionChanged;
+        }
     }
 
     private void OnSelectedPageIndexChanged(int oldValue, int newValue)
@@ -66,6 +83,18 @@ internal partial class PagerViewModel<T> : INotifyPropertyChanged, INotifyProper
             Pages[newValue].Selected = true;
         }
         UpdatePageTransforms();
+    }
+
+    private void Pages_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (SelectedPageIndex >= Pages.Count)
+        {
+            SelectedPageIndex = Pages.Count - 1;
+        }
+        else if (SelectedPageIndex < 0 && Pages.Count > 0)
+        {
+            SelectedPageIndex = 0;
+        }
     }
 
     private void UpdatePageTransforms()

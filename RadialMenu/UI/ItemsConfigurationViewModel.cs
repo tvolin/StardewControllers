@@ -4,10 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Config;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
 
+// TODO: Provide a way to move items to a new, blank page, e.g. a dummy item to swap with.
 // TODO: Make minimum window height match max number of item rows, test with different row counts.
 
 internal partial class ItemsConfigurationViewModel
@@ -22,7 +24,8 @@ internal partial class ItemsConfigurationViewModel
     public bool CanRemoveItem => IsReordering;
     public bool IsPageFull => SelectedPageSize >= MAX_PAGE_SIZE;
     public bool IsReordering => GrabbedItem is not null;
-    public PagerViewModel<ModMenuPageConfigurationViewModel> Pager { get; } = new();
+    public PagerViewModel<ModMenuPageConfigurationViewModel> Pager { get; } =
+        new() { Pages = [new(0)] };
 
     private readonly Task<ParsedItemData[]> allItemsTask = Task.Run(
         () =>
@@ -43,7 +46,7 @@ internal partial class ItemsConfigurationViewModel
     private ModMenuItemConfigurationViewModel? grabbedItem;
 
     [Notify]
-    private int inventoryPageSize;
+    private int inventoryPageSize = 12;
 
     [Notify]
     private bool isTrashCanHovered;
@@ -57,122 +60,26 @@ internal partial class ItemsConfigurationViewModel
     [Notify]
     private QuickSlotGroupConfigurationViewModel quickSlots = new();
 
+    // Settings item can receive empty list for allItems because it is not editable.
+    private readonly ModMenuItemConfigurationViewModel settingsItem = new("0", [])
+    {
+        Name = I18n.Config_ModMenu_SettingsItem_Name(),
+        Description = I18n.Config_ModMenu_SettingsItem_Description(),
+        CustomIcon = new(
+            Game1.content.Load<Texture2D>("Mods/focustense.RadialMenu/Sprites/UI"),
+            new(80, 0, 16, 16)
+        ),
+        Editable = false,
+        IconType = { SelectedValue = ItemIconType.Custom },
+    };
+
     private int grabbedItemIndex; // Within the page
     private int grabbedItemPageIndex;
 
     public ItemsConfigurationViewModel()
     {
-        // Temporary - dummy config.
-        InventoryPageSize = 12;
         Pager.PropertyChanging += Pager_PropertyChanging;
         Pager.PropertyChanged += Pager_PropertyChanged;
-        allItemsTask.ContinueWith(t =>
-        {
-            var allItems = t.Result;
-            var settingsItem = new ModMenuItemConfigurationViewModel("0", allItems)
-            {
-                Name = I18n.Config_ModMenu_SettingsItem_Name(),
-                Description = I18n.Config_ModMenu_SettingsItem_Description(),
-                CustomIcon = new(
-                    Game1.content.Load<Texture2D>("Mods/focustense.RadialMenu/Sprites/UI"),
-                    new(80, 0, 16, 16)
-                ),
-                Editable = false,
-                IconType = { SelectedValue = ItemIconType.Custom },
-            };
-            Pager.Pages =
-            [
-                new(0)
-                {
-                    Items =
-                    [
-                        settingsItem,
-                        new("1", allItems)
-                        {
-                            Name = "Swap Rings",
-                            IconItemId = "(O)534",
-                            Keybind = new(SButton.Z),
-                        },
-                        new("2", allItems)
-                        {
-                            Name = "Summon Horse",
-                            IconItemId = "(O)911",
-                            Keybind = new(SButton.H),
-                        },
-                        new("3", allItems)
-                        {
-                            Name = "Event Lookup",
-                            IconItemId = "(BC)42",
-                            Keybind = new(SButton.N),
-                        },
-                        new("4", allItems)
-                        {
-                            Name = "Calendar",
-                            IconItemId = "(F)1402",
-                            Keybind = new(SButton.B),
-                        },
-                        new("5", allItems)
-                        {
-                            Name = "Quest Board",
-                            IconItemId = "(F)BulletinBoard",
-                            Keybind = new(SButton.Q),
-                        },
-                        new("6", allItems)
-                        {
-                            Name = "Stardew Progress",
-                            IconItemId = "(O)434",
-                            Keybind = new(SButton.F3),
-                        },
-                        new("7", allItems)
-                        {
-                            Name = "Data Layers",
-                            IconItemId = "(F)1543",
-                            Keybind = new(SButton.F2),
-                        },
-                        new("8", allItems)
-                        {
-                            Name = "Garbage In Garbage Can",
-                            IconItemId = "(F)2427",
-                            Keybind = new(SButton.G),
-                        },
-                        new("9", allItems)
-                        {
-                            Name = "Generic Mod Config Menu",
-                            IconItemId = "(O)112",
-                            Keybind = new(SButton.LeftShift, SButton.F8),
-                        },
-                        new("10", allItems)
-                        {
-                            Name = "Quick Stack",
-                            IconItemId = "(BC)130",
-                            Keybind = new(SButton.K),
-                        },
-                        new("11", allItems)
-                        {
-                            Name = "NPC Location Compass",
-                            IconItemId = "(F)1545",
-                            Keybind = new(SButton.LeftAlt),
-                        },
-                        new("12", allItems)
-                        {
-                            Name = "Toggle Fishing Overlays",
-                            IconItemId = "(O)128",
-                            Keybind = new(SButton.LeftShift, SButton.F),
-                        },
-                    ],
-                },
-            ];
-            QuickSlots = new()
-            {
-                DPadLeft = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(O)287") },
-                DPadUp = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(T)Pickaxe") },
-                DPadRight = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(W)4") },
-                DPadDown = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(BC)71") },
-                West = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(O)424") },
-                North = new() { ItemData = ItemRegistry.GetDataOrErrorItem("(O)253") },
-                South = new() { ModAction = Pager.Pages[0].Items[0] },
-            };
-        });
     }
 
     public bool AddNewItem()
@@ -272,6 +179,53 @@ internal partial class ItemsConfigurationViewModel
         IsTrashCanHovered = false;
     }
 
+    public void Load(ItemsConfiguration config)
+    {
+        InventoryPageSize = config.InventoryPageSize;
+        ShowInventoryBlanks = config.ShowInventoryBlanks;
+        Pager.Pages.Clear();
+        QuickSlots.Clear();
+        allItemsTask.ContinueWith(t =>
+        {
+            var allItems = t.Result;
+            foreach (var pageConfig in config.ModMenuPages)
+            {
+                var pageViewModel = new ModMenuPageConfigurationViewModel(Pager.Pages.Count);
+                foreach (var itemConfig in pageConfig)
+                {
+                    var itemViewModel = new ModMenuItemConfigurationViewModel(
+                        !string.IsNullOrWhiteSpace(itemConfig.Id)
+                            ? itemConfig.Id
+                            : IdGenerator.NewId(6),
+                        allItems
+                    );
+                    itemViewModel.Load(itemConfig);
+                    pageViewModel.Items.Add(itemViewModel);
+                }
+                Pager.Pages.Add(pageViewModel);
+            }
+            if (Pager.Pages.Count == 0)
+            {
+                Pager.Pages.Add(new(0));
+            }
+            settingsItem.Enabled = config.ShowSettingsItem;
+            var settingsPageIndex = Math.Clamp(
+                config.SettingsItemPageIndex,
+                0,
+                Pager.Pages.Count - 1
+            );
+            var page = Pager.Pages[settingsPageIndex];
+            var settingsItemIndex = Math.Clamp(
+                config.SettingsItemPositionIndex,
+                0,
+                page.Items.Count
+            );
+            page.Items.Insert(settingsItemIndex, settingsItem);
+
+            QuickSlots.Load(config.QuickSlots, Pager.Pages);
+        });
+    }
+
     public bool RemoveGrabbedItem()
     {
         if (GrabbedItem is null || !GrabbedItem.Editable)
@@ -282,6 +236,41 @@ internal partial class ItemsConfigurationViewModel
         Pager.Pages[grabbedItemPageIndex].Items.Remove(GrabbedItem);
         GrabbedItem = null;
         return true;
+    }
+
+    public void Save(ItemsConfiguration config)
+    {
+        config.InventoryPageSize = InventoryPageSize;
+        config.ShowInventoryBlanks = ShowInventoryBlanks;
+        config.ModMenuPages.Clear();
+        int settingsItemPageIndex = 0;
+        int settingsItemPositionIndex = 0;
+        foreach (var page in Pager.Pages)
+        {
+            if (page.Items.Count == 0)
+            {
+                continue;
+            }
+            var pageItems = new List<ModMenuItemConfiguration>(page.Items.Count);
+            for (int i = 0; i < page.Items.Count; i++)
+            {
+                var item = page.Items[i];
+                if (item == settingsItem)
+                {
+                    settingsItemPageIndex = page.Index;
+                    settingsItemPositionIndex = i;
+                    continue;
+                }
+                var itemConfig = new ModMenuItemConfiguration();
+                item.Save(itemConfig);
+                pageItems.Add(itemConfig);
+            }
+            config.ModMenuPages.Add(pageItems);
+        }
+        config.ShowSettingsItem = settingsItem.Enabled;
+        config.SettingsItemPageIndex = settingsItemPageIndex;
+        config.SettingsItemPositionIndex = settingsItemPositionIndex;
+        QuickSlots.Save(config.QuickSlots);
     }
 
     private void Pager_PropertyChanging(object? sender, PropertyChangingEventArgs e)

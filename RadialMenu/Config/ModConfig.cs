@@ -1,76 +1,32 @@
-﻿using System.Collections.ObjectModel;
-using PropertyChanged.SourceGenerator;
-
-namespace RadialMenu.Config;
+﻿namespace RadialMenu.Config;
 
 /// <summary>
-/// Configuration data for the mod.
+/// Top-level configuration data for Star Control.
 /// </summary>
-public partial class ModConfig
+public class ModConfig
 {
-    [Notify]
-    private InputConfiguration input = new();
+    /// <summary>
+    /// Configures the input settings, e.g. which buttons are used to open and navigate the menus.
+    /// </summary>
+    public InputConfiguration Input { get; set; } = new();
 
-    [Notify]
-    private MenuContentConfiguration content = new();
+    /// <summary>
+    /// Configures the appearance of the Inventory and Mod Wheels/Menus.
+    /// </summary>
+    public Styles Style { get; set; } = new();
 
-    [Notify]
-    private Styles style = new();
-}
+    /// <summary>
+    /// Configures which pages and items will appear in each menu and in the quick slots.
+    /// </summary>
+    public ItemsConfiguration Items { get; set; } = new();
 
-public enum MenuOpenMode
-{
-    Hold,
-    Toggle,
-}
+    /// <summary>
+    /// Settings for third-party mod integrations.
+    /// </summary>
+    public ModIntegrationsConfiguration Integrations { get; set; } = new();
 
-public partial class MenuContentConfiguration
-{
-    [Notify]
-    private int inventoryPageSize = 12;
-
-    [Notify]
-    private bool showBlanksInInventory = false;
-
-    [Notify]
-    private ObservableCollection<MenuPageConfiguration> modPages = [];
-}
-
-public partial class MenuPageConfiguration
-{
-    [Notify]
-    private ObservableCollection<CustomMenuItemConfiguration> items = [];
-
-    [Notify]
-    private Dictionary<SButton, QuickActionConfiguration> quickActions = [];
-}
-
-public partial class QuickActionConfiguration
-{
-    [Notify]
-    private string itemId = "";
-
-    [Notify]
-    private string actionId = "";
-}
-
-public partial class ModIntegrationsConfiguration
-{
-    [Notify]
-    private Dictionary<string, ModIntegrationConfiguration> mods = [];
-}
-
-public partial class ModIntegrationConfiguration
-{
-    [Notify]
-    private bool enabled;
-}
-
-public partial class DebugConfiguration
-{
-    [Notify]
-    private bool logGmcmKeyBindingsOnStartup;
-
-    [Notify]
-    private bool verboseLogging;
+    /// <summary>
+    /// Debug settings, for development and troubleshooting.
+    /// </summary>
+    public DebugConfiguration Debug { get; set; } = new();
 }

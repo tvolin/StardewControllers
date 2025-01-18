@@ -11,12 +11,9 @@ internal partial class ConfigurationViewModel
     public InputConfigurationViewModel Input { get; } = new();
     public bool IsNavigationDisabled => !IsNavigationEnabled;
     public ItemsConfigurationViewModel Items { get; } = new();
-    public ModIntegrationsViewModel Mods { get; } = new();
+    public ModIntegrationsViewModel Mods { get; }
     public PagerViewModel<NavPageViewModel> Pager { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
-
-    [Notify]
-    private ModConfig config;
 
     [Notify]
     private Vector2 contentPanelSize;
@@ -24,23 +21,11 @@ internal partial class ConfigurationViewModel
     [Notify]
     private bool isNavigationEnabled = true;
 
-    public ConfigurationViewModel(ModConfig config, string modId)
+    public ConfigurationViewModel(IModHelper helper)
     {
-        this.config = config;
-        Input.Load(config.Input);
-        Style.Load(config.Style);
-        Mods.Priorities =
-        [
-            ModPriorityViewModel.Self(modId, Items),
-            new("furyx639.ToolbarIcons")
-            {
-                Name = "Iconic Framework",
-                Description = "Adds shortcut icons to vanilla and mod functions.",
-            },
-            new("foo.Test1") { Name = "Test Mod 1", Description = "Test Description 1" },
-            new("foo.Test2") { Name = "Test Mod 2", Description = "Test Description 2" },
-            new("foo.Test3") { Name = "Test Mod 3", Description = "Test Description 3" },
-        ];
+        var modId = helper.ModContent.ModID;
+        var selfPriority = ModPriorityViewModel.Self(modId, Items);
+        Mods = new(helper.ModRegistry, selfPriority);
         Pager.Pages =
         [
             new(NavPage.Controls, I18n.Config_Tab_Controls_Title(), $"Mods/{modId}/Views/Controls"),
@@ -68,6 +53,24 @@ internal partial class ConfigurationViewModel
             return CancelBlockingAction();
         }
         return Pager.HandleButtonPress(button);
+    }
+
+    public void Load(ModConfig config)
+    {
+        Input.Load(config.Input);
+        Style.Load(config.Style);
+        Items.Load(config.Items);
+        Mods.Load(config.Integrations);
+        Debug.Load(config.Debug);
+    }
+
+    public void Save(ModConfig config)
+    {
+        Input.Save(config.Input);
+        Style.Save(config.Style);
+        Items.Save(config.Items);
+        Mods.Save(config.Integrations);
+        Debug.Save(config.Debug);
     }
 
     private static bool IsCancelButton(SButton button)

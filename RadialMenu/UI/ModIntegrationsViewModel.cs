@@ -1,9 +1,13 @@
 using System.Collections.ObjectModel;
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Config;
 
 namespace RadialMenu.UI;
 
-internal partial class ModIntegrationsViewModel
+internal partial class ModIntegrationsViewModel(
+    IModRegistry modRegistry,
+    ModPriorityViewModel selfItem
+)
 {
     // Helps avoid some instability due to the frame delays between binding update (observable collection change),
     // subsequent layout and the next drag event. Without this, the drag handler can oscillate temporarily at the moment
@@ -127,6 +131,42 @@ internal partial class ModIntegrationsViewModel
         return false;
     }
 
+    public void Load(ModIntegrationsConfiguration config)
+    {
+        Priorities.Clear();
+        foreach (var mod in config.Priorities)
+        {
+            var manifest = modRegistry.Get(mod.ModId)?.Manifest;
+            if (manifest is null)
+            {
+                continue;
+            }
+            var item = new ModPriorityViewModel(mod.ModId)
+            {
+                Name = manifest.Name,
+                Description = manifest.Description,
+                Enabled = mod.Enabled,
+            };
+            Priorities.Add(item);
+        }
+        int selfIndex = Math.Clamp(config.CustomItemsPriority, 0, Priorities.Count);
+        Priorities.Insert(selfIndex, selfItem);
+    }
+
+    public void Save(ModIntegrationsConfiguration config)
+    {
+        config.CustomItemsPriority = Priorities.IndexOf(selfItem);
+        config.Priorities.Clear();
+        foreach (var priority in Priorities)
+        {
+            if (priority == selfItem)
+            {
+                continue;
+            }
+            config.Priorities.Add(new() { ModId = priority.Id, Enabled = priority.Enabled });
+        }
+    }
+
     public bool MoveDown(ModPriorityViewModel mod, bool fromDrag = false)
     {
         int priority = Priorities.IndexOf(mod);
@@ -199,7 +239,7 @@ internal partial class ModPriorityViewModel(string id)
 
         string GetDescription(int pageCount)
         {
-            return I18n.Config_ModIntegrations_CustomItems(items.Pager.Pages.Count);
+            return I18n.Config_ModIntegrations_CustomItems(pageCount);
         }
     }
 }

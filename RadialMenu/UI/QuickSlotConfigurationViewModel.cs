@@ -10,15 +10,15 @@ internal partial class QuickSlotConfigurationViewModel
     private static readonly Color UnassignedColor = new(60, 60, 60);
     private static readonly Color UnavailableColor = new(0x44, 0x44, 0x44, 0x44);
 
-    public Color CurrentAssignmentColor =>
-        ItemData is not null || ModAction is not null ? AssignedColor : UnassignedColor;
+    public Color CurrentAssignmentColor => IsAssigned ? AssignedColor : UnassignedColor;
     public string CurrentAssignmentLabel =>
-        ItemData is not null || ModAction is not null
+        IsAssigned
             ? I18n.Config_QuickSlot_Assigned_Title()
             : I18n.Config_QuickSlot_Unassigned_Title();
 
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public Sprite? Icon => GetIcon();
+    public bool IsAssigned => ItemData is not null || ModAction is not null;
 
     public Color Tint =>
         ItemData is not null && Game1.player.Items.FindUsableItem(ItemData.QualifiedItemId) is null
@@ -39,6 +39,13 @@ internal partial class QuickSlotConfigurationViewModel
 
     [Notify]
     private bool useSecondaryAction;
+
+    public void Clear()
+    {
+        ItemData = null;
+        ModAction = null;
+        UseSecondaryAction = false;
+    }
 
     private Sprite? GetIcon()
     {

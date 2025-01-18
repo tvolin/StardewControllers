@@ -1,4 +1,5 @@
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Config;
 
 namespace RadialMenu.UI;
 
@@ -23,6 +24,38 @@ internal partial class DebugSettingsViewModel
     private bool enableQuickSlotLogging;
 
     private bool isLoading;
+
+    public void Load(DebugConfiguration config)
+    {
+        isLoading = true;
+        try
+        {
+            EnableGmcmDetailedLogging = config.EnableGmcmDetailedLogging;
+            EnableGmcmSyncLogging = config.EnableGmcmSyncLogging;
+            EnableItemActivationLogging = config.EnableItemActivationLogging;
+            EnableMenuInteractionLogging = config.EnableMenuInteractionLogging;
+            EnableQuickSlotLogging = config.EnableQuickSlotLogging;
+            EnableAllLogging =
+                EnableGmcmDetailedLogging
+                && EnableGmcmSyncLogging
+                && EnableItemActivationLogging
+                && EnableMenuInteractionLogging
+                && EnableQuickSlotLogging;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public void Save(DebugConfiguration config)
+    {
+        config.EnableGmcmDetailedLogging = EnableGmcmDetailedLogging;
+        config.EnableGmcmSyncLogging = EnableGmcmSyncLogging;
+        config.EnableItemActivationLogging = EnableItemActivationLogging;
+        config.EnableMenuInteractionLogging = EnableMenuInteractionLogging;
+        config.EnableQuickSlotLogging = EnableQuickSlotLogging;
+    }
 
     private void OnEnableAllLoggingChanged()
     {

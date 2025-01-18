@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Config;
 using RadialMenu.Gmcm;
 using StardewModdingAPI.Utilities;
 using StardewValley.ItemTypeDefinitions;
@@ -28,7 +29,7 @@ internal partial class ModMenuItemConfigurationViewModel
     public bool CanEditName =>
         SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableTitleSync != true;
     public bool Editable { get; set; } = true;
-    public string Id { get; }
+    public string Id { get; private set; }
     public Sprite Icon =>
         (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
         ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
@@ -62,7 +63,7 @@ internal partial class ModMenuItemConfigurationViewModel
     private Sprite? iconFromItemId;
 
     [Notify]
-    private string? iconItemId = null;
+    private string? iconItemId;
 
     [Notify]
     private Rectangle iconSourceRect = Rectangle.Empty;
@@ -94,6 +95,71 @@ internal partial class ModMenuItemConfigurationViewModel
         IconType.ValueChanged += IconType_ValueChanged;
         this.allItems = allItems;
         UpdateRawSearchResults();
+    }
+
+    public void Load(ModMenuItemConfiguration config)
+    {
+        Id = config.Id;
+        Name = config.Name;
+        Description = config.Description;
+        Keybind = config.Keybind;
+        IconAssetPath = config.Icon.TextureAssetPath;
+        IconSourceRect = config.Icon.SourceRect;
+        IconItemId = config.Icon.ItemId;
+        IconType.SelectedValue = !string.IsNullOrWhiteSpace(config.Icon.ItemId)
+            ? ItemIconType.Item
+            : ItemIconType.Custom;
+        if (config.GmcmSync is { } gmcm && GenericModConfigKeybindings.Instance is { } gmcmBindings)
+        {
+            SyncType.SelectedValue = ItemSyncType.Gmcm;
+            GmcmSync = new(gmcmBindings)
+            {
+                SelectedOption = gmcmBindings.Find(
+                    gmcm.ModId,
+                    gmcm.FieldId,
+                    gmcm.FieldName,
+                    config.Keybind
+                )
+                    is { } option
+                    ? new(option)
+                    : null,
+                EnableTitleSync = gmcm.EnableNameSync,
+                EnableDescriptionSync = gmcm.EnableDescriptionSync,
+            };
+        }
+        else
+        {
+            GmcmSync = null;
+        }
+    }
+
+    public void Save(ModMenuItemConfiguration config)
+    {
+        config.Id = Id;
+        config.Name = Name;
+        config.Description = description;
+        config.Keybind = Keybind;
+        config.Icon = IconType.SelectedValue switch
+        {
+            ItemIconType.Item => new() { ItemId = IconItemId ?? "" },
+            ItemIconType.Custom => new()
+            {
+                TextureAssetPath = IconAssetPath,
+                SourceRect = IconSourceRect,
+            },
+            _ => new(),
+        };
+        config.GmcmSync =
+            SyncType.SelectedValue == ItemSyncType.Gmcm && GmcmSync is { } gmcm
+                ? new()
+                {
+                    ModId = gmcm.SelectedMod?.UniqueID ?? "",
+                    FieldId = gmcm.SelectedOption?.FieldId ?? "",
+                    FieldName = gmcm.SelectedOption?.UniqueFieldName ?? "",
+                    EnableNameSync = gmcm.EnableTitleSync,
+                    EnableDescriptionSync = gmcm.EnableDescriptionSync,
+                }
+                : null;
     }
 
     public void OnRandomizeButtonHover()

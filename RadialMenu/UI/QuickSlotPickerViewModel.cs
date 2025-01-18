@@ -98,9 +98,7 @@ internal partial class QuickSlotPickerViewModel
             return;
         }
         Game1.playSound("trashcan");
-        Slot.ItemData = null;
-        Slot.ModAction = null;
-        Slot.UseSecondaryAction = false;
+        Slot.Clear();
         SecondaryActionAllowed = false;
     }
 
