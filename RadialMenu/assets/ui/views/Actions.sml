@@ -111,7 +111,7 @@
 </lane>
 
 <template name="form-heading">
-    <banner margin="0, 8, 0, 8" text={&title} />
+    <banner margin="0, 8, 0, 4" text={&title} />
 </template>
 
 <template name="form-row">

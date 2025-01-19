@@ -1,4 +1,5 @@
-﻿<frame layout="60%[..800] content"
+﻿<frame layout="800px content"
+       margin="0, 32, 0, 0"
 	   background={@Mods/StardewUI/Sprites/MenuBackground}
        border={@Mods/StardewUI/Sprites/MenuBorder}
        border-thickness="36, 36, 40, 36"
@@ -11,7 +12,7 @@
            layout="stretch content"
            margin="36, 0"
            background={@Mods/StardewUI/Sprites/MenuSlotInset}
-           padding="12"
+           padding="12, 10, 12, 4"
            pointer-events-enabled={IsNavigationEnabled}
            +state:disabled={IsNavigationDisabled}
            +state:disabled:background-tint="#999"

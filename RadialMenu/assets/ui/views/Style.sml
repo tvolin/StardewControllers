@@ -58,38 +58,50 @@
     </form-row>
 
     <form-heading title={#Config.Palette.Heading} />
-    <form-row title={#Config.Palette.InnerBackground.Title} description={#Config.Palette.InnerBackground.Description}>
+    <color-row title={#Config.Palette.InnerBackground.Title} description={#Config.Palette.InnerBackground.Description}>
         <color-picker layout="300px content" color={<>InnerBackgroundColor} />
-    </form-row>
-    <form-row title={#Config.Palette.OuterBackground.Title} description={#Config.Palette.OuterBackground.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.OuterBackground.Title} description={#Config.Palette.OuterBackground.Description}>
         <color-picker layout="300px content" color={<>OuterBackgroundColor} />
-    </form-row>
-    <form-row title={#Config.Palette.ActiveBackground.Title} description={#Config.Palette.ActiveBackground.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.ActiveBackground.Title} description={#Config.Palette.ActiveBackground.Description}>
         <color-picker layout="300px content" color={<>SelectionColor} />
-    </form-row>
-    <form-row title={#Config.Palette.FocusedBackground.Title} description={#Config.Palette.FocusedBackground.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.FocusedBackground.Title} description={#Config.Palette.FocusedBackground.Description}>
         <color-picker layout="300px content" color={<>HighlightColor} />
-    </form-row>
-    <form-row title={#Config.Palette.Cursor.Title} description={#Config.Palette.Cursor.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.Cursor.Title} description={#Config.Palette.Cursor.Description}>
         <color-picker layout="300px content" color={<>CursorColor} />
-    </form-row>
-    <form-row title={#Config.Palette.ItemName.Title} description={#Config.Palette.ItemName.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.ItemName.Title} description={#Config.Palette.ItemName.Description}>
         <color-picker layout="300px content" color={<>SelectionTitleColor} />
-    </form-row>
-    <form-row title={#Config.Palette.ItemDetails.Title} description={#Config.Palette.ItemDetails.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.ItemDetails.Title} description={#Config.Palette.ItemDetails.Description}>
         <color-picker layout="300px content" color={<>SelectionDescriptionColor} />
-    </form-row>
-    <form-row title={#Config.Palette.ItemCount.Title} description={#Config.Palette.ItemCount.Description}>
+    </color-row>
+    <color-row title={#Config.Palette.ItemCount.Title} description={#Config.Palette.ItemCount.Description}>
         <color-picker layout="300px content" color={<>StackSizeColor} />
-    </form-row>
+    </color-row>
 </lane>
 
 <template name="form-heading">
-    <banner margin="0, 8, 0, 8" text={&title} />
+    <banner margin="0, 8, 0, 0" text={&title} />
 </template>
 
 <template name="form-row">
-    <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
+    <form-row-with-margin margin="16, 4, 0, 4" title={&title} description={&description}>
+        <outlet />
+    </form-row-with-margin>
+</template>
+
+<template name="color-row">
+    <form-row-with-margin margin="16, 3, 0, 3" title={&title} description={&description}>
+        <outlet />
+    </form-row-with-margin>
+</template>
+
+<template name="form-row-with-margin">
+    <lane margin={&margin} vertical-content-alignment="middle">
         <frame layout="350px content">
             <label text={&title} tooltip={&description} />
         </frame>

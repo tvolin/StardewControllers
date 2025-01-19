@@ -1,29 +1,35 @@
 <lane *context={:~ConfigurationViewModel.Input} layout="stretch content" orientation="vertical">
     <form-heading title={#Config.Keybind.Heading} />
-    <form-row title={#Config.Keybind.Inventory.Title} description={#Config.Keybind.Inventory.Description}>
-        <mini-keybind button={<>InventoryMenuButton} />
-    </form-row>
-    <form-row title={#Config.Keybind.Mods.Title} description={#Config.Keybind.Mods.Description}>
-        <mini-keybind button={<>ModMenuButton} />
-    </form-row>
-    <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
-        <enum-segments *context={:ThumbStickPreference} />
-    </form-row>
-    <form-row title={#Config.Keybind.PreviousPage.Title} description={#Config.Keybind.PreviousPage.Description}>
-        <mini-keybind button={<>PreviousPageButton} />
-    </form-row>
-    <form-row title={#Config.Keybind.NextPage.Title} description={#Config.Keybind.NextPage.Description}>
-        <mini-keybind button={<>NextPageButton} />
-    </form-row>
-    <form-row title={#Config.Keybind.PrimaryAction.Title} description={#Config.Keybind.PrimaryAction.Description}>
-        <mini-keybind button={<>PrimaryActionButton} />
-    </form-row>
-    <form-row title={#Config.Keybind.SecondaryAction.Title} description={#Config.Keybind.SecondaryAction.Description}>
-        <mini-keybind button={<>SecondaryActionButton} />
-    </form-row>
+    <form-row-container>
+        <inline-keybind title={#Config.Keybind.Inventory.Title}
+                        description={#Config.Keybind.Inventory.Description}
+                        button={<>InventoryMenuButton} />
+        <inline-keybind title={#Config.Keybind.Mods.Title}
+                        description={#Config.Keybind.Mods.Description}
+                        button={<>ModMenuButton} />
+    </form-row-container>
+    <form-row-container>
+        <inline-keybind title={#Config.Keybind.PreviousPage.Title}
+                        description={#Config.Keybind.PreviousPage.Description}
+                        button={<>PreviousPageButton} />
+        <inline-keybind title={#Config.Keybind.NextPage.Title}
+                        description={#Config.Keybind.NextPage.Description}
+                        button={<>NextPageButton} />
+    </form-row-container>
+    <form-row-container>
+        <inline-keybind title={#Config.Keybind.PrimaryAction.Title}
+                        description={#Config.Keybind.PrimaryAction.Description}
+                        button={<>PrimaryActionButton} />
+        <inline-keybind title={#Config.Keybind.SecondaryAction.Title}
+                        description={#Config.Keybind.SecondaryAction.Description}
+                        button={<>SecondaryActionButton} />
+    </form-row-container>
     <form-heading title={#Config.Selection.Heading} />
     <form-row title={#Config.Selection.OpenMode.Title} description={#Config.Selection.OpenMode.Description}>
         <enum-segments *context={:OpenMode} />
+    </form-row>
+    <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
+        <enum-segments *context={:ThumbStickPreference} />
     </form-row>
     <form-row title={#Config.Selection.DelayedActions.Title} description={#Config.Selection.DelayedActions.Description}>
         <enum-segments *context={:DelayedActions} />
@@ -59,17 +65,23 @@
 </lane>
 
 <template name="form-heading">
-    <banner margin="0, 8, 0, 8" text={&title} />
+    <banner margin="0, 8, 0, 4" text={&title} />
 </template>
 
 <template name="form-row">
-    <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
+    <form-row-container>
         <frame layout="350px content">
             <label text={&title} tooltip={&description} />
         </frame>
         <frame tooltip={&description}>
             <outlet />
         </frame>
+    </form-row-container>
+</template>
+
+<template name="form-row-container">
+    <lane margin="16, 4, 0, 4" vertical-content-alignment="middle">
+        <outlet />
     </lane>
 </template>
 
@@ -90,6 +102,15 @@
                    tooltip={:Description} />
         </segments>
     </frame>
+</template>
+
+<template name="inline-keybind">
+    <lane layout="350px content"
+          vertical-content-alignment="middle"
+          tooltip={&description}>
+        <mini-keybind button={&button} />
+        <label margin="16, 0, 0, 0" text={&title} />
+    </lane>
 </template>
 
 <template name="mini-keybind">
