@@ -25,8 +25,8 @@
                         button={<>SecondaryActionButton} />
     </form-row-container>
     <form-heading title={#Config.Selection.Heading} />
-    <form-row title={#Config.Selection.OpenMode.Title} description={#Config.Selection.OpenMode.Description}>
-        <enum-segments *context={:OpenMode} />
+    <form-row title={#Config.Selection.ToggleMode.Title} description={#Config.Selection.ToggleMode.Description}>
+        <enum-segments *context={:ToggleMode} />
     </form-row>
     <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
         <enum-segments *context={:ThumbStickPreference} />

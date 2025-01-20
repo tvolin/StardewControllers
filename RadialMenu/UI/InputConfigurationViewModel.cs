@@ -8,8 +8,8 @@ internal partial class InputConfigurationViewModel
     public EnumSegmentsViewModel<DelayedActions> DelayedActions { get; } = new();
     public Func<float, string> FormatActivationDelay { get; } = v => $"{v:f0} ms";
     public Func<float, string> FormatDeadZone { get; } = v => v.ToString("f2");
-    public EnumSegmentsViewModel<MenuOpenMode> OpenMode { get; } = new();
     public EnumSegmentsViewModel<ThumbStickPreference> ThumbStickPreference { get; } = new();
+    public EnumSegmentsViewModel<MenuToggleMode> ToggleMode { get; } = new();
 
     [Notify]
     private int activationDelayMs;
@@ -50,7 +50,7 @@ internal partial class InputConfigurationViewModel
         PrimaryActionButton = config.PrimaryActionButton;
         SecondaryActionButton = config.SecondaryActionButton;
         ThumbStickPreference.SelectedValue = config.ThumbStickPreference;
-        OpenMode.SelectedValue = config.OpenMode;
+        ToggleMode.SelectedValue = config.ToggleMode;
         DelayedActions.SelectedValue = config.DelayedActions;
         ActivationDelayMs = config.ActivationDelayMs;
         RememberSelection = config.RememberSelection;
@@ -67,7 +67,7 @@ internal partial class InputConfigurationViewModel
         config.PrimaryActionButton = PrimaryActionButton;
         config.SecondaryActionButton = SecondaryActionButton;
         config.ThumbStickPreference = ThumbStickPreference.SelectedValue;
-        config.OpenMode = OpenMode.SelectedValue;
+        config.ToggleMode = ToggleMode.SelectedValue;
         config.DelayedActions = DelayedActions.SelectedValue;
         config.ActivationDelayMs = ActivationDelayMs;
         config.RememberSelection = RememberSelection;

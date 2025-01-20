@@ -45,7 +45,7 @@ public class InputConfiguration
     /// Whether the <see cref="InventoryMenuButton"/> or <see cref="ModMenu"/> are used to hold the
     /// menu open (default) or toggle it on/off.
     /// </summary>
-    public MenuOpenMode OpenMode { get; set; } = MenuOpenMode.Hold;
+    public MenuToggleMode ToggleMode { get; set; } = MenuToggleMode.Hold;
 
     /// <summary>
     /// Specifies which actions chosen from the inventory/mod wheels should be delayed (blink)
