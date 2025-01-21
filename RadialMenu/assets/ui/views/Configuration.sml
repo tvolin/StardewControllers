@@ -1,4 +1,4 @@
-﻿<frame layout="800px content"
+﻿<frame layout="800px content[774..]"
        margin="0, 32, 0, 0"
 	   background={@Mods/StardewUI/Sprites/MenuBackground}
        border={@Mods/StardewUI/Sprites/MenuBorder}
@@ -44,6 +44,23 @@
             <include name={:PageAssetName} />
         </frame>
     </panel>
+    <lane *float="below; -24, -44"
+          layout="stretch content"
+          horizontal-content-alignment="end"
+          vertical-content-alignment="middle">
+        <action-button text={#Config.Action.Reset.Title}
+                       description={#Config.Action.Reset.Description}
+                       action="Reset" />
+        <action-button text={#Config.Action.Cancel.Title}
+                       description={#Config.Action.Cancel.Description}
+                       tint="#f99"
+                       action="Cancel" />
+        <action-button text={#Config.Action.Save.Title}
+                       description={#Config.Action.Save.Description}
+                       bold="true"
+                       tint="#9f9"
+                       action="Save" />
+    </lane>
 </frame>
 
 <template name="nav-tab">
@@ -78,4 +95,21 @@
            sprite={&icon}
            shadow-alpha="0.4"
            shadow-offset="-4, 4" />
+</template>
+
+<template name="action-button">
+    <button layout="content[150..] content"
+            margin="8, 0, 0, 0"
+            default-background={@Mods/StardewUI/Sprites/ButtonDark}
+            default-background-tint={&tint}
+            hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+            shadow-visible="true"
+            tooltip={&description}
+            left-click=|PerformAction(&action)|>
+        <label bold={&bold}
+               shadow-alpha="0.5"
+               shadow-color="#447"
+               shadow-offset="-1, 1"
+               text={&text} />
+    </button>
 </template>

@@ -8,6 +8,7 @@ internal partial class ConfigurationViewModel
 {
     public IMenuController? Controller { get; set; }
     public DebugSettingsViewModel Debug { get; } = new();
+    public bool Dismissed { get; set; }
     public InputConfigurationViewModel Input { get; } = new();
     public bool IsNavigationDisabled => !IsNavigationEnabled;
     public ItemsConfigurationViewModel Items { get; } = new();
@@ -21,8 +22,13 @@ internal partial class ConfigurationViewModel
     [Notify]
     private bool isNavigationEnabled = true;
 
-    public ConfigurationViewModel(IModHelper helper)
+    private readonly ModConfig config;
+    private readonly IModHelper helper;
+
+    public ConfigurationViewModel(IModHelper helper, ModConfig config)
     {
+        this.helper = helper;
+        this.config = config;
         var modId = helper.ModContent.ModID;
         var selfPriority = ModPriorityViewModel.Self(modId, Items);
         Mods = new(helper.ModRegistry, selfPriority);
@@ -35,6 +41,7 @@ internal partial class ConfigurationViewModel
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), $"Mods/{modId}/Views/Debug"),
         ];
         Items.PropertyChanged += Items_PropertyChanged;
+        Load(config);
     }
 
     public bool CancelBlockingAction()
@@ -55,13 +62,33 @@ internal partial class ConfigurationViewModel
         return Pager.HandleButtonPress(button);
     }
 
-    public void Load(ModConfig config)
+    public bool HasUnsavedChanges()
     {
-        Input.Load(config.Input);
-        Style.Load(config.Style);
-        Items.Load(config.Items);
-        Mods.Load(config.Integrations);
-        Debug.Load(config.Debug);
+        var dummyConfig = new ModConfig();
+        Save(dummyConfig);
+        return !dummyConfig.Equals(config);
+    }
+
+    public void PerformAction(ConfigurationAction action)
+    {
+        switch (action)
+        {
+            case ConfigurationAction.Save:
+                Save(config);
+                Dismissed = true;
+                Controller?.Close();
+                break;
+            case ConfigurationAction.Cancel:
+                Dismissed = true;
+                Controller?.Close();
+                break;
+            case ConfigurationAction.Reset:
+                Game1.playSound("drumkit6");
+                Load(new ModConfig());
+                break;
+            default:
+                throw new ArgumentException($"Unsupported menu action: {action}");
+        }
     }
 
     public void Save(ModConfig config)
@@ -71,6 +98,41 @@ internal partial class ConfigurationViewModel
         Items.Save(config.Items);
         Mods.Save(config.Integrations);
         Debug.Save(config.Debug);
+        helper.WriteConfig(config);
+    }
+
+    public void ShowCloseConfirmation()
+    {
+        var portrait = Game1.getCharacterFromName("Krobus").Portrait;
+        var context = new ConfirmationViewModel()
+        {
+            DialogTitle = I18n.Confirmation_Config_Title(),
+            DialogDescription = I18n.Confirmation_Config_Description(),
+            SaveTitle = I18n.Confirmation_Config_Save_Title(),
+            SaveDescription = I18n.Confirmation_Config_Save_Description(),
+            RevertTitle = I18n.Confirmation_Config_Revert_Title(),
+            RevertDescription = I18n.Confirmation_Config_Revert_Description(),
+            CancelTitle = I18n.Confirmation_Config_Cancel_Title(),
+            CancelDescription = I18n.Confirmation_Config_Cancel_Description(),
+            Sprite = new(portrait, Game1.getSourceRectForStandardTileSheet(portrait, 3)),
+        };
+        var confirmationController = ViewEngine.OpenChildMenu("Confirmation", context);
+        confirmationController.CloseOnOutsideClick = true;
+        context.Close = confirmationController.Close;
+        confirmationController.Closed += () => ConfirmClose(context.Result);
+    }
+
+    private void ConfirmClose(ConfirmationResult result)
+    {
+        switch (result)
+        {
+            case ConfirmationResult.Yes:
+                PerformAction(ConfigurationAction.Save);
+                break;
+            case ConfirmationResult.No:
+                PerformAction(ConfigurationAction.Cancel);
+                break;
+        }
     }
 
     private static bool IsCancelButton(SButton button)
@@ -100,6 +162,15 @@ internal partial class ConfigurationViewModel
                 Controller?.ClearCursorAttachment();
             }
         }
+    }
+
+    private void Load(ModConfig config)
+    {
+        Input.Load(config.Input);
+        Style.Load(config.Style);
+        Items.Load(config.Items);
+        Mods.Load(config.Integrations);
+        Debug.Load(config.Debug);
     }
 
     private void OnContentPanelSizeChanged()

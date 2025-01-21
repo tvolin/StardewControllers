@@ -120,11 +120,11 @@ public class IconConfig : IConfigEquatable<IconConfig>
     {
         if (!string.IsNullOrWhiteSpace(ItemId))
         {
-            return $"{ITEM_PREFIX}:{ItemId}";
+            return ITEM_PREFIX + ItemId;
         }
         var rect = SourceRect;
         return !string.IsNullOrWhiteSpace(TextureAssetPath)
-            ? $"{TEXTURE_PREFIX}:{TextureAssetPath}:{rect.X},{rect.Y},{rect.Width},{rect.Height}"
+            ? $"{TEXTURE_PREFIX}{TextureAssetPath}:{rect.X},{rect.Y},{rect.Width},{rect.Height}"
             : "";
     }
 }

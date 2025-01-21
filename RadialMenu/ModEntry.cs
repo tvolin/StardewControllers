@@ -97,8 +97,8 @@ public class ModEntry : Mod
     public override void Entry(IModHelper helper)
     {
         Logger.Monitor = Monitor;
-        config = new();
-        legacyConfig = Helper.ReadConfig<LegacyModConfig>();
+        config = Helper.ReadConfig<ModConfig>();
+        legacyConfig = new();
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
         textureHelper = new(Helper.GameContent, Monitor);
@@ -286,126 +286,25 @@ public class ModEntry : Mod
             && ViewEngine.Instance is not null
         )
         {
-            var context = new ConfigurationViewModel(Helper);
-            context.Load(
-                new()
-                {
-                    Items = new()
-                    {
-                        ModMenuPages =
-                        [
-                            [
-                                new()
-                                {
-                                    Id = "ABCdef",
-                                    Name = "Swap Rings",
-                                    Icon = new() { ItemId = "(O)534" },
-                                    Keybind = new(SButton.Z),
-                                },
-                                new()
-                                {
-                                    Name = "Summon Horse",
-                                    Icon = new() { ItemId = "(O)911" },
-                                    Keybind = new(SButton.H),
-                                },
-                                new()
-                                {
-                                    Name = "Event Lookup",
-                                    Icon = new() { ItemId = "(BC)42" },
-                                    Keybind = new(SButton.N),
-                                },
-                                new()
-                                {
-                                    Name = "Calendar",
-                                    Icon = new() { ItemId = "(F)1402" },
-                                    Keybind = new(SButton.B),
-                                },
-                                new()
-                                {
-                                    Name = "Quest Board",
-                                    Icon = new() { ItemId = "(F)BulletinBoard" },
-                                    Keybind = new(SButton.Q),
-                                },
-                                new()
-                                {
-                                    Name = "Stardew Progress",
-                                    Icon = new() { ItemId = "(O)434" },
-                                    Keybind = new(SButton.F3),
-                                },
-                                new()
-                                {
-                                    Name = "Data Layers",
-                                    Icon = new() { ItemId = "(F)1543" },
-                                    Keybind = new(SButton.F2),
-                                },
-                                new()
-                                {
-                                    Name = "Garbage In Garbage Can",
-                                    Icon = new() { ItemId = "(F)2427" },
-                                    Keybind = new(SButton.G),
-                                },
-                                new()
-                                {
-                                    Name = "Generic Mod Config Menu",
-                                    Icon = new() { ItemId = "(O)112" },
-                                    Keybind = new(SButton.LeftShift, SButton.F8),
-                                },
-                                new()
-                                {
-                                    Name = "Quick Stack",
-                                    Icon = new() { ItemId = "(BC)130" },
-                                    Keybind = new(SButton.K),
-                                },
-                                new()
-                                {
-                                    Name = "NPC Location Compass",
-                                    Icon = new() { ItemId = "(F)1545" },
-                                    Keybind = new(SButton.LeftAlt),
-                                },
-                                new()
-                                {
-                                    Name = "Toggle Fishing Overlays",
-                                    Icon = new() { ItemId = "(O)128" },
-                                    Keybind = new(SButton.LeftShift, SButton.F),
-                                },
-                            ],
-                        ],
-                        QuickSlots = new()
-                        {
-                            {
-                                SButton.DPadLeft,
-                                new() { Id = "(O)287", UseSecondaryAction = true }
-                            },
-                            {
-                                SButton.DPadUp,
-                                new() { Id = "(T)Pickaxe" }
-                            },
-                            {
-                                SButton.DPadRight,
-                                new() { Id = "(W)4" }
-                            },
-                            {
-                                SButton.DPadDown,
-                                new() { Id = "(BC)71" }
-                            },
-                            {
-                                SButton.ControllerX,
-                                new() { Id = "(O)424" }
-                            },
-                            {
-                                SButton.ControllerY,
-                                new() { Id = "(O)253" }
-                            },
-                            {
-                                SButton.ControllerA,
-                                new() { IdType = ItemIdType.ModItem, Id = "ABCdef" }
-                            },
-                        },
-                    },
-                }
-            );
+            var context = new ConfigurationViewModel(Helper, config);
             context.Controller = ViewEngine.OpenChildMenu("Configuration", context);
             context.Controller.CanClose = () => context.IsNavigationEnabled;
+            context.Controller.CloseAction = () =>
+            {
+                if (!context.Dismissed && context.HasUnsavedChanges())
+                {
+                    context.ShowCloseConfirmation();
+                }
+                else
+                {
+                    Game1.playSound("bigDeSelect");
+                    Game1.exitActiveMenu();
+                }
+            };
+            // CloseSound is normally played before CloseAction has a chance to run; in order to
+            // suppress the sound only when displaying the confirmation above, we need to suppress
+            // it at all times and play it ad-hoc when "really" closing.
+            context.Controller.CloseSound = "";
             return;
         }
 
@@ -628,7 +527,7 @@ public class ModEntry : Mod
             }
             gmcmSync = new(() => legacyConfig, gmcmKeybindings, Monitor);
             gmcmSync.SyncAll();
-            Helper.WriteConfig(legacyConfig);
+            // Helper.WriteConfig(legacyConfig);
         }
         catch (Exception ex)
             when (ex is InvalidOperationException || ex is TargetInvocationException)

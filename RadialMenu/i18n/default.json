@@ -8,6 +8,14 @@
   "Config.Tab.Actions.Title": "Actions",
   "Config.Tab.Mods.Title": "Mods",
   "Config.Tab.Debug.Title": "Debug",
+  
+  // Config menu - Actions
+  "Config.Action.Cancel.Title": "Cancel",
+  "Config.Action.Cancel.Description": "Close without updating - all changes will be lost.",
+  "Config.Action.Save.Title": "Save",
+  "Config.Action.Save.Description": "Update the mod configuration and close this menu.",
+  "Config.Action.Reset.Title": "Defaults",
+  "Config.Action.Reset.Description": "Reset all settings to their default values; the contents of your Mod Menu and Quick Slots will also be deleted. You can still cancel after resetting.",
 
   // Config menu - Controls page
   "Config.Keybind.Heading": "Button Mapping",
@@ -163,6 +171,16 @@
   "Config.Logging.GmcmSync.Description": "Log when keybinds are synced from Generic Mod Config Menu, on startup and when the mod configuration changes.",
   "Config.Logging.GmcmDetailed.Title": "GMCM Verbose",
   "Config.Logging.GmcmDetailed.Description": "Log detailed information about Generic Mod Config Menu integration, including a list of all available key binding settings and field names/IDs on startup.",
+  
+  // Confirmation dialog
+  "Confirmation.Config.Title": "Settings have been changed",
+  "Confirmation.Config.Description": "You've made changes to the configuration that haven't been saved. What would you like to do?",
+  "Confirmation.Config.Save.Title": "Save",
+  "Confirmation.Config.Save.Description": "Mod configuration will be saved with your latest changes.",
+  "Confirmation.Config.Revert.Title": "Revert",
+  "Confirmation.Config.Revert.Description": "Changes made since the menu was opened will be lost.",
+  "Confirmation.Config.Cancel.Title": "Back",
+  "Confirmation.Config.Cancel.Description": "Return to the configuration menu without saving or reverting.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
