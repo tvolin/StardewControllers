@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
+﻿using Microsoft.Xna.Framework.Graphics;
 
 namespace RadialMenu.Menus;
 
@@ -16,9 +14,9 @@ namespace RadialMenu.Menus;
 /// <param name="sourceRectangle">The <see cref="IRadialMenuItem.SourceRectangle"/>.</param>
 /// <param name="tintRectangle">The <see cref="IRadialMenuItem.TintRectangle"/>.</param>
 /// <param name="tintColor">The <see cref="IRadialMenuItem.TintColor"/>.</param>
-internal class CustomMenuItem(
+internal class ModMenuItem(
     string title,
-    Func<Farmer, DelayedActions, MenuItemAction, MenuItemActivationResult> activate,
+    Func<Farmer, DelayedActions, bool, MenuItemActivationResult> activate,
     string? description = null,
     int? stackSize = null,
     int? quality = null,
@@ -47,9 +45,9 @@ internal class CustomMenuItem(
     public MenuItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
-        MenuItemAction requestedAction
+        bool secondaryAction
     )
     {
-        return activate(who, delayedActions, requestedAction);
+        return activate(who, delayedActions, secondaryAction);
     }
 }

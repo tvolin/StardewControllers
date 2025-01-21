@@ -18,9 +18,9 @@ public enum MenuItemActivationResult
     /// An immediate action/effect was triggered, such as eating a food item, using a totem, etc.
     /// </summary>
     /// <remarks>
-    /// This is the normal result when an item is activated with <see cref="MenuItemAction.Use"/>, <b>and</b> the item has
+    /// This is the normal result when an item is activated with <see cref="InventoryAction.Use"/>, <b>and</b> the item has
     /// some useful "quick action" that's meant to be triggered from the menu directly. If no such action is possible
-    /// (e.g. inedible materials or tools like axe or hoe), or the requested action was <see cref="MenuItemAction.Select"/>,
+    /// (e.g. inedible materials or tools like axe or hoe), or the requested action was <see cref="InventoryAction.Select"/>,
     /// then one of <see cref="Delayed"/> or <see cref="Selected"/> should be used instead.
     /// </remarks>
     Used,

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using RadialMenu.Config;
 using RadialMenu.Graphics;
+using RadialMenu.Input;
 
 namespace RadialMenu.Menus;
 
@@ -8,24 +9,28 @@ namespace RadialMenu.Menus;
 /// Radial menu displaying the shortcuts set up in the <see cref="Config.LegacyModConfig.CustomMenuItems"/>, as well as
 /// any mod-added pages.
 /// </summary>
-internal class CustomMenu : IRadialMenu
+internal class ModMenu : IRadialMenu
 {
     public IReadOnlyList<IRadialMenuPage> Pages => combinedPages;
 
     public int SelectedPageIndex { get; set; }
+
+    public IMenuToggle Toggle { get; }
 
     private readonly CombinedPageList combinedPages;
     private readonly Func<IReadOnlyList<CustomMenuItemConfiguration>> getShortcuts;
     private readonly Action<CustomMenuItemConfiguration> shortcutActivator;
     private readonly TextureHelper textureHelper;
 
-    public CustomMenu(
+    public ModMenu(
+        IMenuToggle toggle,
         Func<IReadOnlyList<CustomMenuItemConfiguration>> getShortcuts,
         Action<CustomMenuItemConfiguration> shortcutActivator,
         TextureHelper textureHelper,
         IInvalidatableList<IRadialMenuPage> additionalPages
     )
     {
+        this.Toggle = toggle;
         this.getShortcuts = getShortcuts;
         this.shortcutActivator = shortcutActivator;
         this.textureHelper = textureHelper;

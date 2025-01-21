@@ -3,14 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 using RadialMenu.Config;
 using RadialMenu.Graphics;
 using RadialMenu.Menus;
-using StardewValley;
-using TileRectangle = xTile.Dimensions.Rectangle;
+using StardewValley.Extensions;
 
 namespace RadialMenu;
 
-internal class Painter
+public class Painter
 {
-    private record SelectionState(int ItemCount, int PreviousIndex, int SelectedIndex);
+    private record SelectionState(int ItemCount, int SelectedIndex, int FocusedIndex);
 
     private const float CIRCLE_MAX_ERROR = 0.1f;
     private const float EQUILATERAL_ANGLE = MathF.PI * 2 / 3;
@@ -24,7 +23,7 @@ internal class Painter
         new(176, 425, 9, 12)
     );
 
-    public IReadOnlyList<IRadialMenuItem> Items { get; set; } = [];
+    public IReadOnlyList<IRadialMenuItem?> Items { get; set; } = [];
     public Styles Styles => getStyles();
 
     private readonly GraphicsDevice graphicsDevice;
@@ -34,7 +33,7 @@ internal class Painter
     private VertexPositionColor[] innerVertices = [];
     private VertexPositionColor[] outerVertices = [];
     private float selectionBlend = 1.0f;
-    private SelectionState selectionState = new(ItemCount: 0, PreviousIndex: 0, SelectedIndex: 0);
+    private SelectionState selectionState = new(ItemCount: 0, SelectedIndex: 0, FocusedIndex: 0);
 
     public Painter(GraphicsDevice graphicsDevice, Func<Styles> getStyles)
     {
@@ -50,27 +49,28 @@ internal class Painter
 
     public void Paint(
         SpriteBatch spriteBatch,
-        TileRectangle viewport,
-        int previousIndex,
         int selectedIndex,
-        float? selectionAngle,
-        float selectionBlend = 1.0f
+        int focusedIndex,
+        float? selectionAngle = null,
+        float selectionBlend = 1.0f,
+        Rectangle? viewport = null
     )
     {
         GenerateVertices();
-        var selectionState = new SelectionState(Items.Count, previousIndex, selectedIndex);
+        var selectionState = new SelectionState(Items.Count, selectedIndex, focusedIndex);
         if (selectionState != this.selectionState || selectionBlend != this.selectionBlend)
         {
             this.selectionState = selectionState;
             this.selectionBlend = selectionBlend;
             UpdateVertexColors();
         }
-        PaintBackgrounds(viewport, selectionAngle);
-        PaintItems(spriteBatch, viewport);
-        PaintSelectionDetails(spriteBatch, viewport);
+        viewport ??= Game1.uiViewport.ToXna();
+        PaintBackgrounds(viewport.Value, selectionAngle);
+        PaintItems(spriteBatch, viewport.Value);
+        PaintSelectionDetails(spriteBatch, viewport.Value);
     }
 
-    private void PaintBackgrounds(TileRectangle viewport, float? selectionAngle)
+    private void PaintBackgrounds(Rectangle viewport, float? selectionAngle)
     {
         effect.Projection = Matrix.CreateOrthographic(viewport.Width, viewport.Height, 0, 1);
         var oldRasterizerState = graphicsDevice.RasterizerState;
@@ -119,16 +119,21 @@ internal class Painter
         }
     }
 
-    private void PaintItems(SpriteBatch spriteBatch, TileRectangle viewport)
+    private void PaintItems(SpriteBatch spriteBatch, Rectangle viewport)
     {
         var centerX = viewport.Width / 2.0f;
         var centerY = viewport.Height / 2.0f;
         var itemRadius = Styles.InnerRadius + Styles.GapWidth + Styles.OuterRadius / 2.0f;
         var angleBetweenItems = TWO_PI / Items.Count;
-        var t = 0.0f;
+        var currentAngle = 0.0f;
         foreach (var item in Items)
         {
-            var itemPoint = GetCirclePoint(itemRadius, t);
+            if (item is null)
+            {
+                currentAngle += angleBetweenItems;
+                continue;
+            }
+            var itemPoint = GetCirclePoint(itemRadius, currentAngle);
             var displaySize = GetScaledSize(item, Styles.MenuSpriteHeight);
             // Aspect ratio is usually almost square, or has extra height (e.g. big craftables).
             // In case of a horizontal aspect ratio, shrink the size so that it still fits.
@@ -175,12 +180,12 @@ internal class Painter
                     ? (item.TintColor ?? Color.White)
                     : Color.White;
                 spriteBatch.Draw(item.Texture, destinationRect, item.SourceRectangle, baseColor);
-                if (item.TintRectangle is Rectangle tintRect && item.TintColor is Color tintColor)
+                if (item.TintRectangle is { } tintRect && item.TintColor is { } tintColor)
                 {
                     spriteBatch.Draw(item.Texture, destinationRect, tintRect, tintColor);
                 }
             }
-            if (item.Quality is int quality && quality > 0)
+            if (item.Quality is { } quality && quality > 0)
             {
                 // From StardewValley:Object.cs
                 var qualitySourceRect =
@@ -200,7 +205,7 @@ internal class Painter
                     layerDepth: 0.1f
                 );
             }
-            if (item.StackSize is int stackSize)
+            if (item.StackSize is { } stackSize)
             {
                 var stackTextScale = 3.0f;
                 var stackTextWidth = Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
@@ -217,18 +222,18 @@ internal class Painter
                     Styles.StackSizeColor
                 );
             }
-            t += angleBetweenItems;
+            currentAngle += angleBetweenItems;
         }
     }
 
-    private void PaintSelectionDetails(SpriteBatch spriteBatch, TileRectangle viewport)
+    private void PaintSelectionDetails(SpriteBatch spriteBatch, Rectangle viewport)
     {
-        if (selectionState.SelectedIndex < 0)
+        if (selectionState.FocusedIndex < 0)
         {
             return;
         }
         var item =
-            Items.Count > selectionState.SelectedIndex ? Items[selectionState.SelectedIndex] : null;
+            Items.Count > selectionState.FocusedIndex ? Items[selectionState.FocusedIndex] : null;
         if (item is null)
         {
             return;
@@ -293,17 +298,17 @@ internal class Painter
     }
 
     private static (float start, float end) GetSegmentRange(
-        int selectedIndex,
+        int focusedIndex,
         int itemCount,
         int segmentCount
     )
     {
-        if (selectedIndex < 0)
+        if (focusedIndex < 0)
         {
             return (-1.0f, -0.5f);
         }
         var sliceSize = (float)segmentCount / itemCount;
-        var relativePosition = (float)selectedIndex / itemCount;
+        var relativePosition = (float)focusedIndex / itemCount;
         var end = (relativePosition * segmentCount + sliceSize / 2) % segmentCount;
         var start = (end - sliceSize + segmentCount) % segmentCount;
         return (start, end);
@@ -311,35 +316,37 @@ internal class Painter
 
     private void UpdateVertexColors()
     {
-        var (itemCount, previousIndex, selectedIndex) = selectionState;
+        var (itemCount, selectedIndex, focusedIndex) = selectionState;
         const int outerChordSize = 6;
         var segmentCount = outerVertices.Length / outerChordSize;
-        var (previousHighlightStartSegment, previousHighlightEndSegment) = GetSegmentRange(
-            previousIndex,
+        var (selectionHighlightStartSegment, selectionHighlightEndSegment) = GetSegmentRange(
+            selectedIndex,
             itemCount,
             segmentCount
         );
-        var (currentHighlightStartSegment, currentHighlightEndSegment) = GetSegmentRange(
-            selectedIndex,
+        var (focusHighlightStartSegment, focusHighlightEndSegment) = GetSegmentRange(
+            focusedIndex,
             itemCount,
             segmentCount
         );
         for (var i = 0; i < segmentCount; i++)
         {
-            var isCurrentHighlight =
-                currentHighlightStartSegment < currentHighlightEndSegment
-                    ? (i >= currentHighlightStartSegment && i < currentHighlightEndSegment)
-                    : (i >= currentHighlightStartSegment || i < currentHighlightEndSegment);
-            var isPreviousHighlight =
-                isCurrentHighlight ? false
-                : previousHighlightStartSegment < previousHighlightEndSegment
-                    ? (i >= previousHighlightStartSegment && i < previousHighlightEndSegment)
-                : (i >= previousHighlightStartSegment || i < previousHighlightEndSegment);
+            var isFocusHighlight =
+                focusHighlightStartSegment < focusHighlightEndSegment
+                    ? (i >= focusHighlightStartSegment && i < focusHighlightEndSegment)
+                    : (i >= focusHighlightStartSegment || i < focusHighlightEndSegment);
+            var isSelectionHighlight =
+                !isFocusHighlight
+                && (
+                    selectionHighlightStartSegment < selectionHighlightEndSegment
+                        ? (i >= selectionHighlightStartSegment && i < selectionHighlightEndSegment)
+                        : (i >= selectionHighlightStartSegment || i < selectionHighlightEndSegment)
+                );
             var outerIndex = i * outerChordSize;
             var outerColor =
-                isCurrentHighlight
+                isFocusHighlight
                     ? Color.Lerp(Styles.OuterBackgroundColor, Styles.HighlightColor, selectionBlend)
-                : isPreviousHighlight ? Styles.SelectionColor
+                : isSelectionHighlight ? Styles.SelectionColor
                 : Styles.OuterBackgroundColor;
             for (var j = 0; j < outerChordSize; j++)
             {

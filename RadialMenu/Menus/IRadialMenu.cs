@@ -1,4 +1,6 @@
-﻿namespace RadialMenu.Menus;
+﻿using RadialMenu.Input;
+
+namespace RadialMenu.Menus;
 
 /// <summary>
 /// Definition of a menu that can be displayed using one of the trigger buttons.
@@ -14,6 +16,16 @@ public interface IRadialMenu
     /// Index of the currently-selected page in <see cref="Pages"/>.
     /// </summary>
     int SelectedPageIndex { get; set; }
+
+    /// <summary>
+    /// The toggle for this menu that controls its activation state.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="MenuToggleState"/> of the toggle determines its <em>intended</em> state.
+    /// The actual visibility/interactivity of the menu is managed by the
+    /// <see cref="RadialMenuController"/> that owns the menu.
+    /// </remarks>
+    IMenuToggle Toggle { get; }
 
     /// <summary>
     /// Gets the page at the <see cref="SelectedPageIndex"/>.

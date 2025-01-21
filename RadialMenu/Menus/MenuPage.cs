@@ -24,7 +24,7 @@ internal static class MenuPage
         var items = itemConfigs
             .Select(config => CreateCustomMenuItem(config, activator, textures))
             .ToList();
-        return new MenuPage<CustomMenuItem>(items, _ => false);
+        return new MenuPage<ModMenuItem>(items, _ => false);
     }
 
     /// <summary>
@@ -33,20 +33,26 @@ internal static class MenuPage
     /// <param name="who">The player whose inventory should be displayed.</param>
     /// <param name="startIndex">First index of the player's <see cref="Farmer.Items"/> to display.</param>
     /// <param name="count">Number of items to include on this page.</param>
-    public static IRadialMenuPage FromFarmerInventory(Farmer who, int startIndex, int count)
+    /// <param name="includeEmpty">Whether to include empty slots as null items.</param>
+    public static IRadialMenuPage FromFarmerInventory(
+        Farmer who,
+        int startIndex,
+        int count,
+        bool includeEmpty
+    )
     {
         var items = Enumerable
             .Range(startIndex, count)
             .Select(i => who.Items[i])
-            .Where(item => item is not null)
-            .Select(item => new InventoryMenuItem(item))
+            .Where(item => includeEmpty || item is not null)
+            .Select(item => item is not null ? new InventoryMenuItem(item) : null)
             .ToList();
-        bool isSelected(InventoryMenuItem menuItem) =>
-            menuItem.Item == who.Items[who.CurrentToolIndex];
+        bool isSelected(InventoryMenuItem? menuItem) =>
+            menuItem?.Item == who.Items[who.CurrentToolIndex];
         return new MenuPage<InventoryMenuItem>(items, isSelected);
     }
 
-    private static CustomMenuItem CreateCustomMenuItem(
+    private static ModMenuItem CreateCustomMenuItem(
         CustomMenuItemConfiguration config,
         Action<CustomMenuItemConfiguration> activator,
         TextureHelper textures
@@ -79,10 +85,10 @@ internal static class MenuPage
 /// </summary>
 /// <param name="items">The items on this page.</param>
 /// <param name="isSelected">Predicate function to check whether a given item is selected.</param>
-internal class MenuPage<T>(IReadOnlyList<T> items, Predicate<T> isSelected) : IRadialMenuPage
+internal class MenuPage<T>(IReadOnlyList<T?> items, Predicate<T?> isSelected) : IRadialMenuPage
     where T : class, IRadialMenuItem
 {
-    public IReadOnlyList<IRadialMenuItem> Items => items;
+    public IReadOnlyList<IRadialMenuItem?> Items => items;
 
     public int SelectedItemIndex => GetSelectedIndex();
 

@@ -1,13 +1,17 @@
-﻿using StardewValley;
+﻿using RadialMenu.Config;
+using RadialMenu.Input;
+using StardewValley;
 
 namespace RadialMenu.Menus;
 
 /// <summary>
 /// An inventory radial menu for a single player.
 /// </summary>
+/// <param name="toggle">The toggle controller for this menu.</param>
 /// <param name="who">The player whose inventory will be displayed.</param>
-/// <param name="getPageSize">Function to get the desired page size, i.e. pointing to current mod config.</param>
-internal class InventoryMenu(Farmer who, Func<int> getPageSize) : IRadialMenu
+/// <param name="itemsConfig">Configuration for the menu items.</param>
+internal class InventoryMenu(IMenuToggle toggle, Farmer who, ItemsConfiguration itemsConfig)
+    : IRadialMenu
 {
     public IReadOnlyList<IRadialMenuPage> Pages
     {
@@ -19,6 +23,8 @@ internal class InventoryMenu(Farmer who, Func<int> getPageSize) : IRadialMenu
     }
 
     public int SelectedPageIndex { get; set; }
+
+    public IMenuToggle Toggle => toggle;
 
     private readonly List<IRadialMenuPage> pages = [];
 
@@ -72,11 +78,13 @@ internal class InventoryMenu(Farmer who, Func<int> getPageSize) : IRadialMenu
             return;
         }
         pages.Clear();
-        var pageSize = getPageSize();
+        var pageSize = itemsConfig.InventoryPageSize;
         for (int i = 0; i < who.Items.Count; i += pageSize)
         {
             var actualCount = Math.Min(pageSize, who.Items.Count - i);
-            pages.Add(MenuPage.FromFarmerInventory(who, i, actualCount));
+            pages.Add(
+                MenuPage.FromFarmerInventory(who, i, actualCount, itemsConfig.ShowInventoryBlanks)
+            );
         }
         isDirty = false;
     }

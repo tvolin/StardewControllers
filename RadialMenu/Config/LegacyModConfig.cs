@@ -45,7 +45,7 @@ public class LegacyModConfig : ICursorConfiguration
     /// <summary>
     /// What action to perform when <see cref="PrimaryActivation"/> is used.
     /// </summary>
-    public MenuItemAction PrimaryAction { get; set; } = MenuItemAction.Use;
+    public InventoryAction PrimaryAction { get; set; } = InventoryAction.Use;
 
     /// <summary>
     /// How to perform the <see cref="PrimaryAction"/> on the selected item; refer to
@@ -57,7 +57,7 @@ public class LegacyModConfig : ICursorConfiguration
     /// <summary>
     /// What action to perform when the <see cref="SecondaryActionButton"/> is pressed.
     /// </summary>
-    public MenuItemAction SecondaryAction { get; set; } = MenuItemAction.Select;
+    public InventoryAction SecondaryAction { get; set; } = InventoryAction.Select;
 
     /// <summary>
     /// How to perform the <see cref="SecondaryAction"/> on the selected item.

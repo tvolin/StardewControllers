@@ -42,8 +42,8 @@ public class InputConfiguration
         ThumbStickPreference.AlwaysLeft;
 
     /// <summary>
-    /// Whether the <see cref="InventoryMenuButton"/> or <see cref="ModMenu"/> are used to hold the
-    /// menu open (default) or toggle it on/off.
+    /// Whether the <see cref="InventoryMenuButton"/> or <see cref="ModMenuButton"/> are used to
+    /// hold the menu open (default) or toggle it on/off.
     /// </summary>
     public MenuToggleMode ToggleMode { get; set; } = MenuToggleMode.Hold;
 
@@ -61,7 +61,7 @@ public class InputConfiguration
     public int ActivationDelayMs { get; set; } = 250;
 
     /// <summary>
-    /// Whether or not to remember the player's previous selection per menu.
+    /// Whether to remember the player's previous selection per menu.
     /// </summary>
     /// <remarks>
     /// If enabled, closing and reopening a menu will cause it to reopen to the last open page,

@@ -12,7 +12,11 @@ public interface IRadialMenuPage
     /// <summary>
     /// The items on this page.
     /// </summary>
-    IReadOnlyList<IRadialMenuItem> Items { get; }
+    /// <remarks>
+    /// Any <c>null</c> entries in the list will render as a blank wedge in the menu, e.g.
+    /// representing an empty inventory slot.
+    /// </remarks>
+    IReadOnlyList<IRadialMenuItem?> Items { get; }
 
     /// <summary>
     /// Index of the selected <see cref="IRadialMenuItem"/> in the <see cref="Items"/> list, or <c>-1</c> if no selection.

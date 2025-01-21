@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using RadialMenu.Config;
 using RadialMenu.Gmcm;
 using RadialMenu.Graphics;
+using RadialMenu.Input;
 using RadialMenu.Menus;
 using RadialMenu.UI;
 using StardewModdingAPI;
@@ -77,7 +78,8 @@ public class ModEntry : Mod
 
     // Global state
     private Api api = null!;
-    private LegacyModConfig config = null!;
+    private ModConfig config = null!;
+    private LegacyModConfig legacyConfig = null!;
     private ConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
     private IGMCMOptionsAPI? gmcmOptionsApi;
@@ -95,7 +97,8 @@ public class ModEntry : Mod
     public override void Entry(IModHelper helper)
     {
         Logger.Monitor = Monitor;
-        config = Helper.ReadConfig<LegacyModConfig>();
+        config = new();
+        legacyConfig = Helper.ReadConfig<LegacyModConfig>();
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
         textureHelper = new(Helper.GameContent, Monitor);
@@ -127,7 +130,6 @@ public class ModEntry : Mod
         var selectionBlend = GetSelectionBlend();
         Painter.Paint(
             e.SpriteBatch,
-            Game1.uiViewport,
             ActivePage?.SelectedItemIndex ?? -1,
             Cursor.CurrentTarget?.SelectedIndex ?? -1,
             Cursor.CurrentTarget?.Angle,
@@ -241,19 +243,21 @@ public class ModEntry : Mod
                 else
                 {
                     if (
-                        config.PrimaryActivation == ItemActivationMethod.TriggerRelease
+                        legacyConfig.PrimaryActivation == ItemActivationMethod.TriggerRelease
                         && Cursor.CurrentTarget is not null
                     )
                     {
                         Cursor.RevertActiveMenu();
-                        ScheduleActivation(preferredAction: config.PrimaryAction);
+                        ScheduleActivation(
+                            secondaryAction: legacyConfig.PrimaryAction == InventoryAction.Select
+                        );
                     }
                     else
                     {
                         RestorePreMenuState();
                     }
                 }
-                PlayerState.SetActiveMenu(Cursor.ActiveMenu, config.RememberSelection);
+                PlayerState.SetActiveMenu(Cursor.ActiveMenu, legacyConfig.RememberSelection);
             }
             Painter.Items = ActivePage?.Items ?? EmptyItems;
             Cursor.UpdateCurrentTarget(ActivePage?.Items.Count ?? 0);
@@ -414,15 +418,19 @@ public class ModEntry : Mod
         {
             if (Cursor.CurrentTarget is not null)
             {
-                if (button == config.SecondaryActionButton)
+                if (button == legacyConfig.SecondaryActionButton)
                 {
-                    ScheduleActivation(preferredAction: config.SecondaryAction);
+                    ScheduleActivation(
+                        secondaryAction: legacyConfig.SecondaryAction == InventoryAction.Select
+                    );
                     Helper.Input.Suppress(button);
                     return;
                 }
                 else if (IsActivationButton(button))
                 {
-                    ScheduleActivation(preferredAction: config.PrimaryAction);
+                    ScheduleActivation(
+                        secondaryAction: legacyConfig.PrimaryAction == InventoryAction.Select
+                    );
                     Helper.Input.Suppress(button);
                     return;
                 }
@@ -467,22 +475,29 @@ public class ModEntry : Mod
 
     private Painter CreatePainter()
     {
-        return new(Game1.graphics.GraphicsDevice, () => config.Styles);
+        return new(Game1.graphics.GraphicsDevice, () => legacyConfig.Styles);
     }
 
     private PlayerState CreatePlayerState()
     {
         var who = Game1.player;
-        var cursor = new Cursor(() => config);
-        var inventoryMenu = new InventoryMenu(who, () => config.MaxInventoryItems);
+        var cursor = new Cursor(() => legacyConfig);
+        var inventoryToggle = new MenuToggle(
+            Helper.Input,
+            config.Input,
+            c => c.InventoryMenuButton
+        );
+        var inventoryMenu = new InventoryMenu(inventoryToggle, who, config.Items);
         var registeredPages = pageRegistry.CreatePageList(who);
-        var customMenu = new CustomMenu(
-            () => config.CustomMenuItems,
-            ActivateCustomMenuItem,
+        var modMenuToggle = new MenuToggle(Helper.Input, config.Input, c => c.ModMenuButton);
+        var modMenu = new ModMenu(
+            modMenuToggle,
+            () => legacyConfig.CustomMenuItems,
+            ActivateModMenuItem,
             textureHelper,
             registeredPages
         );
-        return new(cursor, inventoryMenu, customMenu);
+        return new(cursor, inventoryMenu, modMenu);
     }
 
     private static GamePadState GetRawGamePadState()
@@ -493,7 +508,7 @@ public class ModEntry : Mod
     }
 
     private Func<DelayedActions, MenuItemActivationResult>? GetSelectedItemActivation(
-        MenuItemAction preferredAction
+        bool secondaryAction
     )
     {
         if (ActivePage is null)
@@ -505,7 +520,8 @@ public class ModEntry : Mod
             ? (delayedActions) =>
                 ActivePage
                     .Items[itemIndex.Value]
-                    .Activate(Game1.player, delayedActions, preferredAction)
+                    ?.Activate(Game1.player, delayedActions, secondaryAction)
+                ?? MenuItemActivationResult.Ignored
             : null;
     }
 
@@ -515,13 +531,13 @@ public class ModEntry : Mod
         {
             return 1.0f;
         }
-        var elapsed = (float)(config.ActivationDelayMs - RemainingActivationDelayMs);
+        var elapsed = (float)(legacyConfig.ActivationDelayMs - RemainingActivationDelayMs);
         return MathF.Abs(((elapsed / 80) % 2) - 1);
     }
 
     private bool IsActivationButton(SButton button)
     {
-        return config.PrimaryActivation switch
+        return legacyConfig.PrimaryActivation switch
         {
             ItemActivationMethod.ActionButtonPress => button.IsActionButton(),
             ItemActivationMethod.ThumbStickPress => Cursor.IsThumbStickForActiveMenu(button),
@@ -546,7 +562,7 @@ public class ModEntry : Mod
         var result =
             RemainingActivationDelayMs <= 0
                 ? PendingActivation.Invoke(DelayedActions.None)
-                : PendingActivation.Invoke(config.DelayedActions);
+                : PendingActivation.Invoke(legacyConfig.DelayedActions);
         if (result == MenuItemActivationResult.Delayed)
         {
             Game1.playSound("select");
@@ -599,7 +615,7 @@ public class ModEntry : Mod
             GenericModConfigKeybindings.Instance = gmcmKeybindings =
                 GenericModConfigKeybindings.Load();
             Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
-            if (config.DumpAvailableKeyBindingsOnStartup)
+            if (legacyConfig.DumpAvailableKeyBindingsOnStartup)
             {
                 foreach (var option in gmcmKeybindings.AllOptions)
                 {
@@ -610,9 +626,9 @@ public class ModEntry : Mod
                     );
                 }
             }
-            gmcmSync = new(() => config, gmcmKeybindings, Monitor);
+            gmcmSync = new(() => legacyConfig, gmcmKeybindings, Monitor);
             gmcmSync.SyncAll();
-            Helper.WriteConfig(config);
+            Helper.WriteConfig(legacyConfig);
         }
         catch (Exception ex)
             when (ex is InvalidOperationException || ex is TargetInvocationException)
@@ -634,7 +650,7 @@ public class ModEntry : Mod
         configMenuApi.Register(
             mod: ModManifest,
             reset: ResetConfiguration,
-            save: () => Helper.WriteConfig(config)
+            save: () => Helper.WriteConfig(legacyConfig)
         );
         configMenu = new(
             configMenuApi,
@@ -645,14 +661,14 @@ public class ModEntry : Mod
             Helper.ModContent,
             textureHelper,
             Helper.Events.GameLoop,
-            () => config
+            () => legacyConfig
         );
         configMenu.Setup();
     }
 
     private void ResetConfiguration()
     {
-        config = new();
+        legacyConfig = new();
         foreach (var (_, state) in playerState.GetActiveValues())
         {
             state.InvalidateConfiguration();
@@ -664,19 +680,19 @@ public class ModEntry : Mod
         Game1.freezeControls = PreMenuState.WasFrozen;
     }
 
-    private void ScheduleActivation(MenuItemAction preferredAction)
+    private void ScheduleActivation(bool secondaryAction)
     {
         IsActivationDelayed = false;
-        PendingActivation = GetSelectedItemActivation(preferredAction);
+        PendingActivation = GetSelectedItemActivation(secondaryAction);
         if (PendingActivation is null)
         {
             return;
         }
-        RemainingActivationDelayMs = config.ActivationDelayMs;
+        RemainingActivationDelayMs = legacyConfig.ActivationDelayMs;
         Cursor.SuppressUntilTriggerRelease();
     }
 
-    private void ActivateCustomMenuItem(CustomMenuItemConfiguration item)
+    private void ActivateModMenuItem(CustomMenuItemConfiguration item)
     {
         if (!item.Keybind.IsBound)
         {

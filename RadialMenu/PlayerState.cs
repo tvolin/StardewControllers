@@ -7,11 +7,11 @@ namespace RadialMenu;
 
 internal record PreMenuState(bool WasFrozen);
 
-internal class PlayerState(Cursor cursor, InventoryMenu inventoryMenu, CustomMenu customMenu)
+internal class PlayerState(Cursor cursor, InventoryMenu inventoryMenu, ModMenu modMenu)
 {
     private readonly Cursor cursor = cursor;
     private readonly InventoryMenu inventoryMenu = inventoryMenu;
-    private readonly CustomMenu customMenu = customMenu;
+    private readonly ModMenu modMenu = modMenu;
 
     public Cursor Cursor => cursor;
     public PreMenuState PreMenuState { get; set; } = new(Game1.freezeControls);
@@ -26,7 +26,7 @@ internal class PlayerState(Cursor cursor, InventoryMenu inventoryMenu, CustomMen
 
     public void InvalidateConfiguration()
     {
-        customMenu.Invalidate();
+        modMenu.Invalidate();
         // We consider inventory to be invalidated as well because the page size may have changed.
         InvalidateInventory();
     }
@@ -41,7 +41,7 @@ internal class PlayerState(Cursor cursor, InventoryMenu inventoryMenu, CustomMen
         ActiveMenu = kind switch
         {
             MenuKind.Inventory => inventoryMenu,
-            MenuKind.Custom => customMenu,
+            MenuKind.Custom => modMenu,
             _ => null,
         };
         if (!keepPreviousPage)

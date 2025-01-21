@@ -50,10 +50,15 @@ internal class InventoryMenuItem : IRadialMenuItem
     public MenuItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
-        MenuItemAction requestedAction
+        bool secondaryAction
     )
     {
-        return FuzzyActivation.ConsumeOrSelect(who, Item, delayedActions, requestedAction);
+        return FuzzyActivation.ConsumeOrSelect(
+            who,
+            Item,
+            delayedActions,
+            secondaryAction ? InventoryAction.Use : InventoryAction.Select
+        );
     }
 
     private static ParsedItemData? GetTextureRedirect(Item item)
