@@ -3,7 +3,7 @@ namespace RadialMenu.Config;
 /// <summary>
 /// Configures the items to be shown when a menu is open.
 /// </summary>
-public class ItemsConfiguration
+public class ItemsConfiguration : IConfigEquatable<ItemsConfiguration>
 {
     /// <summary>
     /// Number of items to be shown on a single page of the Inventory Menu.
@@ -85,4 +85,29 @@ public class ItemsConfiguration
     /// </para>
     /// </remarks>
     public Dictionary<SButton, QuickSlotConfiguration> QuickSlots { get; set; } = [];
+
+    /// <inheritdoc />
+    public bool Equals(ItemsConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return InventoryPageSize == other.InventoryPageSize
+            && ShowInventoryBlanks == other.ShowInventoryBlanks
+            && ModMenuPages.Count == other.ModMenuPages.Count
+            && ModMenuPages.SequenceEqual(
+                other.ModMenuPages,
+                (page1, page2) => page1.SequenceEqual(page2, (item1, item2) => item1.Equals(item2))
+            )
+            && ShowSettingsItem == other.ShowSettingsItem
+            && SettingsItemPageIndex == other.SettingsItemPageIndex
+            && SettingsItemPositionIndex == other.SettingsItemPositionIndex
+            && QuickSlots.Count == other.QuickSlots.Count
+            && QuickSlots.IsEquivalentTo(other.QuickSlots, (slot1, slot2) => slot1.Equals(slot2));
+    }
 }

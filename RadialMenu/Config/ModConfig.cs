@@ -3,7 +3,7 @@
 /// <summary>
 /// Top-level configuration data for Star Control.
 /// </summary>
-public class ModConfig
+public class ModConfig : IConfigEquatable<ModConfig>
 {
     /// <summary>
     /// Configures the input settings, e.g. which buttons are used to open and navigate the menus.
@@ -29,4 +29,22 @@ public class ModConfig
     /// Debug settings, for development and troubleshooting.
     /// </summary>
     public DebugConfiguration Debug { get; set; } = new();
+
+    /// <inheritdoc />
+    public bool Equals(ModConfig? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return Input.Equals(other.Input)
+            && Style.Equals(other.Style)
+            && Items.Equals(other.Items)
+            && Integrations.Equals(other.Integrations)
+            && Debug.Equals(other.Debug);
+    }
 }

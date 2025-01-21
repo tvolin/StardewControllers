@@ -9,7 +9,7 @@
 /// <see cref="ModMenuItemConfiguration.Description"/>. These can be overridden by changing
 /// the <see cref="EnableNameSync"/> and <see cref="EnableDescriptionSync"/> values.
 /// </remarks>
-public class GmcmAssociation
+public class GmcmAssociation : IConfigEquatable<GmcmAssociation>
 {
     /// <summary>
     /// The unique identifier of the mod that owns the keybinding associated with this item in
@@ -130,5 +130,23 @@ public class GmcmAssociation
             EnableNameSync = EnableNameSync,
             EnableDescriptionSync = EnableDescriptionSync,
         };
+    }
+
+    /// <inheritdoc />
+    public bool Equals(GmcmAssociation? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return ModId == other.ModId
+            && FieldId == other.FieldId
+            && FieldName == other.FieldName
+            && EnableNameSync == other.EnableNameSync
+            && EnableDescriptionSync == other.EnableDescriptionSync;
     }
 }

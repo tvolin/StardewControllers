@@ -3,7 +3,7 @@
 /// <summary>
 /// Configures the controller menu's interactions, including key bindings and activation behavior.
 /// </summary>
-public class InputConfiguration
+public class InputConfiguration : IConfigEquatable<InputConfiguration>
 {
     /// <summary>
     /// Button to open the inventory wheel during normal gameplay.
@@ -68,7 +68,7 @@ public class InputConfiguration
     /// instead of resetting to the default (current backpack page for inventory, first page for
     /// custom menu).
     /// </remarks>
-    public bool RememberSelection;
+    public bool RememberSelection { get; set; }
 
     /// <summary>
     /// Dead zone for the left/right trigger buttons for activating/deactivating the menu.
@@ -102,4 +102,30 @@ public class InputConfiguration
     /// </para>
     /// </remarks>
     public float ThumbstickDeadZone { get; set; } = 0.2f;
+
+    /// <inheritdoc />
+    public bool Equals(InputConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return InventoryMenuButton == other.InventoryMenuButton
+            && ModMenuButton == other.ModMenuButton
+            && PreviousPageButton == other.PreviousPageButton
+            && NextPageButton == other.NextPageButton
+            && PrimaryActionButton == other.PrimaryActionButton
+            && SecondaryActionButton == other.SecondaryActionButton
+            && ThumbStickPreference == other.ThumbStickPreference
+            && ToggleMode == other.ToggleMode
+            && DelayedActions == other.DelayedActions
+            && ActivationDelayMs == other.ActivationDelayMs
+            && RememberSelection == other.RememberSelection
+            && TriggerDeadZone.Equals(other.TriggerDeadZone)
+            && ThumbstickDeadZone.Equals(other.ThumbstickDeadZone);
+    }
 }

@@ -9,7 +9,7 @@ namespace RadialMenu.Config;
 /// Includes its own JSON converter for unambiguous serialization and deserialization.
 /// </remarks>
 [JsonConverter(typeof(IconConfigJsonConverter))]
-public class IconConfig
+public class IconConfig : IConfigEquatable<IconConfig>
 {
     /// <summary>
     /// Qualified ID of the in-game item whose icon should be used.
@@ -98,6 +98,22 @@ public class IconConfig
             TextureAssetPath = assetPath,
             SourceRect = new Rectangle(x, y, width, height),
         };
+    }
+
+    /// <inheritdoc />
+    public bool Equals(IconConfig? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return ItemId == other.ItemId
+            && TextureAssetPath == other.TextureAssetPath
+            && SourceRect.Equals(other.SourceRect);
     }
 
     public override string ToString()

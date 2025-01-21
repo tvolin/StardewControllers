@@ -11,7 +11,7 @@ namespace RadialMenu.Config;
 /// <see cref="Microsoft.Xna.Framework.Color"/> but serializes as a hex string.
 /// </summary>
 [JsonConverter(typeof(HexColorConverter))]
-public class HexColor
+public class HexColor : IEquatable<HexColor>
 {
     private readonly Color color;
 
@@ -64,6 +64,44 @@ public class HexColor
         return true;
     }
 
+    /// <inheritdoc />
+    public bool Equals(HexColor? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return color.Equals(other.color);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+        return Equals((HexColor)obj);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return color.GetHashCode();
+    }
+
     public override string ToString()
     {
         var hexString = new StringBuilder("#");
@@ -84,8 +122,8 @@ class HexColorConverter : JsonConverter<HexColor>
     public override HexColor? ReadJson(
         JsonReader reader,
         Type objectType,
-        HexColor? _existingValue,
-        bool _hasExistingValue,
+        HexColor? existingValue,
+        bool hasExistingValue,
         JsonSerializer serializer
     )
     {
@@ -99,11 +137,11 @@ class HexColorConverter : JsonConverter<HexColor>
 
     public override void WriteJson(JsonWriter writer, HexColor? value, JsonSerializer serializer)
     {
-        if (value is not HexColor hexColor)
+        if (value is null)
         {
             writer.WriteNull();
             return;
         }
-        writer.WriteValue(hexColor.ToString());
+        writer.WriteValue(value.ToString());
     }
 }

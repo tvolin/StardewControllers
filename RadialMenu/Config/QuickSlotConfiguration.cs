@@ -4,7 +4,7 @@ namespace RadialMenu.Config;
 /// Configuration for a Quick Slot that binds actions to a single button press while one of the
 /// radial menus is open.
 /// </summary>
-public class QuickSlotConfiguration
+public class QuickSlotConfiguration : IConfigEquatable<QuickSlotConfiguration>
 {
     /// <summary>
     /// The type of ID that the <see cref="Id"/> refers to.
@@ -28,4 +28,21 @@ public class QuickSlotConfiguration
     /// possible action, this setting is ignored.
     /// </summary>
     public bool UseSecondaryAction { get; set; }
+
+    /// <inheritdoc />
+    public bool Equals(QuickSlotConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return IdType == other.IdType
+            && Id == other.Id
+            && RequireConfirmation == other.RequireConfirmation
+            && UseSecondaryAction == other.UseSecondaryAction;
+    }
 }

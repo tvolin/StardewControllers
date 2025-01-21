@@ -5,7 +5,7 @@ namespace RadialMenu.Config;
 /// <summary>
 /// Settings for a single item in the Mod Menu.
 /// </summary>
-public class ModMenuItemConfiguration
+public class ModMenuItemConfiguration : IConfigEquatable<ModMenuItemConfiguration>
 {
     /// <summary>
     /// Unique (per game installation) identifier for this item.
@@ -56,4 +56,24 @@ public class ModMenuItemConfiguration
     /// in Generic Mod Config Menu.
     /// </summary>
     public GmcmAssociation? GmcmSync { get; set; }
+
+    /// <inheritdoc />
+    public bool Equals(ModMenuItemConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return Id == other.Id
+            && Name == other.Name
+            && Description == other.Description
+            && Keybind.Equals(other.Keybind)
+            && Icon.Equals(other.Icon)
+            && GmcmSync is null == other.GmcmSync is null
+            && GmcmSync?.Equals(other.GmcmSync) != false;
+    }
 }

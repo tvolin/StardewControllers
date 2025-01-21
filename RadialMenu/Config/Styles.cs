@@ -8,7 +8,7 @@ namespace RadialMenu.Config;
 /// <remarks>
 /// All dimensions are in pixels unless otherwise specified.
 /// </remarks>
-public class Styles
+public class Styles : IConfigEquatable<Styles>
 {
     /// <summary>
     /// Background color of the inner area where a preview of the current selection is displayed.
@@ -127,4 +127,32 @@ public class Styles
     /// preview.
     /// </summary>
     public HexColor SelectionDescriptionColor { get; set; } = new(Color.LightGray);
+
+    /// <inheritdoc />
+    public bool Equals(Styles? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return InnerBackgroundColor.Equals(other.InnerBackgroundColor)
+            && InnerRadius.Equals(other.InnerRadius)
+            && OuterBackgroundColor.Equals(other.OuterBackgroundColor)
+            && OuterRadius.Equals(other.OuterRadius)
+            && SelectionColor.Equals(other.SelectionColor)
+            && HighlightColor.Equals(other.HighlightColor)
+            && GapWidth.Equals(other.GapWidth)
+            && MenuSpriteHeight == other.MenuSpriteHeight
+            && StackSizeColor.Equals(other.StackSizeColor)
+            && CursorDistance.Equals(other.CursorDistance)
+            && CursorSize.Equals(other.CursorSize)
+            && CursorColor.Equals(other.CursorColor)
+            && SelectionSpriteHeight == other.SelectionSpriteHeight
+            && SelectionTitleColor.Equals(other.SelectionTitleColor)
+            && SelectionDescriptionColor.Equals(other.SelectionDescriptionColor);
+    }
 }

@@ -3,7 +3,7 @@ namespace RadialMenu.Config;
 /// <summary>
 /// Configures settings and priorities for all mod integrations.
 /// </summary>
-public class ModIntegrationsConfiguration
+public class ModIntegrationsConfiguration : IConfigEquatable<ModIntegrationsConfiguration>
 {
     /// <summary>
     /// The priority to assign to the <see cref="ItemsConfiguration.ModMenuPages"/> relative to any
@@ -24,4 +24,23 @@ public class ModIntegrationsConfiguration
     /// appear in the Mod Menu when using the next/previous page buttons.
     /// </remarks>
     public List<ModPriorityConfiguration> Priorities { get; set; } = [];
+
+    /// <inheritdoc />
+    public bool Equals(ModIntegrationsConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return CustomItemsPriority == other.CustomItemsPriority
+            && Priorities.Count == other.Priorities.Count
+            && Priorities.SequenceEqual(
+                other.Priorities,
+                (priority1, priority2) => priority1.Equals(priority2)
+            );
+    }
 }

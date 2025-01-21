@@ -3,7 +3,7 @@ namespace RadialMenu.Config;
 /// <summary>
 /// Debug/developer settings for the mod.
 /// </summary>
-public class DebugConfiguration
+public class DebugConfiguration : IConfigEquatable<DebugConfiguration>
 {
     /// <summary>
     /// Enables in-depth logging for GMCM integration, including a dump of all registered keybind
@@ -31,4 +31,22 @@ public class DebugConfiguration
     /// Whether to log events related to quick slot usage.
     /// </summary>
     public bool EnableQuickSlotLogging { get; set; }
+
+    /// <inheritdoc />
+    public bool Equals(DebugConfiguration? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+        return EnableGmcmDetailedLogging == other.EnableGmcmDetailedLogging
+            && EnableGmcmSyncLogging == other.EnableGmcmSyncLogging
+            && EnableItemActivationLogging == other.EnableItemActivationLogging
+            && EnableMenuInteractionLogging == other.EnableMenuInteractionLogging
+            && EnableQuickSlotLogging == other.EnableQuickSlotLogging;
+    }
 }
