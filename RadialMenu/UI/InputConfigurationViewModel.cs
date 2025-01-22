@@ -33,6 +33,12 @@ internal partial class InputConfigurationViewModel
     private SButton secondaryActionButton;
 
     [Notify]
+    private bool reopenOnHold;
+
+    [Notify]
+    private bool reopenOnHoldDisabled;
+
+    [Notify]
     private bool rememberSelection;
 
     [Notify]
@@ -40,6 +46,20 @@ internal partial class InputConfigurationViewModel
 
     [Notify]
     private float thumbstickDeadZone;
+
+    public InputConfigurationViewModel()
+    {
+        ToggleMode.ValueChanged += ToggleMode_ValueChanged;
+    }
+
+    private void ToggleMode_ValueChanged(object? sender, EventArgs e)
+    {
+        ReopenOnHoldDisabled = ToggleMode.SelectedValue != MenuToggleMode.Hold;
+        if (ReopenOnHoldDisabled)
+        {
+            ReopenOnHold = false;
+        }
+    }
 
     public void Load(InputConfiguration config)
     {
@@ -51,6 +71,7 @@ internal partial class InputConfigurationViewModel
         SecondaryActionButton = config.SecondaryActionButton;
         ThumbStickPreference.SelectedValue = config.ThumbStickPreference;
         ToggleMode.SelectedValue = config.ToggleMode;
+        ReopenOnHold = config.ReopenOnHold;
         DelayedActions.SelectedValue = config.DelayedActions;
         ActivationDelayMs = config.ActivationDelayMs;
         RememberSelection = config.RememberSelection;
@@ -68,6 +89,7 @@ internal partial class InputConfigurationViewModel
         config.SecondaryActionButton = SecondaryActionButton;
         config.ThumbStickPreference = ThumbStickPreference.SelectedValue;
         config.ToggleMode = ToggleMode.SelectedValue;
+        config.ReopenOnHold = ReopenOnHold;
         config.DelayedActions = DelayedActions.SelectedValue;
         config.ActivationDelayMs = ActivationDelayMs;
         config.RememberSelection = RememberSelection;

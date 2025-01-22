@@ -27,7 +27,6 @@
            border={@Mods/StardewUI/Sprites/MenuSlotTransparent}
            border-thickness="4"
            focusable="true"
-           tooltip={&description}
            +hover:background-tint="#39d"
            +transition:background-tint="100ms"
            left-click=|Confirm(&result)|>

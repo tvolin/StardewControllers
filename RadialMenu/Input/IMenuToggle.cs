@@ -12,6 +12,16 @@ public interface IMenuToggle
     MenuToggleState State { get; }
 
     /// <summary>
+    /// Enters a forced off state (<see cref="MenuToggleState.Suppressed"/>) that is not removed
+    /// until the toggle keybind is released.
+    /// </summary>
+    /// <remarks>
+    /// This is normally used after an item activation, and only affects menus set up in hold mode,
+    /// since suppression is not required for toggle-mode menus.
+    /// </remarks>
+    void ForceOff();
+
+    /// <summary>
     /// Gets whether the toggle keybind is considered to be on the right side of the controller.
     /// </summary>
     /// <returns><c>true</c> if the toggle button is unambiguously on the right side of a
@@ -20,6 +30,12 @@ public interface IMenuToggle
     /// chord is in the center (start/select) or on the left side (d-pad, left stick, left trigger,
     /// left shoulder/button, etc.).</returns>
     bool IsRightSided();
+
+    /// <summary>
+    /// Performs logic that needs to run before the game's main update loop, such as global input
+    /// suppression.
+    /// </summary>
+    void PreUpdate();
 
     /// <summary>
     /// Reads the current input state and updates the <see cref="MenuToggle.State"/> if necessary.

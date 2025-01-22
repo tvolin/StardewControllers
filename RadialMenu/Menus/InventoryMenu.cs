@@ -30,9 +30,7 @@ internal class InventoryMenu(IMenuToggle toggle, Farmer who, ItemsConfiguration 
 
     private bool isDirty = true;
 
-    /// <summary>
-    /// Marks the menu invalid, so that its pages get refreshed the next time it is about to be displayed.
-    /// </summary>
+    /// <inheritdoc />
     public void Invalidate()
     {
         isDirty = true;
@@ -52,8 +50,8 @@ internal class InventoryMenu(IMenuToggle toggle, Farmer who, ItemsConfiguration 
             {
                 if (
                     pages[i]
-                        .Items.Any(i =>
-                            i is InventoryMenuItem menuItem && menuItem.Item == currentItem
+                        .Items.Any(item =>
+                            item is InventoryMenuItem menuItem && menuItem.Item == currentItem
                         )
                 )
                 {
@@ -65,9 +63,9 @@ internal class InventoryMenu(IMenuToggle toggle, Farmer who, ItemsConfiguration 
         // We shouldn't normally reach this, but if we did, then it means we can't make a useful decision. We'd like to
         // display something other than an empty page, so the first choice is to just stay on the current page (if it's
         // non-empty) or, failing that, go to the first non-empty page (if we can).
-        if ((this as IRadialMenu).GetSelectedPage()?.Items.Count == 0)
+        if ((this as IRadialMenu).GetSelectedPage()?.IsEmpty() == true)
         {
-            SelectedPageIndex = Math.Max(pages.FindIndex(page => page.Items.Count > 0), 0);
+            SelectedPageIndex = Math.Max(pages.FindIndex(page => page.Items.AnyNotNull()), 0);
         }
     }
 

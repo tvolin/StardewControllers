@@ -82,12 +82,12 @@ public interface IRadialMenuItem
     /// </summary>
     /// <param name="who">The player who activated the item; generally, <see cref="Game1.player"/>.</param>
     /// <param name="delayedActions">The types of actions which should result in a
-    /// <see cref="MenuItemActivationResult.Delayed"/> outcome and the actual action being skipped.</param>
+    /// <see cref="ItemActivationResult.Delayed"/> outcome and the actual action being skipped.</param>
     /// <param name="secondaryAction">Whether to perform the item's secondary action instead of the
     /// primary action (typically "Select" instead of "Use"), if one is available. If there is no
     /// secondary action, this parameter can be ignored.</param>
     /// <returns>A result that describes what action, if any, was performed.</returns>
-    MenuItemActivationResult Activate(
+    ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
         bool secondaryAction = false

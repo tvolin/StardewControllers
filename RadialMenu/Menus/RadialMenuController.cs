@@ -13,12 +13,31 @@ public class RadialMenuController(
     params IRadialMenu[] menus
 )
 {
+    public event EventHandler<ItemActivationEventArgs>? ItemActivated;
+
+    public bool Enabled
+    {
+        get => enabled;
+        set
+        {
+            if (value == enabled)
+            {
+                return;
+            }
+            enabled = value;
+            if (!value)
+            {
+                Reset();
+            }
+        }
+    }
     public bool IsMenuActive => activeMenu is not null;
 
     private IRadialMenu? activeMenu;
     private float? cursorAngle;
     private (IRadialMenuItem item, bool isSecondaryAction)? delayedItem;
     private TimeSpan elapsedActivationDelay;
+    private bool enabled;
     private int focusedIndex;
     private IRadialMenuItem? focusedItem;
 
@@ -32,9 +51,29 @@ public class RadialMenuController(
         painter.Paint(b, page.SelectedItemIndex, focusedIndex, cursorAngle, GetSelectionBlend());
     }
 
+    public void Invalidate()
+    {
+        foreach (var menu in menus)
+        {
+            menu.Invalidate();
+        }
+    }
+
+    public void PreUpdate()
+    {
+        if (!Enabled)
+        {
+            return;
+        }
+        foreach (var menu in menus)
+        {
+            menu.Toggle.PreUpdate();
+        }
+    }
+
     public void Update(TimeSpan elapsed)
     {
-        if (TryActivateDelayedItem(elapsed))
+        if (!Enabled || TryActivateDelayedItem(elapsed))
         {
             return;
         }
@@ -48,10 +87,21 @@ public class RadialMenuController(
                 continue;
             }
             menu.Toggle.Update(allowOn: activeMenu is null);
-            if (menu.Toggle.State == MenuToggleState.On)
+            if (menu.Toggle.State != MenuToggleState.On)
             {
-                activeMenu = menu;
+                continue;
             }
+            Game1.playSound("shwip");
+            if (!config.Input.RememberSelection)
+            {
+                menu.ResetSelectedPage();
+            }
+            else if (menu.GetSelectedPage()?.IsEmpty() == true)
+            {
+                // Will automatically try to find a non-empty page.
+                menu.PreviousPage();
+            }
+            activeMenu = menu;
         }
     }
 
@@ -76,26 +126,17 @@ public class RadialMenuController(
         var result = item.Activate(player, config.Input.DelayedActions, secondaryAction);
         switch (result)
         {
-            case MenuItemActivationResult.Ignored:
+            case ItemActivationResult.Ignored:
                 return;
-            case MenuItemActivationResult.Delayed:
+            case ItemActivationResult.Delayed:
+                Game1.playSound("select");
                 delayedItem = (item, secondaryAction);
                 break;
             default:
-                FinishActivation();
+                ItemActivated?.Invoke(this, new(item, result));
+                Reset();
                 break;
         }
-    }
-
-    private void FinishActivation()
-    {
-        // It is probably not necessary to clear any state other than delayedItem and activeMenu,
-        // but we're staying on the safe side to avoid bugs.
-        delayedItem = null;
-        elapsedActivationDelay = TimeSpan.Zero;
-        focusedIndex = -1;
-        focusedItem = null;
-        activeMenu = null;
     }
 
     private float GetSelectionBlend()
@@ -108,6 +149,20 @@ public class RadialMenuController(
             config.Input.ActivationDelayMs - elapsedActivationDelay.TotalMilliseconds
         );
         return MathF.Abs(elapsed / 80 % 2 - 1);
+    }
+
+    private void Reset()
+    {
+        delayedItem = null;
+        elapsedActivationDelay = TimeSpan.Zero;
+        focusedIndex = -1;
+        focusedItem = null;
+        cursorAngle = null;
+        if (!config.Input.ReopenOnHold)
+        {
+            activeMenu?.Toggle.ForceOff();
+        }
+        activeMenu = null;
     }
 
     private bool SuppressIfPressed(SButton button)
@@ -129,9 +184,9 @@ public class RadialMenuController(
         elapsedActivationDelay += elapsed;
         if (elapsedActivationDelay.TotalMilliseconds >= config.Input.ActivationDelayMs)
         {
-            item.Activate(player, DelayedActions.None, secondaryAction);
-            delayedItem = null;
-            elapsedActivationDelay = TimeSpan.Zero;
+            var result = item.Activate(player, DelayedActions.None, secondaryAction);
+            ItemActivated?.Invoke(this, new(item, result));
+            Reset();
         }
         // We still return true here, even if the delay hasn't expired, because a delayed activation
         // should prevent any other menu state from changing.
@@ -148,17 +203,23 @@ public class RadialMenuController(
         activeMenu.Toggle.Update(allowOn: false);
         if (activeMenu.Toggle.State != MenuToggleState.On)
         {
-            activeMenu = null;
+            Reset();
             return;
         }
 
         if (SuppressIfPressed(config.Input.PreviousPageButton))
         {
-            activeMenu.PreviousPage();
+            if (activeMenu.PreviousPage())
+            {
+                Game1.playSound("shwip");
+            }
         }
         else if (SuppressIfPressed(config.Input.NextPageButton))
         {
-            activeMenu.NextPage();
+            if (activeMenu.NextPage())
+            {
+                Game1.playSound("shwip");
+            }
         }
 
         UpdateFocus(activeMenu);
@@ -182,8 +243,14 @@ public class RadialMenuController(
         if (cursorAngle is not null && menu.GetSelectedPage() is { Items.Count: > 0 } page)
         {
             var itemAngle = MathHelper.TwoPi / page.Items.Count;
-            focusedIndex = (int)MathF.Round(cursorAngle.Value / itemAngle) % page.Items.Count;
-            focusedItem = page.Items[focusedIndex];
+            var nextFocusedIndex =
+                (int)MathF.Round(cursorAngle.Value / itemAngle) % page.Items.Count;
+            if (nextFocusedIndex != focusedIndex)
+            {
+                Game1.playSound("shiny4");
+                focusedIndex = nextFocusedIndex;
+                focusedItem = page.Items[focusedIndex];
+            }
         }
         else
         {

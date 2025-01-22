@@ -2,6 +2,11 @@ namespace RadialMenu;
 
 internal static class CollectionExtensions
 {
+    public static bool AnyNotNull<T>(this IEnumerable<T?> collection)
+    {
+        return collection.Any(item => item is not null);
+    }
+
     public static bool IsEquivalentTo<TKey, TValue>(
         this IReadOnlyDictionary<TKey, TValue> dict,
         IReadOnlyDictionary<TKey, TValue> other,

@@ -48,6 +48,16 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
     public MenuToggleMode ToggleMode { get; set; } = MenuToggleMode.Hold;
 
     /// <summary>
+    /// Whether to allow reopening the menu after an item activation if the corresponding trigger
+    /// button has been held the whole time.
+    /// </summary>
+    /// <remarks>
+    /// Only affects <see cref="MenuToggleMode.Hold"/>, since <see cref="MenuToggleMode.Toggle"/>
+    /// already watches for press-release transitions.
+    /// </remarks>
+    public bool ReopenOnHold { get; set; } = true;
+
+    /// <summary>
     /// Specifies which actions chosen from the inventory/mod wheels should be delayed (blink)
     /// before being executed.
     /// </summary>
@@ -122,6 +132,7 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
             && SecondaryActionButton == other.SecondaryActionButton
             && ThumbStickPreference == other.ThumbStickPreference
             && ToggleMode == other.ToggleMode
+            && ReopenOnHold == other.ReopenOnHold
             && DelayedActions == other.DelayedActions
             && ActivationDelayMs == other.ActivationDelayMs
             && RememberSelection == other.RememberSelection

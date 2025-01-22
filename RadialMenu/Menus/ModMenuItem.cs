@@ -16,7 +16,7 @@ namespace RadialMenu.Menus;
 /// <param name="tintColor">The <see cref="IRadialMenuItem.TintColor"/>.</param>
 internal class ModMenuItem(
     string title,
-    Func<Farmer, DelayedActions, bool, MenuItemActivationResult> activate,
+    Func<Farmer, DelayedActions, bool, ItemActivationResult> activate,
     string? description = null,
     int? stackSize = null,
     int? quality = null,
@@ -42,7 +42,7 @@ internal class ModMenuItem(
 
     public Color? TintColor { get; } = tintColor;
 
-    public MenuItemActivationResult Activate(
+    public ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
         bool secondaryAction

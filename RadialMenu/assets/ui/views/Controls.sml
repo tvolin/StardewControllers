@@ -28,6 +28,14 @@
     <form-row title={#Config.Selection.ToggleMode.Title} description={#Config.Selection.ToggleMode.Description}>
         <enum-segments *context={:ToggleMode} />
     </form-row>
+    <form-row title={#Config.Selection.ReopenOnHold.Title} description={#Config.Selection.ReopenOnHold.Description}>
+        <checkbox margin="0, 4"
+                  is-checked={<>ReopenOnHold}
+                  +state:disabled={ReopenOnHoldDisabled}
+                  +state:disabled:opacity="0.6"
+                  +state:disabled:pointer-events-enabled="false"
+                  +transition:opacity="120ms EaseOutSine" />
+    </form-row>
     <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
         <enum-segments *context={:ThumbStickPreference} />
     </form-row>

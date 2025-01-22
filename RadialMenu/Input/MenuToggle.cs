@@ -30,6 +30,12 @@ public class MenuToggle(
     private bool wasDown;
 
     /// <inheritdoc />
+    public void ForceOff()
+    {
+        State = Mode == MenuToggleMode.Hold ? MenuToggleState.Suppressed : MenuToggleState.Off;
+    }
+
+    /// <inheritdoc />
     public bool IsRightSided()
     {
         return Button
@@ -43,22 +49,34 @@ public class MenuToggle(
     }
 
     /// <inheritdoc />
+    public void PreUpdate()
+    {
+        if (RequiresSmapiBypass(Button))
+        {
+            inputHelper.Suppress(Button);
+        }
+    }
+
+    /// <inheritdoc />
     public void Update(bool allowOn)
     {
         gamePadState = GetRawGamePadState();
         var isDown = IsButtonDown(Button);
         State = State switch
         {
-            MenuToggleState.Off when isDown => allowOn ? MenuToggleState.On : MenuToggleState.Wait,
+            MenuToggleState.Off when !wasDown && isDown => allowOn
+                ? MenuToggleState.On
+                : MenuToggleState.Wait,
             MenuToggleState.Wait when isDown && allowOn => MenuToggleState.On,
             MenuToggleState.Wait when !isDown && Mode == MenuToggleMode.Hold => MenuToggleState.Off,
             MenuToggleState.On when !isDown && Mode == MenuToggleMode.Hold => MenuToggleState.Off,
             MenuToggleState.On when !wasDown && isDown && Mode == MenuToggleMode.Toggle =>
                 MenuToggleState.Off,
+            MenuToggleState.Suppressed when !isDown => MenuToggleState.Off,
             _ => State,
         };
         wasDown = isDown;
-        if (isDown || RequiresSmapiBypass(Button))
+        if (isDown && !RequiresSmapiBypass(Button))
         {
             inputHelper.Suppress(Button);
         }

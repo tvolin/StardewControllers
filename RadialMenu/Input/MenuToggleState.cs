@@ -23,4 +23,13 @@ public enum MenuToggleState
     /// back to <see cref="Off"/>.
     /// </summary>
     On,
+
+    /// <summary>
+    /// The toggle button has been forced off, and cannot transition back to the <see cref="On"/>
+    /// or <see cref="Wait"/> states until the held button is released.
+    /// </summary>
+    /// <remarks>
+    /// Only applies to hold mode; has no meaning for menus in toggle mode.
+    /// </remarks>
+    Suppressed,
 }

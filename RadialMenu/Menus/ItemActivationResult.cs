@@ -3,7 +3,7 @@
 /// <summary>
 /// The result of activating a menu item in a radial menu.
 /// </summary>
-public enum MenuItemActivationResult
+public enum ItemActivationResult
 {
     /// <summary>
     /// The activation was ignored, i.e. nothing happened.

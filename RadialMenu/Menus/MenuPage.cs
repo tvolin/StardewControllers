@@ -48,7 +48,7 @@ internal static class MenuPage
             .Select(item => item is not null ? new InventoryMenuItem(item) : null)
             .ToList();
         bool isSelected(InventoryMenuItem? menuItem) =>
-            menuItem?.Item == who.Items[who.CurrentToolIndex];
+            menuItem?.Item is { } item && item == who.Items[who.CurrentToolIndex];
         return new MenuPage<InventoryMenuItem>(items, isSelected);
     }
 
@@ -71,10 +71,10 @@ internal static class MenuPage
                     || (delayedActions != DelayedActions.None && config.EnableActivationDelay)
                 )
                 {
-                    return MenuItemActivationResult.Delayed;
+                    return ItemActivationResult.Delayed;
                 }
                 activator.Invoke(config);
-                return MenuItemActivationResult.Custom;
+                return ItemActivationResult.Custom;
             }
         );
     }

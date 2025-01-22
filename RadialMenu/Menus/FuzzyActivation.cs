@@ -23,7 +23,7 @@ internal static class FuzzyActivation
     /// <param name="preferredAction">The desired action, based on which button pressed, and assuming that action is
     /// possible for the given item.</param>
     /// <returns>The actual action that was performed.</returns>
-    public static MenuItemActivationResult ConsumeOrSelect(
+    public static ItemActivationResult ConsumeOrSelect(
         Farmer who,
         Item item,
         DelayedActions? delayedActions = null,
@@ -32,22 +32,22 @@ internal static class FuzzyActivation
     {
         if (delayedActions == DelayedActions.All)
         {
-            return MenuItemActivationResult.Delayed;
+            return ItemActivationResult.Delayed;
         }
         if (item is null || preferredAction == InventoryAction.Use && TryConsume(item))
         {
-            return MenuItemActivationResult.Used;
+            return ItemActivationResult.Used;
         }
         if (delayedActions == DelayedActions.ToolSwitch)
         {
-            return MenuItemActivationResult.Delayed;
+            return ItemActivationResult.Delayed;
         }
         Game1.player.CurrentToolIndex = who.Items.IndexOf(item);
         if (Game1.player.CurrentTool is not null)
         {
             Game1.playSound("toolSwap");
         }
-        return MenuItemActivationResult.Selected;
+        return ItemActivationResult.Selected;
     }
 
     private static bool TryConsume(Item item)

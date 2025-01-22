@@ -47,7 +47,7 @@ internal class InventoryMenuItem : IRadialMenuItem
         (TintRectangle, TintColor) = GetTinting(item, textureData ?? data);
     }
 
-    public MenuItemActivationResult Activate(
+    public ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
         bool secondaryAction
@@ -57,7 +57,7 @@ internal class InventoryMenuItem : IRadialMenuItem
             who,
             Item,
             delayedActions,
-            secondaryAction ? InventoryAction.Use : InventoryAction.Select
+            secondaryAction ? InventoryAction.Select : InventoryAction.Use
         );
     }
 

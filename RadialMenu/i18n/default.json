@@ -36,6 +36,8 @@
   "Config.Selection.Heading": "Selection",
   "Config.Selection.ToggleMode.Title": "Toggle Mode",
   "Config.Selection.ToggleMode.Description": "Whether the inventory and mod wheels are held open using their respective buttons (default) or toggled on and off.",
+  "Config.Selection.ReopenOnHold.Title": "Reopen On Hold",
+  "Config.Selection.ReopenOnHold.Description": "If enabled, continuing to hold the button used to open a menu will reopen it after an action finishes. Otherwise, the button must first be released, and then pressed/held again.",
   "Config.Selection.DelayedActions.Title": "Delayed Actions",
   "Config.Selection.DelayedActions.Description": "Which actions should be briefly delayed before performing them. During the delay, the selected item will flash to confirm your selection.",
   "Config.Selection.ActivationDelay.Title": "Blink Duration",

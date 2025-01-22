@@ -6,6 +6,8 @@ namespace RadialMenu.UI;
 
 internal partial class ConfigurationViewModel
 {
+    public static event EventHandler<EventArgs>? Saved;
+
     public IMenuController? Controller { get; set; }
     public DebugSettingsViewModel Debug { get; } = new();
     public bool Dismissed { get; set; }
@@ -99,6 +101,7 @@ internal partial class ConfigurationViewModel
         Mods.Save(config.Integrations);
         Debug.Save(config.Debug);
         helper.WriteConfig(config);
+        Saved?.Invoke(this, EventArgs.Empty);
     }
 
     public void ShowCloseConfirmation()
