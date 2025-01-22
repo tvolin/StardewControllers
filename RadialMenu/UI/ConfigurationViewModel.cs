@@ -67,7 +67,7 @@ internal partial class ConfigurationViewModel
     public bool HasUnsavedChanges()
     {
         var dummyConfig = new ModConfig();
-        Save(dummyConfig);
+        SaveSections(dummyConfig);
         return !dummyConfig.Equals(config);
     }
 
@@ -95,11 +95,7 @@ internal partial class ConfigurationViewModel
 
     public void Save(ModConfig config)
     {
-        Input.Save(config.Input);
-        Style.Save(config.Style);
-        Items.Save(config.Items);
-        Mods.Save(config.Integrations);
-        Debug.Save(config.Debug);
+        SaveSections(config);
         helper.WriteConfig(config);
         Saved?.Invoke(this, EventArgs.Empty);
     }
@@ -182,6 +178,15 @@ internal partial class ConfigurationViewModel
         // property change event will fire for the dependent models as well.
         Pager.ContentPanelSize = contentPanelSize;
         Items.Pager.ContentPanelSize = ContentPanelSize;
+    }
+
+    private void SaveSections(ModConfig config)
+    {
+        Input.Save(config.Input);
+        Style.Save(config.Style);
+        Items.Save(config.Items);
+        Mods.Save(config.Integrations);
+        Debug.Save(config.Debug);
     }
 }
 

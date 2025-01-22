@@ -1,4 +1,6 @@
-﻿namespace RadialMenu.Config;
+﻿using Newtonsoft.Json;
+
+namespace RadialMenu.Config;
 
 /// <summary>
 /// Configuration for a radial menu item associated with a Generic Mod Config Menu key binding.
@@ -107,6 +109,7 @@ public class GmcmAssociation : IConfigEquatable<GmcmAssociation>
     /// "Keybind" to "Toggle &lt;Feature Name&gt;".
     /// </remarks>
     [Obsolete("Use EnableNameSync and EnableDescriptionSync instead")]
+    [JsonIgnore]
     public bool UseCustomName
     {
         get => !EnableNameSync;

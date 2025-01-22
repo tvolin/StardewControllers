@@ -9,6 +9,31 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
     public IReadOnlyList<IManifest> AvailableMods { get; } = bindings.AllMods.Values.ToList();
     public Func<IManifest, string> FormatModName { get; } = manifest => manifest.Name;
 
+    public GmcmKeybindOptionViewModel? SelectedOption
+    {
+        get => selectedOption;
+        set
+        {
+            if (value == selectedOption)
+            {
+                return;
+            }
+            if (selectedOption is not null)
+            {
+                selectedOption.Selected = false;
+            }
+            selectedOption = value;
+            if (value is not null)
+            {
+                SelectedMod = value.Mod;
+                selectedOption =
+                    AvailableOptions.FirstOrDefault(opt => opt.IsSameOptionAs(value)) ?? value;
+                selectedOption.Selected = true;
+            }
+            OnPropertyChanged(new(nameof(SelectedOption)));
+        }
+    }
+
     [Notify]
     private IReadOnlyList<GmcmKeybindOptionViewModel> availableOptions = [];
 
@@ -19,10 +44,9 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
     private bool enableTitleSync = true;
 
     [Notify]
-    private GmcmKeybindOptionViewModel? selectedOption;
-
-    [Notify]
     private IManifest? selectedMod;
+
+    private GmcmKeybindOptionViewModel? selectedOption;
 
     public void SelectOption(GmcmKeybindOptionViewModel option)
     {
@@ -42,21 +66,9 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
                 .Select(opt => new GmcmKeybindOptionViewModel(opt))
                 .ToList()
             : [];
-        SelectedOption = AvailableOptions.Count > 0 ? AvailableOptions[0] : null;
-    }
-
-    private void OnSelectedOptionChanged(
-        GmcmKeybindOptionViewModel? oldValue,
-        GmcmKeybindOptionViewModel? newValue
-    )
-    {
-        if (oldValue is not null)
+        if (SelectedMod is null || SelectedOption?.Mod != SelectedMod)
         {
-            oldValue.Selected = false;
-        }
-        if (newValue is not null)
-        {
-            newValue.Selected = true;
+            SelectedOption = AvailableOptions.Count > 0 ? AvailableOptions[0] : null;
         }
     }
 }
@@ -79,10 +91,19 @@ internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption 
             )
             : "";
 
+    public IManifest Mod => option.ModManifest;
+
     public string SimpleName => option.GetFieldName();
 
     public string UniqueFieldName => option.UniqueFieldName;
 
     [Notify]
     private bool selected;
+
+    private readonly GenericModConfigKeybindOption option = option;
+
+    public bool IsSameOptionAs(GmcmKeybindOptionViewModel other)
+    {
+        return other.option == option;
+    }
 }

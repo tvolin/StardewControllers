@@ -126,6 +126,7 @@ internal partial class ModMenuItemConfigurationViewModel
                 EnableTitleSync = gmcm.EnableNameSync,
                 EnableDescriptionSync = gmcm.EnableDescriptionSync,
             };
+            GmcmSync.PropertyChanged += GmcmSync_PropertyChanged;
         }
         else
         {

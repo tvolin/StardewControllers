@@ -134,7 +134,7 @@
                                 focusable="true"
                                 empty-text={#Config.ModMenuItem.Keybind.EmptyText}
                                 sprite-map={@Mods/focustense.RadialMenu/SpriteMaps/Kenney}
-                                keybind-list={Keybind}
+                                keybind-list={<>Keybind}
                                 +state:enabled={CanEditKeybind}
                                 +state:enabled:background-color="#0000"
                                 +state:enabled:editable-type="SingleKeybind"
