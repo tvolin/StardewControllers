@@ -1,9 +1,8 @@
 using System.ComponentModel;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
 using RadialMenu.Config;
 using RadialMenu.Gmcm;
+using RadialMenu.Graphics;
 using StardewModdingAPI.Utilities;
 using StardewValley.ItemTypeDefinitions;
 
@@ -46,6 +45,9 @@ internal partial class ModMenuItemConfigurationViewModel
 
     [Notify]
     private string description = "";
+
+    [Notify]
+    private bool enableActivationDelay;
 
     [Notify]
     private bool enabled = true;
@@ -103,6 +105,7 @@ internal partial class ModMenuItemConfigurationViewModel
         Name = config.Name;
         Description = config.Description;
         Keybind = config.Keybind;
+        EnableActivationDelay = config.EnableActivationDelay;
         IconAssetPath = config.Icon.TextureAssetPath;
         IconSourceRect = config.Icon.SourceRect;
         IconItemId = config.Icon.ItemId;
@@ -140,6 +143,7 @@ internal partial class ModMenuItemConfigurationViewModel
         config.Name = Name;
         config.Description = description;
         config.Keybind = Keybind;
+        config.EnableActivationDelay = enableActivationDelay;
         config.Icon = IconType.SelectedValue switch
         {
             ItemIconType.Item => new() { ItemId = IconItemId ?? "" },
@@ -237,15 +241,7 @@ internal partial class ModMenuItemConfigurationViewModel
 
     private void OnIconAssetPathChanged()
     {
-        try
-        {
-            var texture = Game1.content.Load<Texture2D>(IconAssetPath);
-            CustomIcon = new(texture, IconSourceRect);
-        }
-        catch (ContentLoadException)
-        {
-            CustomIcon = null;
-        }
+        CustomIcon = Sprite.TryLoad(IconAssetPath, IconSourceRect);
     }
 
     private void OnIconItemIdChanged()

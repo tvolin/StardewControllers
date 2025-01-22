@@ -1,10 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
 using RadialMenu.Config;
+using RadialMenu.Graphics;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
@@ -65,10 +64,7 @@ internal partial class ItemsConfigurationViewModel
     {
         Name = I18n.Config_ModMenu_SettingsItem_Name(),
         Description = I18n.Config_ModMenu_SettingsItem_Description(),
-        CustomIcon = new(
-            Game1.content.Load<Texture2D>("Mods/focustense.RadialMenu/Sprites/UI"),
-            new(80, 0, 16, 16)
-        ),
+        CustomIcon = Sprites.Settings(),
         Editable = false,
         IconType = { SelectedValue = ItemIconType.Custom },
     };

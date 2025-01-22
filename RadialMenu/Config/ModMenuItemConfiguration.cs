@@ -47,6 +47,12 @@ public class ModMenuItemConfiguration : IConfigEquatable<ModMenuItemConfiguratio
     public Keybind Keybind { get; set; } = new(SButton.None);
 
     /// <summary>
+    /// Whether to use delayed activation for this item, briefly flashing it in the menu first,
+    /// similar to the default behavior for tool swaps.
+    /// </summary>
+    public bool EnableActivationDelay { get; set; }
+
+    /// <summary>
     /// The icon representing this item, to display in the radial menu.
     /// </summary>
     public IconConfig Icon { get; set; } = new();
@@ -72,6 +78,7 @@ public class ModMenuItemConfiguration : IConfigEquatable<ModMenuItemConfiguratio
             && Name == other.Name
             && Description == other.Description
             && Keybind.Equals(other.Keybind)
+            && EnableActivationDelay == other.EnableActivationDelay
             && Icon.Equals(other.Icon)
             && GmcmSync is null == other.GmcmSync is null
             && GmcmSync?.Equals(other.GmcmSync) != false;

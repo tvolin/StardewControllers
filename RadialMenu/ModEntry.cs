@@ -153,25 +153,7 @@ public class ModEntry : Mod
             && ViewEngine.Instance is not null
         )
         {
-            var context = new ConfigurationViewModel(Helper, config);
-            context.Controller = ViewEngine.OpenChildMenu("Configuration", context);
-            context.Controller.CanClose = () => context.IsNavigationEnabled;
-            context.Controller.CloseAction = () =>
-            {
-                if (!context.Dismissed && context.HasUnsavedChanges())
-                {
-                    context.ShowCloseConfirmation();
-                }
-                else
-                {
-                    Game1.playSound("bigDeSelect");
-                    Game1.exitActiveMenu();
-                }
-            };
-            // CloseSound is normally played before CloseAction has a chance to run; in order to
-            // suppress the sound only when displaying the confirmation above, we need to suppress
-            // it at all times and play it ad-hoc when "really" closing.
-            context.Controller.CloseSound = "";
+            ConfigurationMenu.Open(Helper, config);
         }
     }
 
@@ -211,10 +193,20 @@ public class ModEntry : Mod
         }
     }
 
+    private void ActivateModMenuItem(ModMenuItemConfiguration item)
+    {
+        if (!item.Keybind.IsBound)
+        {
+            Game1.showRedMessage(I18n.Error_MissingBinding());
+            return;
+        }
+        keybindActivator.Activate(item.Keybind);
+    }
+
     private RadialMenuController CreateMenuController()
     {
         var player = Game1.player;
-        var painter = CreatePainter();
+        var painter = new Painter(Game1.graphics.GraphicsDevice, () => config.Style);
         var inventoryToggle = new MenuToggle(
             Helper.Input,
             config.Input,
@@ -223,11 +215,23 @@ public class ModEntry : Mod
         var inventoryMenu = new InventoryMenu(inventoryToggle, player, config.Items);
         var registeredPages = pageRegistry.CreatePageList(player);
         var modMenuToggle = new MenuToggle(Helper.Input, config.Input, c => c.ModMenuButton);
+        var settingsSprite = Sprites.Settings();
+        var settingsItem = new ModMenuItem(
+            title: I18n.ModMenu_SettingsItem_Name(),
+            description: I18n.ModMenu_SettingsItem_Description(),
+            texture: settingsSprite?.Texture,
+            sourceRectangle: settingsSprite?.SourceRect,
+            activate: (_, _, _) =>
+            {
+                ConfigurationMenu.Open(Helper, config);
+                return ItemActivationResult.Custom;
+            }
+        );
         var modMenu = new ModMenu(
             modMenuToggle,
-            () => legacyConfig.CustomMenuItems,
+            config,
+            settingsItem,
             ActivateModMenuItem,
-            textureHelper,
             registeredPages
         );
         var menuController = new RadialMenuController(
@@ -240,11 +244,6 @@ public class ModEntry : Mod
         );
         menuController.ItemActivated += MenuController_ItemActivated;
         return menuController;
-    }
-
-    private Painter CreatePainter()
-    {
-        return new(Game1.graphics.GraphicsDevice, () => legacyConfig.Styles);
     }
 
     private void LoadGmcmKeybindings()
@@ -295,11 +294,7 @@ public class ModEntry : Mod
         {
             return;
         }
-        configMenuApi.Register(
-            mod: ModManifest,
-            reset: ResetConfiguration,
-            save: () => Helper.WriteConfig(legacyConfig)
-        );
+        configMenuApi.Register(mod: ModManifest, reset: ResetConfiguration, save: () => { });
         configMenu = new(
             configMenuApi,
             gmcmOptionsApi,
@@ -317,15 +312,5 @@ public class ModEntry : Mod
     private void ResetConfiguration()
     {
         legacyConfig = new();
-    }
-
-    private void ActivateModMenuItem(CustomMenuItemConfiguration item)
-    {
-        if (!item.Keybind.IsBound)
-        {
-            Game1.showRedMessage(Helper.Translation.Get("error.missingbinding"));
-            return;
-        }
-        keybindActivator.Activate(item.Keybind);
     }
 }

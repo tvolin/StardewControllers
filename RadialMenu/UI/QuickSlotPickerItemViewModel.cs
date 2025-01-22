@@ -1,5 +1,5 @@
 using Microsoft.Xna.Framework.Graphics;
-using PropertyChanged.SourceGenerator;
+using RadialMenu.Graphics;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
 

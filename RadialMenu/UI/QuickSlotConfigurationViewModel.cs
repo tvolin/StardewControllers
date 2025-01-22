@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using PropertyChanged.SourceGenerator;
+using RadialMenu.Graphics;
 using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;

@@ -10,24 +10,6 @@ namespace RadialMenu.Menus;
 internal static class MenuPage
 {
     /// <summary>
-    /// Creates an <see cref="IRadialMenuPage"/> from the configured list of custom (keybind) shortcuts.
-    /// </summary>
-    /// <param name="itemConfigs">List of custom item configurations specifying names, keybinds, etc.</param>
-    /// <param name="activator">Callback for when a custom item is activated.</param>
-    /// <param name="textures">Utility for parsing configured asset fields as texture settings.</param>
-    public static IRadialMenuPage FromCustomItemConfiguration(
-        IEnumerable<CustomMenuItemConfiguration> itemConfigs,
-        Action<CustomMenuItemConfiguration> activator,
-        TextureHelper textures
-    )
-    {
-        var items = itemConfigs
-            .Select(config => CreateCustomMenuItem(config, activator, textures))
-            .ToList();
-        return new MenuPage<ModMenuItem>(items, _ => false);
-    }
-
-    /// <summary>
     /// Creates an <see cref="IRadialMenuPage"/> based off a player's inventory and paging parameters.
     /// </summary>
     /// <param name="who">The player whose inventory should be displayed.</param>
@@ -52,13 +34,32 @@ internal static class MenuPage
         return new MenuPage<InventoryMenuItem>(items, isSelected);
     }
 
-    private static ModMenuItem CreateCustomMenuItem(
-        CustomMenuItemConfiguration config,
-        Action<CustomMenuItemConfiguration> activator,
-        TextureHelper textures
+    /// <summary>
+    /// Creates an <see cref="IRadialMenuPage"/> from the configured list of custom (keybind) shortcuts.
+    /// </summary>
+    /// <param name="itemConfigs">List of custom item configurations specifying names, keybinds, etc.</param>
+    /// <param name="activator">Callback for when a custom item is activated.</param>
+    /// <param name="transform">Optional callback to transform the item list before creating the page,
+    /// e.g. to rearrange or insert items.</param>
+    public static IRadialMenuPage FromModItemConfiguration(
+        IEnumerable<ModMenuItemConfiguration> itemConfigs,
+        Action<ModMenuItemConfiguration> activator,
+        Action<List<ModMenuItem>>? transform = null
     )
     {
-        var sprite = textures.GetSprite(config.SpriteSourceFormat, config.SpriteSourcePath);
+        var items = itemConfigs.Select(config => CreateModMenuItem(config, activator)).ToList();
+        transform?.Invoke(items);
+        return new MenuPage<ModMenuItem>(items, _ => false);
+    }
+
+    private static ModMenuItem CreateModMenuItem(
+        ModMenuItemConfiguration config,
+        Action<ModMenuItemConfiguration> activator
+    )
+    {
+        var sprite = !string.IsNullOrEmpty(config.Icon.ItemId)
+            ? Sprite.ForItemId(config.Icon.ItemId)
+            : Sprite.TryLoad(config.Icon.TextureAssetPath, config.Icon.SourceRect);
         return new(
             title: config.Name,
             description: config.Description,

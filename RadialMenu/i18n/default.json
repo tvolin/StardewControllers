@@ -124,6 +124,8 @@
   "Config.ModMenuItem.Keybind.Title": "Keys",
   "Config.ModMenuItem.Keybind.Description": "Which key(s) to simulate pressing when this item is selected. Typically one or more keyboard keys; must be the same keys you would use to activate the behavior normally, without using Star Control.",
   "Config.ModMenuItem.Keybind.EmptyText": "(Unassigned)",
+  "Config.ModMenuItem.EnableActivationDelay.Title": "Delay",
+  "Config.ModMenuItem.EnableActivationDelay.Description": "Pause before activating this item, according to the delay configured in the Controls Settings.",
   "Config.ModMenuItem.IconType.Title": "Icon",
   "Config.ModMenuItem.IconType.Description": "Choose how you want to assign the icon for this item.",
   "Config.ModMenuItem.RandomizeIcon.Description": "Randomize",
@@ -183,6 +185,10 @@
   "Confirmation.Config.Revert.Description": "Changes made since the menu was opened will be lost.",
   "Confirmation.Config.Cancel.Title": "Back",
   "Confirmation.Config.Cancel.Description": "Return to the configuration menu without saving or reverting.",
+  
+  // Standard menu items
+  "ModMenu.SettingsItem.Name": "Star Control Settings",
+  "ModMenu.SettingsItem.Description": "Open the configuration menu",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
@@ -215,8 +221,10 @@
   "Enum.ThumbStickPreference.AlwaysRight.Description": "Always use the right stick for wheel navigation.",
   "Enum.ThumbStickPreference.SameAsTrigger.Name": "Adaptive",
   "Enum.ThumbStickPreference.SameAsTrigger.Description": "Use the stick that is on the same side as the wheel button; e.g. use the Left Stick for a wheel controlled by the Left Trigger and Right Stick for a wheel controlled by the Right Trigger.",
+  
+  // Error messages
+  "Error.MissingBinding": "No keybinding is set up for this action.",
 
-  "error.missingbinding": "No keybinding is set up for this action.",
   "gmcm.controls": "Controls",
   "gmcm.controls.trigger.deadzone": "Trigger Dead Zone",
   "gmcm.controls.trigger.deadzone.tooltip": "Helps prevent accidental triggering on very sensitive or inaccurate controllers.",

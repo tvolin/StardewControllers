@@ -1,41 +1,39 @@
-﻿using System.Collections;
-using RadialMenu.Config;
-using RadialMenu.Graphics;
+﻿using RadialMenu.Config;
 using RadialMenu.Input;
 
 namespace RadialMenu.Menus;
 
 /// <summary>
-/// Radial menu displaying the shortcuts set up in the <see cref="Config.LegacyModConfig.CustomMenuItems"/>, as well as
-/// any mod-added pages.
+/// Radial menu displaying the shortcuts set up in the
+/// <see cref="Config.ItemsConfiguration.ModMenuPages"/>, as well as any mod-added pages.
 /// </summary>
-internal class ModMenu : IRadialMenu
+internal class ModMenu(
+    IMenuToggle toggle,
+    ModConfig config,
+    ModMenuItem settingsItem,
+    Action<ModMenuItemConfiguration> shortcutActivator,
+    IInvalidatableList<IRadialMenuPage> additionalPages
+) : IRadialMenu
 {
-    public IReadOnlyList<IRadialMenuPage> Pages => combinedPages;
+    public IReadOnlyList<IRadialMenuPage> Pages
+    {
+        get
+        {
+            if (isDirty)
+            {
+                combinedPages = GetCombinedPages();
+                isDirty = false;
+            }
+            return combinedPages;
+        }
+    }
 
     public int SelectedPageIndex { get; set; }
 
-    public IMenuToggle Toggle { get; }
+    public IMenuToggle Toggle { get; } = toggle;
 
-    private readonly CombinedPageList combinedPages;
-    private readonly Func<IReadOnlyList<CustomMenuItemConfiguration>> getShortcuts;
-    private readonly Action<CustomMenuItemConfiguration> shortcutActivator;
-    private readonly TextureHelper textureHelper;
-
-    public ModMenu(
-        IMenuToggle toggle,
-        Func<IReadOnlyList<CustomMenuItemConfiguration>> getShortcuts,
-        Action<CustomMenuItemConfiguration> shortcutActivator,
-        TextureHelper textureHelper,
-        IInvalidatableList<IRadialMenuPage> additionalPages
-    )
-    {
-        this.Toggle = toggle;
-        this.getShortcuts = getShortcuts;
-        this.shortcutActivator = shortcutActivator;
-        this.textureHelper = textureHelper;
-        combinedPages = new CombinedPageList(CreateShortcutPage, additionalPages);
-    }
+    private IReadOnlyList<IRadialMenuPage> combinedPages = [];
+    private bool isDirty = true;
 
     /// <summary>
     /// Recreates the items on the shortcut page (first page of this menu) and marks all other (mod) pages invalid,
@@ -47,47 +45,45 @@ internal class ModMenu : IRadialMenu
     /// </remarks>
     public void Invalidate()
     {
-        combinedPages.Invalidate();
-        combinedPages.ShortcutPage = CreateShortcutPage();
+        isDirty = true;
+        additionalPages.Invalidate();
     }
 
     public void ResetSelectedPage()
     {
+        for (int i = 0; i < Pages.Count; i++)
+        {
+            if (!Pages[i].IsEmpty())
+            {
+                SelectedPageIndex = i;
+                return;
+            }
+        }
         SelectedPageIndex = 0;
     }
 
-    private IRadialMenuPage CreateShortcutPage()
+    private IReadOnlyList<IRadialMenuPage> GetCombinedPages()
     {
-        var shortcuts = getShortcuts();
-        return MenuPage.FromCustomItemConfiguration(shortcuts, shortcutActivator, textureHelper);
-    }
-
-    class CombinedPageList(
-        Func<IRadialMenuPage> getShortcutPage,
-        IInvalidatableList<IRadialMenuPage> additionalPages
-    ) : IReadOnlyList<IRadialMenuPage>
-    {
-        public IRadialMenuPage this[int index] =>
-            index == 0 ? ShortcutPage : additionalPages[index - 1];
-
-        public IRadialMenuPage ShortcutPage { get; set; } = getShortcutPage();
-
-        public int Count => additionalPages.Count + 1;
-
-        public IEnumerator<IRadialMenuPage> GetEnumerator()
+        var pages = new List<IRadialMenuPage>();
+        int pageIndex = 0;
+        foreach (var pageConfig in config.Items.ModMenuPages)
         {
-            return additionalPages.Prepend(ShortcutPage).GetEnumerator();
+            pages.Add(
+                MenuPage.FromModItemConfiguration(
+                    pageConfig,
+                    shortcutActivator,
+                    pageIndex == config.Items.SettingsItemPageIndex ? InsertSettingsItem : null
+                )
+            );
+            pageIndex++;
         }
+        pages.AddRange(additionalPages);
+        return pages;
 
-        IEnumerator IEnumerable.GetEnumerator()
+        void InsertSettingsItem(List<ModMenuItem> items)
         {
-            return GetEnumerator();
-        }
-
-        public void Invalidate()
-        {
-            ShortcutPage = getShortcutPage();
-            additionalPages.Invalidate();
+            var index = Math.Clamp(config.Items.SettingsItemPositionIndex, 0, items.Count - 1);
+            items.Insert(index, settingsItem);
         }
     }
 }

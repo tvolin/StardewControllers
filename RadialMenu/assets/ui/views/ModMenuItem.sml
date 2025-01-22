@@ -140,6 +140,10 @@
                                 +state:enabled:editable-type="SingleKeybind"
                                 +state:enabled:opacity="1" />
             </form-row>
+            <form-row title={#Config.ModMenuItem.EnableActivationDelay.Title}
+                      description={#Config.ModMenuItem.EnableActivationDelay.Description}>
+                <checkbox is-checked={<>EnableActivationDelay} />
+            </form-row>
             <form-row title={#Config.ModMenuItem.IconType.Title} description={#Config.ModMenuItem.IconType.Description}>
                 <lane vertical-content-alignment="middle">
                     <enum-segments *context={:IconType} />
