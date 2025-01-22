@@ -1,13 +1,10 @@
 ﻿using System.Reflection;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using RadialMenu.Config;
 using RadialMenu.Gmcm;
 using RadialMenu.Graphics;
 using RadialMenu.Input;
 using RadialMenu.Menus;
 using RadialMenu.UI;
-using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 
@@ -206,7 +203,8 @@ public class ModEntry : Mod
     private RadialMenuController CreateMenuController()
     {
         var player = Game1.player;
-        var painter = new Painter(Game1.graphics.GraphicsDevice, () => config.Style);
+        var menuPainter = new RadialMenuPainter(Game1.graphics.GraphicsDevice, config.Style);
+        var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
         var inventoryToggle = new MenuToggle(
             Helper.Input,
             config.Input,
@@ -238,7 +236,8 @@ public class ModEntry : Mod
             Helper.Input,
             config,
             Game1.player,
-            painter,
+            menuPainter,
+            quickSlotRenderer,
             inventoryMenu,
             modMenu
         );

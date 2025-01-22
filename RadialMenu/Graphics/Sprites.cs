@@ -6,8 +6,12 @@ namespace RadialMenu.Graphics;
 public static class Sprites
 {
     /// <summary>
+    /// Asset path for the mod's own UI tile sheet.
+    /// </summary>
+    public const string UI_TEXTURE_PATH = "Mods/focustense.RadialMenu/Sprites/UI";
+
+    /// <summary>
     /// Sprite used for the mod settings menu item.
     /// </summary>
-    public static Sprite? Settings() =>
-        Sprite.TryLoad("Mods/focustense.RadialMenu/Sprites/UI", new(80, 0, 16, 16));
+    public static Sprite? Settings() => Sprite.TryLoad(UI_TEXTURE_PATH, new(80, 0, 16, 16));
 }

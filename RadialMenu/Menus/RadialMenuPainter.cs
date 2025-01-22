@@ -2,12 +2,10 @@
 using Microsoft.Xna.Framework.Graphics;
 using RadialMenu.Config;
 using RadialMenu.Graphics;
-using RadialMenu.Menus;
-using StardewValley.Extensions;
 
-namespace RadialMenu;
+namespace RadialMenu.Menus;
 
-public class Painter
+public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 {
     private record SelectionState(int ItemCount, int SelectedIndex, int FocusedIndex);
 
@@ -24,28 +22,18 @@ public class Painter
     );
 
     public IReadOnlyList<IRadialMenuItem?> Items { get; set; } = [];
-    public Styles Styles => getStyles();
 
-    private readonly GraphicsDevice graphicsDevice;
-    private readonly BasicEffect effect;
-    private readonly Func<Styles> getStyles;
+    private readonly BasicEffect effect = new(graphicsDevice)
+    {
+        World = Matrix.Identity,
+        View = Matrix.CreateLookAt(Vector3.Forward, Vector3.Zero, Vector3.Down),
+        VertexColorEnabled = true,
+    };
 
     private VertexPositionColor[] innerVertices = [];
     private VertexPositionColor[] outerVertices = [];
     private float selectionBlend = 1.0f;
     private SelectionState selectionState = new(ItemCount: 0, SelectedIndex: 0, FocusedIndex: 0);
-
-    public Painter(GraphicsDevice graphicsDevice, Func<Styles> getStyles)
-    {
-        this.graphicsDevice = graphicsDevice;
-        effect = new BasicEffect(graphicsDevice)
-        {
-            World = Matrix.Identity,
-            View = Matrix.CreateLookAt(Vector3.Forward, Vector3.Zero, Vector3.Down),
-            VertexColorEnabled = true,
-        };
-        this.getStyles = getStyles;
-    }
 
     public void Paint(
         SpriteBatch spriteBatch,
@@ -64,7 +52,7 @@ public class Painter
             this.selectionBlend = selectionBlend;
             UpdateVertexColors();
         }
-        viewport ??= Game1.uiViewport.ToXna();
+        viewport ??= Viewports.DefaultViewport;
         PaintBackgrounds(viewport.Value, selectionAngle);
         PaintItems(spriteBatch, viewport.Value);
         PaintSelectionDetails(spriteBatch, viewport.Value);
@@ -83,7 +71,7 @@ public class Painter
             var cursorVertices =
                 selectionAngle != null
                     ? GenerateCursorVertices(
-                        Styles.InnerRadius - Styles.CursorDistance,
+                        styles.InnerRadius - styles.CursorDistance,
                         selectionAngle.Value
                     )
                     : [];
@@ -123,7 +111,7 @@ public class Painter
     {
         var centerX = viewport.Width / 2.0f;
         var centerY = viewport.Height / 2.0f;
-        var itemRadius = Styles.InnerRadius + Styles.GapWidth + Styles.OuterRadius / 2.0f;
+        var itemRadius = styles.InnerRadius + styles.GapWidth + styles.OuterRadius / 2.0f;
         var angleBetweenItems = TWO_PI / Items.Count;
         var currentAngle = 0.0f;
         foreach (var item in Items)
@@ -134,10 +122,10 @@ public class Painter
                 continue;
             }
             var itemPoint = GetCirclePoint(itemRadius, currentAngle);
-            var displaySize = GetScaledSize(item, Styles.MenuSpriteHeight);
+            var displaySize = GetScaledSize(item, styles.MenuSpriteHeight);
             // Aspect ratio is usually almost square, or has extra height (e.g. big craftables).
             // In case of a horizontal aspect ratio, shrink the size so that it still fits.
-            var maxWidth = Styles.OuterRadius * MENU_SPRITE_MAX_WIDTH_RATIO;
+            var maxWidth = styles.OuterRadius * MENU_SPRITE_MAX_WIDTH_RATIO;
             if (displaySize.X > maxWidth)
             {
                 var scale = maxWidth / displaySize.X;
@@ -219,7 +207,7 @@ public class Painter
                     stackLabelPos,
                     stackTextScale,
                     layerDepth: 0.1f,
-                    Styles.StackSizeColor
+                    styles.StackSizeColor
                 );
             }
             currentAngle += angleBetweenItems;
@@ -243,7 +231,7 @@ public class Painter
         var centerY = viewport.Height / 2.0f;
         if (item.Texture is not null)
         {
-            var itemDrawSize = GetScaledSize(item, Styles.SelectionSpriteHeight);
+            var itemDrawSize = GetScaledSize(item, styles.SelectionSpriteHeight);
             var itemPos = new Vector2(centerX - itemDrawSize.X / 2, centerY - itemDrawSize.Y - 24);
             var itemRect = new Rectangle(itemPos.ToPoint(), itemDrawSize);
             var baseColor = item.TintRectangle is null
@@ -259,7 +247,7 @@ public class Painter
         var labelFont = Game1.dialogueFont;
         var labelSize = labelFont.MeasureString(item.Title);
         var labelPos = new Vector2(centerX - labelSize.X / 2.0f, centerY);
-        spriteBatch.DrawString(labelFont, item.Title, labelPos, Styles.SelectionTitleColor);
+        spriteBatch.DrawString(labelFont, item.Title, labelPos, styles.SelectionTitleColor);
 
         var descriptionFont = Game1.smallFont;
         var descriptionText = item.Description;
@@ -276,7 +264,7 @@ public class Painter
                 descriptionFont,
                 descriptionLine,
                 descriptionPos,
-                Styles.SelectionDescriptionColor
+                styles.SelectionDescriptionColor
             );
         }
     }
@@ -285,14 +273,14 @@ public class Painter
     {
         if (innerVertices.Length == 0)
         {
-            innerVertices = GenerateCircleVertices(Styles.InnerRadius, Styles.InnerBackgroundColor);
+            innerVertices = GenerateCircleVertices(styles.InnerRadius, styles.InnerBackgroundColor);
         }
         if (outerVertices.Length == 0)
         {
             outerVertices = GenerateDonutVertices(
-                Styles.InnerRadius + Styles.GapWidth,
-                Styles.OuterRadius,
-                Styles.OuterBackgroundColor
+                styles.InnerRadius + styles.GapWidth,
+                styles.OuterRadius,
+                styles.OuterBackgroundColor
             );
         }
     }
@@ -345,9 +333,9 @@ public class Painter
             var outerIndex = i * outerChordSize;
             var outerColor =
                 isFocusHighlight
-                    ? Color.Lerp(Styles.OuterBackgroundColor, Styles.HighlightColor, selectionBlend)
-                : isSelectionHighlight ? Styles.SelectionColor
-                : Styles.OuterBackgroundColor;
+                    ? Color.Lerp(styles.OuterBackgroundColor, styles.HighlightColor, selectionBlend)
+                : isSelectionHighlight ? styles.SelectionColor
+                : styles.OuterBackgroundColor;
             for (var j = 0; j < outerChordSize; j++)
             {
                 outerVertices[outerIndex + j].Color = outerColor;
@@ -412,9 +400,9 @@ public class Painter
 
     private VertexPositionColor[] GenerateCursorVertices(float tipRadius, float angle)
     {
-        var center = GetCirclePoint(tipRadius - Styles.CursorSize / 2, angle);
+        var center = GetCirclePoint(tipRadius - styles.CursorSize / 2, angle);
         // Compute the points for an origin-centered triangle, then offset.
-        var radius = Styles.CursorSize / ROOT_3;
+        var radius = styles.CursorSize / ROOT_3;
         var p1 = center + radius * new Vector3(MathF.Sin(angle), -MathF.Cos(angle), 0);
         var angle2 = angle + EQUILATERAL_ANGLE;
         var p2 = center + radius * new Vector3(MathF.Sin(angle2), -MathF.Cos(angle2), 0);
@@ -422,9 +410,9 @@ public class Painter
         var p3 = center + radius * new Vector3(MathF.Sin(angle3), -MathF.Cos(angle3), 0);
         return
         [
-            new VertexPositionColor(p1, Styles.CursorColor),
-            new VertexPositionColor(p2, Styles.CursorColor),
-            new VertexPositionColor(p3, Styles.CursorColor),
+            new VertexPositionColor(p1, styles.CursorColor),
+            new VertexPositionColor(p2, styles.CursorColor),
+            new VertexPositionColor(p3, styles.CursorColor),
         ];
     }
 

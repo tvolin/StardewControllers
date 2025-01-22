@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using RadialMenu.Config;
+using RadialMenu.Graphics;
 using RadialMenu.Input;
 
 namespace RadialMenu.Menus;
@@ -9,7 +10,8 @@ public class RadialMenuController(
     IInputHelper inputHelper,
     ModConfig config,
     Farmer player,
-    Painter painter,
+    RadialMenuPainter radialMenuPainter,
+    QuickSlotRenderer quickSlotRenderer,
     params IRadialMenu[] menus
 )
 {
@@ -41,14 +43,23 @@ public class RadialMenuController(
     private int focusedIndex;
     private IRadialMenuItem? focusedItem;
 
-    public void Draw(SpriteBatch b)
+    public void Draw(SpriteBatch b, Rectangle? viewport = null)
     {
         if (activeMenu?.GetSelectedPage() is not { } page)
         {
             return;
         }
-        painter.Items = page.Items;
-        painter.Paint(b, page.SelectedItemIndex, focusedIndex, cursorAngle, GetSelectionBlend());
+        viewport ??= Viewports.DefaultViewport;
+        radialMenuPainter.Items = page.Items;
+        radialMenuPainter.Paint(
+            b,
+            page.SelectedItemIndex,
+            focusedIndex,
+            cursorAngle,
+            GetSelectionBlend(),
+            viewport
+        );
+        quickSlotRenderer.Draw(b, viewport.Value);
     }
 
     public void Invalidate()
@@ -57,6 +68,7 @@ public class RadialMenuController(
         {
             menu.Invalidate();
         }
+        quickSlotRenderer.Invalidate();
     }
 
     public void PreUpdate()
@@ -73,7 +85,12 @@ public class RadialMenuController(
 
     public void Update(TimeSpan elapsed)
     {
-        if (!Enabled || TryActivateDelayedItem(elapsed))
+        if (!Enabled)
+        {
+            return;
+        }
+
+        if (TryActivateDelayedItem(elapsed))
         {
             return;
         }
