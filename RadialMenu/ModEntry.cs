@@ -204,7 +204,6 @@ public class ModEntry : Mod
     {
         var player = Game1.player;
         var menuPainter = new RadialMenuPainter(Game1.graphics.GraphicsDevice, config.Style);
-        var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
         var inventoryToggle = new MenuToggle(
             Helper.Input,
             config.Input,
@@ -215,6 +214,7 @@ public class ModEntry : Mod
         var modMenuToggle = new MenuToggle(Helper.Input, config.Input, c => c.ModMenuButton);
         var settingsSprite = Sprites.Settings();
         var settingsItem = new ModMenuItem(
+            id: "focustense.StarControl.Settings",
             title: I18n.ModMenu_SettingsItem_Name(),
             description: I18n.ModMenu_SettingsItem_Description(),
             texture: settingsSprite?.Texture,
@@ -232,12 +232,20 @@ public class ModEntry : Mod
             ActivateModMenuItem,
             registeredPages
         );
+        var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
+        var quickSlotController = new QuickSlotController(
+            Helper.Input,
+            config,
+            Game1.player,
+            modMenu,
+            quickSlotRenderer
+        );
         var menuController = new RadialMenuController(
             Helper.Input,
             config,
             Game1.player,
             menuPainter,
-            quickSlotRenderer,
+            quickSlotController,
             inventoryMenu,
             modMenu
         );

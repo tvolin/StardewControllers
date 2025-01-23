@@ -6,12 +6,12 @@ using RadialMenu.Input;
 
 namespace RadialMenu.Menus;
 
-public class RadialMenuController(
+internal class RadialMenuController(
     IInputHelper inputHelper,
     ModConfig config,
     Farmer player,
     RadialMenuPainter radialMenuPainter,
-    QuickSlotRenderer quickSlotRenderer,
+    QuickSlotController quickSlotController,
     params IRadialMenu[] menus
 )
 {
@@ -37,7 +37,7 @@ public class RadialMenuController(
 
     private IRadialMenu? activeMenu;
     private float? cursorAngle;
-    private (IRadialMenuItem item, bool isSecondaryAction)? delayedItem;
+    private PendingActivation? delayedItem;
     private TimeSpan elapsedActivationDelay;
     private bool enabled;
     private int focusedIndex;
@@ -59,7 +59,7 @@ public class RadialMenuController(
             GetSelectionBlend(),
             viewport
         );
-        quickSlotRenderer.Draw(b, viewport.Value);
+        quickSlotController.Draw(b, viewport.Value);
     }
 
     public void Invalidate()
@@ -68,7 +68,7 @@ public class RadialMenuController(
         {
             menu.Invalidate();
         }
-        quickSlotRenderer.Invalidate();
+        quickSlotController.Invalidate();
     }
 
     public void PreUpdate()
@@ -120,6 +120,8 @@ public class RadialMenuController(
             }
             activeMenu = menu;
         }
+
+        TryActivateQuickSlot();
     }
 
     private void ActivateFocusedItem()
@@ -138,19 +140,32 @@ public class RadialMenuController(
         }
     }
 
-    private void ActivateItem(IRadialMenuItem item, bool secondaryAction)
+    private void ActivateItem(
+        IRadialMenuItem item,
+        bool secondaryAction,
+        bool allowDelay = true,
+        bool forceSuppression = false
+    )
     {
-        var result = item.Activate(player, config.Input.DelayedActions, secondaryAction);
+        var result = item.Activate(
+            player,
+            allowDelay ? config.Input.DelayedActions : DelayedActions.None,
+            secondaryAction
+        );
         switch (result)
         {
             case ItemActivationResult.Ignored:
                 return;
             case ItemActivationResult.Delayed:
                 Game1.playSound("select");
-                delayedItem = (item, secondaryAction);
+                delayedItem = new(item, SecondaryAction: secondaryAction);
                 break;
             default:
                 ItemActivated?.Invoke(this, new(item, result));
+                if (forceSuppression)
+                {
+                    activeMenu?.Toggle.ForceOff();
+                }
                 Reset();
                 break;
         }
@@ -194,7 +209,7 @@ public class RadialMenuController(
 
     private bool TryActivateDelayedItem(TimeSpan elapsed)
     {
-        if (delayedItem is not ({ } item, var secondaryAction))
+        if (delayedItem is not ({ } item, var secondaryAction, _))
         {
             return false;
         }
@@ -208,6 +223,30 @@ public class RadialMenuController(
         // We still return true here, even if the delay hasn't expired, because a delayed activation
         // should prevent any other menu state from changing.
         return true;
+    }
+
+    private void TryActivateQuickSlot()
+    {
+        if (activeMenu is null || delayedItem is not null || cursorAngle is not null)
+        {
+            return;
+        }
+        var nextActivation = quickSlotController.TryGetNextActivation(out var pressedButton);
+        if (nextActivation is not null)
+        {
+            // TODO: Allow delaying for mod items, only skip for inventory items
+            // TODO: Flash the quick slot when delaying it
+            inputHelper.Suppress(pressedButton);
+            ActivateItem(
+                nextActivation.Item,
+                nextActivation.SecondaryAction,
+                allowDelay: false,
+                // Forcing suppression here isn't done for any technical reason, it just seems more
+                // principle-of-least-surprise compliant not to have the menu immediately reopen or
+                // appear to stay open after e.g. switching a tool.
+                forceSuppression: true
+            );
+        }
     }
 
     private void TryInteractWithActiveMenu()

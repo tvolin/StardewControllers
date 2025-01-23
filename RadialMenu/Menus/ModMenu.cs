@@ -36,6 +36,20 @@ internal class ModMenu(
     private bool isDirty = true;
 
     /// <summary>
+    /// Retries the item (on any page) given its ID.
+    /// </summary>
+    /// <param name="id">The item ID.</param>
+    /// <returns>The item matching the specified <paramref name="id"/>, or <c>null</c> if not
+    /// found.</returns>
+    public IRadialMenuItem? GetItem(string id)
+    {
+        return Pages
+            .OfType<MenuPage<ModMenuItem>>()
+            .SelectMany(page => page.InternalItems)
+            .FirstOrDefault(item => item?.Id == id);
+    }
+
+    /// <summary>
     /// Recreates the items on the shortcut page (first page of this menu) and marks all other (mod) pages invalid,
     /// causing them to be recreated when next accessed.
     /// </summary>

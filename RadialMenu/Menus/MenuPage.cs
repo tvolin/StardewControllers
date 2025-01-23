@@ -61,6 +61,7 @@ internal static class MenuPage
             ? Sprite.ForItemId(config.Icon.ItemId)
             : Sprite.TryLoad(config.Icon.TextureAssetPath, config.Icon.SourceRect);
         return new(
+            id: config.Id,
             title: config.Name,
             description: config.Description,
             texture: sprite?.Texture,
@@ -92,6 +93,8 @@ internal class MenuPage<T>(IReadOnlyList<T?> items, Predicate<T?> isSelected) : 
     public IReadOnlyList<IRadialMenuItem?> Items => items;
 
     public int SelectedItemIndex => GetSelectedIndex();
+
+    internal IReadOnlyList<T?> InternalItems => items;
 
     private int GetSelectedIndex()
     {

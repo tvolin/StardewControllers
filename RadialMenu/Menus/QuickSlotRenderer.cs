@@ -5,7 +5,7 @@ using RadialMenu.Graphics;
 
 namespace RadialMenu.Menus;
 
-public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
+internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
 {
     private enum PromptPosition
     {
@@ -14,6 +14,9 @@ public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
         Left,
         Right,
     }
+
+    public IReadOnlyDictionary<SButton, IRadialMenuItem> SlotItems { get; set; } =
+        new Dictionary<SButton, IRadialMenuItem>();
 
     private const int BACKGROUND_RADIUS = SLOT_SIZE + SLOT_SIZE / 2 + MARGIN_OUTER;
     private const int IMAGE_SIZE = 64;
@@ -27,6 +30,7 @@ public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
 
     private static readonly Color OuterBackgroundColor = new(16, 16, 16, 210);
 
+    private readonly HashSet<SButton> enabledSlots = [];
     private readonly Texture2D outerBackground = ShapeTexture.CreateCircle(
         SLOT_SIZE + SLOT_SIZE / 2 + MARGIN_OUTER,
         filled: true,
@@ -99,12 +103,12 @@ public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
         var backgroundRect = GetCircleRect(origin, SLOT_SIZE / 2);
         b.Draw(slotBackground, backgroundRect, innerBackgroundColor);
 
-        var promptOpacity = 0.5f;
+        var opacity = enabledSlots.Contains(button) ? 1f : 0.5f;
+
         if (slotSprites.TryGetValue(button, out var sprite))
         {
             var spriteRect = GetCircleRect(origin, IMAGE_SIZE / 2);
-            b.Draw(sprite.Texture, spriteRect, sprite.SourceRect, Color.White);
-            promptOpacity = 1;
+            b.Draw(sprite.Texture, spriteRect, sprite.SourceRect, Color.White * opacity);
         }
 
         if (GetPromptSprite(button) is { } promptSprite)
@@ -125,7 +129,7 @@ public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
                 promptSprite.Texture,
                 promptRect,
                 promptSprite.SourceRect,
-                Color.White * promptOpacity
+                Color.White * opacity
             );
         }
     }
@@ -189,10 +193,21 @@ public class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
 
     private void RefreshSlots()
     {
+        enabledSlots.Clear();
         slotSprites.Clear();
         foreach (var (button, slotConfig) in config.Items.QuickSlots)
         {
-            if (GetSlotSprite(slotConfig) is { } sprite)
+            Sprite? sprite = null;
+            if (SlotItems.TryGetValue(button, out var item))
+            {
+                if (item.Texture is not null)
+                {
+                    sprite = new(item.Texture, item.SourceRectangle ?? item.Texture.Bounds);
+                }
+                enabledSlots.Add(button);
+            }
+            sprite ??= GetSlotSprite(slotConfig);
+            if (sprite is not null)
             {
                 slotSprites.Add(button, sprite);
             }

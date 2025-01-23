@@ -5,6 +5,7 @@ namespace RadialMenu.Menus;
 /// <summary>
 /// An immutable menu item with user-defined properties.
 /// </summary>
+/// <param name="id">Unique ID for the item, specified by configuration.</param>
 /// <param name="title">The <see cref="IRadialMenuItem.Title"/>.</param>
 /// <param name="activate">A delegate for the <see cref="IRadialMenuItem.Activate"/> method.</param>
 /// <param name="description">The <see cref="IRadialMenuItem.Description"/>.</param>
@@ -15,6 +16,7 @@ namespace RadialMenu.Menus;
 /// <param name="tintRectangle">The <see cref="IRadialMenuItem.TintRectangle"/>.</param>
 /// <param name="tintColor">The <see cref="IRadialMenuItem.TintColor"/>.</param>
 internal class ModMenuItem(
+    string id,
     string title,
     Func<Farmer, DelayedActions, bool, ItemActivationResult> activate,
     string? description = null,
@@ -26,6 +28,7 @@ internal class ModMenuItem(
     Color? tintColor = null
 ) : IRadialMenuItem
 {
+    public string Id { get; } = id;
     public string Title { get; } = title;
 
     public string Description { get; } = description ?? "";
