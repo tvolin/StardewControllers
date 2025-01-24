@@ -57,6 +57,7 @@ internal class QuickSlotController(
             return new(
                 item,
                 SecondaryAction: itemConfig.UseSecondaryAction,
+                IsRegularItem: itemConfig.IdType == ItemIdType.GameItem,
                 RequireConfirmation: itemConfig.RequireConfirmation
             );
         }

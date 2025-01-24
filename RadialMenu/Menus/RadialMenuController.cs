@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using RadialMenu.Config;
 using RadialMenu.Graphics;
 using RadialMenu.Input;
+using StardewValley.Menus;
 
 namespace RadialMenu.Menus;
 
@@ -146,10 +147,15 @@ internal class RadialMenuController(
     private ItemActivationResult ActivateItem(
         IRadialMenuItem item,
         bool secondaryAction,
+        bool allowDelay = true,
         bool forceSuppression = false
     )
     {
-        var result = item.Activate(player, config.Input.DelayedActions, secondaryAction);
+        var result = item.Activate(
+            player,
+            allowDelay ? config.Input.DelayedActions : DelayedActions.None,
+            secondaryAction
+        );
         switch (result)
         {
             case ItemActivationResult.Ignored:
@@ -208,15 +214,19 @@ internal class RadialMenuController(
 
     private bool TryActivateDelayedItem(TimeSpan elapsed)
     {
-        if (delayedItem is not ({ } item, var secondaryAction, _))
+        if (delayedItem is not { } activation)
         {
             return false;
         }
         elapsedActivationDelay += elapsed;
         if (elapsedActivationDelay.TotalMilliseconds >= config.Input.ActivationDelayMs)
         {
-            var result = item.Activate(player, DelayedActions.None, secondaryAction);
-            ItemActivated?.Invoke(this, new(item, result));
+            var result = activation.Item.Activate(
+                player,
+                DelayedActions.None,
+                activation.SecondaryAction
+            );
+            ItemActivated?.Invoke(this, new(activation.Item, result));
             Reset();
         }
         // We still return true here, even if the delay hasn't expired, because a delayed activation
@@ -234,17 +244,35 @@ internal class RadialMenuController(
         if (nextActivation is not null)
         {
             inputHelper.Suppress(pressedButton);
-            var result = ActivateItem(
-                nextActivation.Item,
-                nextActivation.SecondaryAction,
-                // Forcing suppression here isn't done for any technical reason, it just seems more
-                // principle-of-least-surprise compliant not to have the menu immediately reopen or
-                // appear to stay open after e.g. switching a tool.
-                forceSuppression: true
-            );
-            if (result == ItemActivationResult.Delayed)
+            if (nextActivation.RequireConfirmation)
             {
-                quickSlotController.ShowDelayedActivation(pressedButton);
+                var message = nextActivation.IsRegularItem
+                    ? I18n.QuickSlotConfirmation_Item(nextActivation.Item.Title)
+                    : I18n.QuickSlotConfirmation_Mod(nextActivation.Item.Title);
+                Game1.activeClickableMenu = new ConfirmationDialog(
+                    message,
+                    _ =>
+                    {
+                        Game1.activeClickableMenu = null;
+                        ActivateItem(
+                            nextActivation.Item,
+                            nextActivation.SecondaryAction,
+                            allowDelay: false,
+                            // Forcing suppression here isn't done for any technical reason, it just seems more
+                            // principle-of-least-surprise compliant not to have the menu immediately reopen or
+                            // appear to stay open after e.g. switching a tool.
+                            forceSuppression: true
+                        );
+                    }
+                );
+            }
+            else
+            {
+                var result = ActivateItem(nextActivation.Item, nextActivation.SecondaryAction);
+                if (result == ItemActivationResult.Delayed)
+                {
+                    quickSlotController.ShowDelayedActivation(pressedButton);
+                }
             }
         }
     }

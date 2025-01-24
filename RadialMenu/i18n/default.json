@@ -226,6 +226,10 @@
   "Error.MissingBinding": "No keybinding is set up for this action.",
   "Error.MissingStardewUI": "This feature requires the StardewUI mod to be installed.",
   
+  // Misc
+  "QuickSlotConfirmation.Item": "Use {{name}}?",
+  "QuickSlotConfirmation.Mod": "Activate {{name}}?",
+  
   // GMCM config integration
   "Gmcm.Info.Default": "Star Control provides its own configuration system you can use to change input settings, menu contents and other features.",
   "Gmcm.Info.MissingStardewUI": "Star Control's in-game configuration requires the StardewUI mod, which is not currently installed. Please install StardewUI first, then reopen this menu.",
