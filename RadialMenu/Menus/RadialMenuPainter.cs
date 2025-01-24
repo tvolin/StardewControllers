@@ -22,6 +22,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
     );
 
     public IReadOnlyList<IRadialMenuItem?> Items { get; set; } = [];
+    public float Scale { get; set; } = 1f;
 
     private readonly BasicEffect effect = new(graphicsDevice)
     {
@@ -32,6 +33,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 
     private VertexPositionColor[] innerVertices = [];
     private VertexPositionColor[] outerVertices = [];
+    private float previousScale = 1f;
     private float selectionBlend = 1.0f;
     private SelectionState selectionState = new(ItemCount: 0, SelectedIndex: 0, FocusedIndex: 0);
 
@@ -44,9 +46,23 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         Rectangle? viewport = null
     )
     {
-        GenerateVertices();
+        if (Scale <= 0)
+        {
+            return;
+        }
+        if (Scale != previousScale)
+        {
+            innerVertices = [];
+            outerVertices = [];
+            previousScale = Scale;
+        }
+        var hasNewVertices = GenerateVertices();
         var selectionState = new SelectionState(Items.Count, selectedIndex, focusedIndex);
-        if (selectionState != this.selectionState || selectionBlend != this.selectionBlend)
+        if (
+            hasNewVertices
+            || selectionState != this.selectionState
+            || selectionBlend != this.selectionBlend
+        )
         {
             this.selectionState = selectionState;
             this.selectionBlend = selectionBlend;
@@ -60,18 +76,19 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 
     private void PaintBackgrounds(Rectangle viewport, float? selectionAngle)
     {
+        effect.World = Matrix.CreateTranslation(viewport.X, viewport.Y, 0);
         effect.Projection = Matrix.CreateOrthographic(viewport.Width, viewport.Height, 0, 1);
         var oldRasterizerState = graphicsDevice.RasterizerState;
         // Unsure why this doesn't seem to have any effect. Keeping it here in case we figure it
         // out, because the circle looks jagged without it.
-        graphicsDevice.RasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
+        graphicsDevice.RasterizerState = new() { MultiSampleAntiAlias = true };
         try
         {
             // Cursor is just 1 triangle, so we can compute this on every frame.
             var cursorVertices =
                 selectionAngle != null
                     ? GenerateCursorVertices(
-                        styles.InnerRadius - styles.CursorDistance,
+                        (styles.InnerRadius - styles.CursorDistance) * Scale,
                         selectionAngle.Value
                     )
                     : [];
@@ -109,9 +126,9 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 
     private void PaintItems(SpriteBatch spriteBatch, Rectangle viewport)
     {
-        var centerX = viewport.Width / 2.0f;
-        var centerY = viewport.Height / 2.0f;
-        var itemRadius = styles.InnerRadius + styles.GapWidth + styles.OuterRadius / 2.0f;
+        var centerX = viewport.X + viewport.Width / 2.0f;
+        var centerY = viewport.Y + viewport.Height / 2.0f;
+        var itemRadius = (styles.InnerRadius + styles.GapWidth + styles.OuterRadius / 2.0f) * Scale;
         var angleBetweenItems = TWO_PI / Items.Count;
         var currentAngle = 0.0f;
         foreach (var item in Items)
@@ -122,20 +139,19 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 continue;
             }
             var itemPoint = GetCirclePoint(itemRadius, currentAngle);
-            var displaySize = GetScaledSize(item, styles.MenuSpriteHeight);
+            var displaySize = GetScaledSize(item, styles.MenuSpriteHeight * Scale);
             // Aspect ratio is usually almost square, or has extra height (e.g. big craftables).
             // In case of a horizontal aspect ratio, shrink the size so that it still fits.
-            var maxWidth = styles.OuterRadius * MENU_SPRITE_MAX_WIDTH_RATIO;
+            var maxWidth = styles.OuterRadius * MENU_SPRITE_MAX_WIDTH_RATIO * Scale;
             if (displaySize.X > maxWidth)
             {
-                var scale = maxWidth / displaySize.X;
+                var itemScale = maxWidth / displaySize.X;
                 displaySize = new(
-                    (int)MathF.Round(displaySize.X * scale),
-                    (int)MathF.Round(displaySize.Y * scale)
+                    (int)MathF.Round(displaySize.X * itemScale),
+                    (int)MathF.Round(displaySize.Y * itemScale)
                 );
             }
-            var sourceSize = GetSpriteSize(item, out var isMonogram);
-            var aspectRatio = (float)sourceSize.X / sourceSize.Y;
+            GetSpriteSize(item, out var isMonogram);
             // Sprites draw from top left rather than center; we have to adjust for it.
             var itemPoint2d = new Vector2(
                 centerX + itemPoint.X - displaySize.X / 2.0f,
@@ -151,12 +167,12 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 var shadowTexture = Game1.shadowTexture;
                 spriteBatch.Draw(
                     shadowTexture,
-                    destinationRect.Location.ToVector2() + new Vector2(32f, 52f),
+                    destinationRect.Location.ToVector2() + new Vector2(32f * Scale, 52f * Scale),
                     shadowTexture.Bounds,
-                    new Color(Color.Gray, 0.5f),
+                    new(Color.Gray, 0.5f),
                     0.0f,
-                    new Vector2(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y),
-                    3f,
+                    new(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y),
+                    3f * Scale,
                     SpriteEffects.None,
                     -0.0001f
                 );
@@ -176,10 +192,8 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             if (item.Quality is { } quality && quality > 0)
             {
                 // From StardewValley:Object.cs
-                var qualitySourceRect =
-                    quality < 4
-                        ? new Rectangle(338 + (quality - 1) * 8, 400, 8, 8)
-                        : new Rectangle(346, 392, 8, 8);
+                Rectangle qualitySourceRect =
+                    quality < 4 ? new(338 + (quality - 1) * 8, 400, 8, 8) : new(346, 392, 8, 8);
                 var qualityIconPos = new Vector2(destinationRect.Left, destinationRect.Bottom - 16);
                 spriteBatch.Draw(
                     Game1.mouseCursors,
@@ -188,14 +202,14 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                     Color.White,
                     rotation: 0,
                     origin: Vector2.Zero,
-                    scale: 3.0f,
+                    scale: 3.0f * Scale,
                     effects: SpriteEffects.None,
                     layerDepth: 0.1f
                 );
             }
             if (item.StackSize is { } stackSize)
             {
-                var stackTextScale = 3.0f;
+                var stackTextScale = 3.0f * Scale;
                 var stackTextWidth = Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
                 var stackLabelPos = new Vector2(
                     destinationRect.Right - stackTextWidth,
@@ -227,11 +241,11 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             return;
         }
 
-        var centerX = viewport.Width / 2.0f;
-        var centerY = viewport.Height / 2.0f;
+        var centerX = viewport.X + viewport.Width / 2.0f;
+        var centerY = viewport.Y + viewport.Height / 2.0f;
         if (item.Texture is not null)
         {
-            var itemDrawSize = GetScaledSize(item, styles.SelectionSpriteHeight);
+            var itemDrawSize = GetScaledSize(item, styles.SelectionSpriteHeight * Scale);
             var itemPos = new Vector2(centerX - itemDrawSize.X / 2, centerY - itemDrawSize.Y - 24);
             var itemRect = new Rectangle(itemPos.ToPoint(), itemDrawSize);
             var baseColor = item.TintRectangle is null
@@ -245,44 +259,66 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         }
 
         var labelFont = Game1.dialogueFont;
-        var labelSize = labelFont.MeasureString(item.Title);
+        var labelSize = labelFont.MeasureString(item.Title) * Scale;
         var labelPos = new Vector2(centerX - labelSize.X / 2.0f, centerY);
-        spriteBatch.DrawString(labelFont, item.Title, labelPos, styles.SelectionTitleColor);
+        spriteBatch.DrawString(
+            labelFont,
+            item.Title,
+            labelPos,
+            styles.SelectionTitleColor,
+            rotation: 0,
+            origin: Vector2.Zero,
+            scale: Scale,
+            effects: SpriteEffects.None,
+            layerDepth: 0
+        );
 
         var descriptionFont = Game1.smallFont;
         var descriptionText = item.Description;
-        var descriptionY = labelPos.Y + labelFont.LineSpacing + 16.0f;
+        var descriptionY = labelPos.Y + (labelFont.LineSpacing + 16.0f) * Scale;
         var descriptionLines = Game1
             .parseText(descriptionText, descriptionFont, 400)
             .Split(Environment.NewLine);
         foreach (var descriptionLine in descriptionLines)
         {
-            var descriptionSize = descriptionFont.MeasureString(descriptionLine);
+            var descriptionSize = descriptionFont.MeasureString(descriptionLine) * Scale;
             var descriptionPos = new Vector2(centerX - descriptionSize.X / 2.0f, descriptionY);
-            descriptionY += descriptionFont.LineSpacing;
+            descriptionY += descriptionFont.LineSpacing * Scale;
             spriteBatch.DrawString(
                 descriptionFont,
                 descriptionLine,
                 descriptionPos,
-                styles.SelectionDescriptionColor
+                styles.SelectionDescriptionColor,
+                rotation: 0,
+                origin: Vector2.Zero,
+                scale: Scale,
+                effects: SpriteEffects.None,
+                layerDepth: 0
             );
         }
     }
 
-    private void GenerateVertices()
+    private bool GenerateVertices()
     {
+        var wasGenerated = false;
         if (innerVertices.Length == 0)
         {
-            innerVertices = GenerateCircleVertices(styles.InnerRadius, styles.InnerBackgroundColor);
+            innerVertices = GenerateCircleVertices(
+                styles.InnerRadius * Scale,
+                styles.InnerBackgroundColor
+            );
+            wasGenerated = true;
         }
         if (outerVertices.Length == 0)
         {
             outerVertices = GenerateDonutVertices(
-                styles.InnerRadius + styles.GapWidth,
-                styles.OuterRadius,
+                (styles.InnerRadius + styles.GapWidth) * Scale,
+                styles.OuterRadius * Scale,
                 styles.OuterBackgroundColor
             );
+            wasGenerated = true;
         }
+        return wasGenerated;
     }
 
     private static (float start, float end) GetSegmentRange(
@@ -357,9 +393,9 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         {
             t += step;
             var nextPoint = GetCirclePoint(radius, t);
-            vertices[vertexIndex++] = new VertexPositionColor(prevPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(nextPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(Vector3.Zero, color);
+            vertices[vertexIndex++] = new(prevPoint, color);
+            vertices[vertexIndex++] = new(nextPoint, color);
+            vertices[vertexIndex++] = new(Vector3.Zero, color);
             prevPoint = nextPoint;
         }
         return vertices;
@@ -386,12 +422,12 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             t += step;
             var nextInnerPoint = GetCirclePoint(innerRadius, t);
             var nextOuterPoint = GetCirclePoint(outerRadius, t);
-            vertices[vertexIndex++] = new VertexPositionColor(prevOuterPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(nextOuterPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(nextInnerPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(nextInnerPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(prevInnerPoint, color);
-            vertices[vertexIndex++] = new VertexPositionColor(prevOuterPoint, color);
+            vertices[vertexIndex++] = new(prevOuterPoint, color);
+            vertices[vertexIndex++] = new(nextOuterPoint, color);
+            vertices[vertexIndex++] = new(nextInnerPoint, color);
+            vertices[vertexIndex++] = new(nextInnerPoint, color);
+            vertices[vertexIndex++] = new(prevInnerPoint, color);
+            vertices[vertexIndex++] = new(prevOuterPoint, color);
             prevInnerPoint = nextInnerPoint;
             prevOuterPoint = nextOuterPoint;
         }
@@ -410,9 +446,9 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         var p3 = center + radius * new Vector3(MathF.Sin(angle3), -MathF.Cos(angle3), 0);
         return
         [
-            new VertexPositionColor(p1, styles.CursorColor),
-            new VertexPositionColor(p2, styles.CursorColor),
-            new VertexPositionColor(p3, styles.CursorColor),
+            new(p1, styles.CursorColor),
+            new(p2, styles.CursorColor),
+            new(p3, styles.CursorColor),
         ];
     }
 
@@ -426,15 +462,15 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
     private static int GetOptimalVertexCount(float radius)
     {
         var optimalAngle = Math.Acos(1 - CIRCLE_MAX_ERROR / radius);
-        return (int)Math.Ceiling(TWO_PI / optimalAngle);
+        return Math.Max((int)Math.Ceiling(TWO_PI / optimalAngle), 8);
     }
 
-    private static Point GetScaledSize(IRadialMenuItem item, int height)
+    private static Point GetScaledSize(IRadialMenuItem item, float height)
     {
         var sourceSize = GetSpriteSize(item, out _);
         var aspectRatio = (float)sourceSize.X / sourceSize.Y;
         var width = (int)MathF.Round(height * aspectRatio);
-        return new(width, height);
+        return new(width, (int)MathF.Round(height));
     }
 
     private static Point GetSpriteSize(IRadialMenuItem item, out bool isMonogram)

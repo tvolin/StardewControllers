@@ -36,6 +36,8 @@ internal class RadialMenuController(
     }
     public bool IsMenuActive => activeMenu is not null;
 
+    private const int MENU_ANIMATION_DURATION_MS = 120;
+
     private IRadialMenu? activeMenu;
     private float? cursorAngle;
     private PendingActivation? delayedItem;
@@ -43,6 +45,9 @@ internal class RadialMenuController(
     private bool enabled;
     private int focusedIndex;
     private IRadialMenuItem? focusedItem;
+    private float menuOpenTimeMs;
+    private float menuScale;
+    private float quickSlotOpacity;
 
     public void Draw(SpriteBatch b, Rectangle? viewport = null)
     {
@@ -52,6 +57,7 @@ internal class RadialMenuController(
         }
         viewport ??= Viewports.DefaultViewport;
         radialMenuPainter.Items = page.Items;
+        radialMenuPainter.Scale = menuScale;
         radialMenuPainter.Paint(
             b,
             page.SelectedItemIndex,
@@ -60,7 +66,7 @@ internal class RadialMenuController(
             GetSelectionBlend(),
             viewport
         );
-        quickSlotController.Draw(b, viewport.Value);
+        quickSlotController.Draw(b, viewport.Value, quickSlotOpacity);
     }
 
     public void Invalidate()
@@ -90,6 +96,8 @@ internal class RadialMenuController(
         {
             return;
         }
+
+        AnimateMenuOpen(elapsed);
 
         // Used only for animation, doesn't interfere with logic right now.
         quickSlotController.Update(elapsed);
@@ -123,6 +131,10 @@ internal class RadialMenuController(
                 menu.PreviousPage();
             }
             activeMenu = menu;
+            if (previousActiveMenu is null && activeMenu is not null)
+            {
+                AnimateMenuOpen(elapsed); // Skip "zero" frame
+            }
         }
 
         TryActivateQuickSlot();
@@ -176,6 +188,18 @@ internal class RadialMenuController(
         return result;
     }
 
+    private void AnimateMenuOpen(TimeSpan elapsed)
+    {
+        if (activeMenu is null || menuOpenTimeMs >= MENU_ANIMATION_DURATION_MS)
+        {
+            return;
+        }
+        menuOpenTimeMs += (float)elapsed.TotalMilliseconds;
+        var progress = MathHelper.Clamp(menuOpenTimeMs / MENU_ANIMATION_DURATION_MS, 0, 1);
+        menuScale = progress < 1 ? 1 - MathF.Pow(1 - progress, 3) : 1;
+        quickSlotOpacity = progress < 1 ? MathF.Sin(progress * MathF.PI / 2f) : 1;
+    }
+
     private float GetSelectionBlend()
     {
         if (delayedItem is null)
@@ -200,6 +224,9 @@ internal class RadialMenuController(
             activeMenu?.Toggle.ForceOff();
         }
         activeMenu = null;
+        menuOpenTimeMs = 0;
+        menuScale = 0;
+        quickSlotOpacity = 0;
     }
 
     private bool SuppressIfPressed(SButton button)

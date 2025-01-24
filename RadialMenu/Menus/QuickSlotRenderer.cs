@@ -23,6 +23,8 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         Right,
     }
 
+    public float Opacity { get; set; } = 1;
+
     public IReadOnlyDictionary<SButton, IRadialMenuItem> SlotItems { get; set; } =
         new Dictionary<SButton, IRadialMenuItem>();
 
@@ -69,7 +71,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             viewport.Bottom - MARGIN_VERTICAL - MARGIN_OUTER - SLOT_SIZE - SLOT_SIZE / 2
         );
         var leftBackgroundRect = GetCircleRect(leftOrigin.AddX(SLOT_SIZE), BACKGROUND_RADIUS);
-        b.Draw(outerBackground, leftBackgroundRect, OuterBackgroundColor);
+        b.Draw(outerBackground, leftBackgroundRect, OuterBackgroundColor * Opacity);
         DrawSlot(b, leftOrigin, SButton.DPadLeft, PromptPosition.Left);
         DrawSlot(b, leftOrigin.Add(SLOT_SIZE, -SLOT_SIZE), SButton.DPadUp, PromptPosition.Above);
         DrawSlot(b, leftOrigin.Add(SLOT_SIZE, SLOT_SIZE), SButton.DPadDown, PromptPosition.Below);
@@ -80,7 +82,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             leftOrigin.Y
         );
         var rightBackgroundRect = GetCircleRect(rightOrigin.AddX(-SLOT_SIZE), BACKGROUND_RADIUS);
-        b.Draw(outerBackground, rightBackgroundRect, OuterBackgroundColor);
+        b.Draw(outerBackground, rightBackgroundRect, OuterBackgroundColor * Opacity);
         DrawSlot(b, rightOrigin, SButton.ControllerB, PromptPosition.Right);
         DrawSlot(
             b,
@@ -135,14 +137,19 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
     {
         var backgroundRect = GetCircleRect(origin, SLOT_SIZE / 2);
         var backgroundColor = GetBackgroundColor(button);
-        b.Draw(slotBackground, backgroundRect, backgroundColor);
+        b.Draw(slotBackground, backgroundRect, backgroundColor * Opacity);
 
-        var opacity = enabledSlots.Contains(button) ? 1f : 0.5f;
+        var slotOpacity = enabledSlots.Contains(button) ? 1f : 0.5f;
 
         if (slotSprites.TryGetValue(button, out var sprite))
         {
             var spriteRect = GetCircleRect(origin, IMAGE_SIZE / 2);
-            b.Draw(sprite.Texture, spriteRect, sprite.SourceRect, Color.White * opacity);
+            b.Draw(
+                sprite.Texture,
+                spriteRect,
+                sprite.SourceRect,
+                Color.White * slotOpacity * Opacity
+            );
         }
 
         if (GetPromptSprite(button) is { } promptSprite)
@@ -163,7 +170,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
                 promptSprite.Texture,
                 promptRect,
                 promptSprite.SourceRect,
-                Color.White * opacity
+                Color.White * slotOpacity * Opacity
             );
         }
     }

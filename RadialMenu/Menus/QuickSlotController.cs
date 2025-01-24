@@ -16,7 +16,7 @@ internal class QuickSlotController(
 
     private bool isDirty = true;
 
-    public void Draw(SpriteBatch spriteBatch, Rectangle viewport)
+    public void Draw(SpriteBatch spriteBatch, Rectangle viewport, float opacity = 1)
     {
         if (isDirty)
         {
@@ -24,6 +24,7 @@ internal class QuickSlotController(
             renderer.SlotItems = slotItems;
             isDirty = false;
         }
+        renderer.Opacity = opacity;
         renderer.Draw(spriteBatch, viewport);
     }
 
