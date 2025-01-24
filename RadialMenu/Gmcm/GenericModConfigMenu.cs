@@ -11,7 +11,6 @@ internal class GenericModConfigMenu(
 {
     private const int BUTTON_BORDER_SIZE = 2;
 
-    // TODO: Increase horizontal padding, maybe also vertical
     private const int BUTTON_PADDING = 16;
     private const int BUTTON_SCALE = 4;
 

@@ -7,6 +7,14 @@ namespace RadialMenu.Menus;
 
 internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config)
 {
+    private record ButtonFlash(FlashType Type, float DurationMs, float ElapsedMs = 0);
+
+    private enum FlashType
+    {
+        Delay,
+        Error,
+    }
+
     private enum PromptPosition
     {
         Above,
@@ -30,6 +38,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
 
     private static readonly Color OuterBackgroundColor = new(16, 16, 16, 210);
 
+    private readonly Dictionary<SButton, ButtonFlash> flashes = [];
     private readonly HashSet<SButton> enabledSlots = [];
     private readonly Texture2D outerBackground = ShapeTexture.CreateCircle(
         SLOT_SIZE + SLOT_SIZE / 2 + MARGIN_OUTER,
@@ -88,9 +97,33 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         DrawSlot(b, rightOrigin.AddX(-SLOT_SIZE * 2), SButton.ControllerX, PromptPosition.Left);
     }
 
+    public void FlashDelay(SButton button)
+    {
+        flashes[button] = new(FlashType.Delay, config.Input.ActivationDelayMs);
+    }
+
+    public void FlashError(SButton button)
+    {
+        flashes[button] = new(FlashType.Error, Animation.ERROR_FLASH_DURATION_MS);
+    }
+
     public void Invalidate()
     {
         isDirty = true;
+    }
+
+    public void Update(TimeSpan elapsed)
+    {
+        foreach (var (button, flash) in flashes)
+        {
+            var flashElapsedMs = flash.ElapsedMs + (float)elapsed.TotalMilliseconds;
+            if (flashElapsedMs >= flash.DurationMs)
+            {
+                flashes.Remove(button);
+                continue;
+            }
+            flashes[button] = flash with { ElapsedMs = flashElapsedMs };
+        }
     }
 
     private void DrawSlot(
@@ -101,7 +134,8 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
     )
     {
         var backgroundRect = GetCircleRect(origin, SLOT_SIZE / 2);
-        b.Draw(slotBackground, backgroundRect, innerBackgroundColor);
+        var backgroundColor = GetBackgroundColor(button);
+        b.Draw(slotBackground, backgroundRect, backgroundColor);
 
         var opacity = enabledSlots.Contains(button) ? 1f : 0.5f;
 
@@ -132,6 +166,24 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
                 Color.White * opacity
             );
         }
+    }
+
+    private Color GetBackgroundColor(SButton button)
+    {
+        if (!flashes.TryGetValue(button, out var flash))
+        {
+            return innerBackgroundColor;
+        }
+        var (flashColor, position) = flash.Type switch
+        {
+            FlashType.Delay => (
+                config.Style.HighlightColor,
+                Animation.GetDelayFlashPosition(flash.ElapsedMs)
+            ),
+            FlashType.Error => (Color.Red, Animation.GetErrorFlashPosition(flash.ElapsedMs)),
+            _ => (Color.White, 0),
+        };
+        return Color.Lerp(innerBackgroundColor, flashColor, position);
     }
 
     private static Rectangle GetCircleRect(Point center, int radius)

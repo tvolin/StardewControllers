@@ -90,6 +90,9 @@ internal class RadialMenuController(
             return;
         }
 
+        // Used only for animation, doesn't interfere with logic right now.
+        quickSlotController.Update(elapsed);
+
         if (TryActivateDelayedItem(elapsed))
         {
             return;
@@ -140,22 +143,17 @@ internal class RadialMenuController(
         }
     }
 
-    private void ActivateItem(
+    private ItemActivationResult ActivateItem(
         IRadialMenuItem item,
         bool secondaryAction,
-        bool allowDelay = true,
         bool forceSuppression = false
     )
     {
-        var result = item.Activate(
-            player,
-            allowDelay ? config.Input.DelayedActions : DelayedActions.None,
-            secondaryAction
-        );
+        var result = item.Activate(player, config.Input.DelayedActions, secondaryAction);
         switch (result)
         {
             case ItemActivationResult.Ignored:
-                return;
+                return result;
             case ItemActivationResult.Delayed:
                 Game1.playSound("select");
                 delayedItem = new(item, SecondaryAction: secondaryAction);
@@ -169,6 +167,7 @@ internal class RadialMenuController(
                 Reset();
                 break;
         }
+        return result;
     }
 
     private float GetSelectionBlend()
@@ -180,7 +179,7 @@ internal class RadialMenuController(
         var elapsed = (float)(
             config.Input.ActivationDelayMs - elapsedActivationDelay.TotalMilliseconds
         );
-        return MathF.Abs(elapsed / 80 % 2 - 1);
+        return Animation.GetDelayFlashPosition(elapsed);
     }
 
     private void Reset()
@@ -234,18 +233,19 @@ internal class RadialMenuController(
         var nextActivation = quickSlotController.TryGetNextActivation(out var pressedButton);
         if (nextActivation is not null)
         {
-            // TODO: Allow delaying for mod items, only skip for inventory items
-            // TODO: Flash the quick slot when delaying it
             inputHelper.Suppress(pressedButton);
-            ActivateItem(
+            var result = ActivateItem(
                 nextActivation.Item,
                 nextActivation.SecondaryAction,
-                allowDelay: false,
                 // Forcing suppression here isn't done for any technical reason, it just seems more
                 // principle-of-least-surprise compliant not to have the menu immediately reopen or
                 // appear to stay open after e.g. switching a tool.
                 forceSuppression: true
             );
+            if (result == ItemActivationResult.Delayed)
+            {
+                quickSlotController.ShowDelayedActivation(pressedButton);
+            }
         }
     }
 

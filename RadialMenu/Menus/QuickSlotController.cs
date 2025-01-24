@@ -27,31 +27,46 @@ internal class QuickSlotController(
         renderer.Draw(spriteBatch, viewport);
     }
 
+    public void Invalidate()
+    {
+        renderer.Invalidate();
+        isDirty = true;
+    }
+
+    public void ShowDelayedActivation(SButton button)
+    {
+        renderer.FlashDelay(button);
+    }
+
     public PendingActivation? TryGetNextActivation(out SButton pressedButton)
     {
-        // TODO: If button is pressed, but slot can't be activated, flash it red once.
-        //  Also maybe play a buzz/error sound.
-        foreach (var (button, item) in slotItems)
+        foreach (var button in config.Items.QuickSlots.Keys)
         {
-            if (inputHelper.GetState(button) == SButtonState.Pressed)
+            if (inputHelper.GetState(button) != SButtonState.Pressed)
             {
-                var itemConfig = config.Items.QuickSlots[button];
-                pressedButton = button;
-                return new(
-                    item,
-                    SecondaryAction: itemConfig.UseSecondaryAction,
-                    RequireConfirmation: itemConfig.RequireConfirmation
-                );
+                continue;
             }
+            if (!slotItems.TryGetValue(button, out var item))
+            {
+                Game1.playSound("cancel");
+                renderer.FlashError(button);
+                continue;
+            }
+            var itemConfig = config.Items.QuickSlots[button];
+            pressedButton = button;
+            return new(
+                item,
+                SecondaryAction: itemConfig.UseSecondaryAction,
+                RequireConfirmation: itemConfig.RequireConfirmation
+            );
         }
         pressedButton = SButton.None;
         return null;
     }
 
-    public void Invalidate()
+    public void Update(TimeSpan elapsed)
     {
-        renderer.Invalidate();
-        isDirty = true;
+        renderer.Update(elapsed);
     }
 
     private void RefreshSlots()
