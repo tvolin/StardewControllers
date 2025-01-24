@@ -4,7 +4,7 @@ using RadialMenu.Config;
 
 namespace RadialMenu.UI;
 
-internal partial class ConfigurationViewModel
+internal partial class ConfigurationViewModel : IDisposable
 {
     public static event EventHandler<EventArgs>? Saved;
 
@@ -16,6 +16,7 @@ internal partial class ConfigurationViewModel
     public ItemsConfigurationViewModel Items { get; } = new();
     public ModIntegrationsViewModel Mods { get; }
     public PagerViewModel<NavPageViewModel> Pager { get; } = new();
+    public RadialMenuPreview Preview { get; }
     public StyleConfigurationViewModel Style { get; } = new();
 
     [Notify]
@@ -23,6 +24,9 @@ internal partial class ConfigurationViewModel
 
     [Notify]
     private bool isNavigationEnabled = true;
+
+    [Notify]
+    private bool isPreviewVisible;
 
     private readonly ModConfig config;
     private readonly IModHelper helper;
@@ -42,7 +46,9 @@ internal partial class ConfigurationViewModel
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), $"Mods/{modId}/Views/ModIntegrations"),
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), $"Mods/{modId}/Views/Debug"),
         ];
+        Pager.PropertyChanged += Pager_PropertyChanged;
         Items.PropertyChanged += Items_PropertyChanged;
+        Preview = new(Style, 500, 500);
         Load(config);
     }
 
@@ -53,6 +59,12 @@ internal partial class ConfigurationViewModel
             return Items.EndReordering();
         }
         return false;
+    }
+
+    public void Dispose()
+    {
+        Preview.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     public bool HandleButtonPress(SButton button)
@@ -178,6 +190,14 @@ internal partial class ConfigurationViewModel
         // property change event will fire for the dependent models as well.
         Pager.ContentPanelSize = contentPanelSize;
         Items.Pager.ContentPanelSize = ContentPanelSize;
+    }
+
+    private void Pager_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Pager.SelectedPageIndex))
+        {
+            IsPreviewVisible = Pager.SelectedPageIndex == 1; // Styles
+        }
     }
 
     private void SaveSections(ModConfig config)

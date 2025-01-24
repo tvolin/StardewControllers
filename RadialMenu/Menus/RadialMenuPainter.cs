@@ -22,6 +22,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
     );
 
     public IReadOnlyList<IRadialMenuItem?> Items { get; set; } = [];
+    public RenderTarget2D? RenderTarget { get; set; }
     public float Scale { get; set; } = 1f;
 
     private readonly BasicEffect effect = new(graphicsDevice)
@@ -36,6 +37,12 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
     private float previousScale = 1f;
     private float selectionBlend = 1.0f;
     private SelectionState selectionState = new(ItemCount: 0, SelectedIndex: 0, FocusedIndex: 0);
+
+    public void Invalidate()
+    {
+        innerVertices = [];
+        outerVertices = [];
+    }
 
     public void Paint(
         SpriteBatch spriteBatch,
@@ -52,8 +59,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         }
         if (Scale != previousScale)
         {
-            innerVertices = [];
-            outerVertices = [];
+            Invalidate();
             previousScale = Scale;
         }
         var hasNewVertices = GenerateVertices();
@@ -68,59 +74,67 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             this.selectionBlend = selectionBlend;
             UpdateVertexColors();
         }
-        viewport ??= Viewports.DefaultViewport;
-        PaintBackgrounds(viewport.Value, selectionAngle);
-        PaintItems(spriteBatch, viewport.Value);
-        PaintSelectionDetails(spriteBatch, viewport.Value);
+        viewport ??= RenderTarget?.Bounds ?? Viewports.DefaultViewport;
+        RenderTargetBinding[]? previousTargets = null;
+        if (RenderTarget is not null)
+        {
+            previousTargets = graphicsDevice.GetRenderTargets();
+            graphicsDevice.SetRenderTarget(RenderTarget);
+            graphicsDevice.Clear(Color.Transparent);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+        }
+        try
+        {
+            PaintBackgrounds(viewport.Value, selectionAngle);
+            PaintItems(spriteBatch, viewport.Value);
+            PaintSelectionDetails(spriteBatch, viewport.Value);
+        }
+        finally
+        {
+            if (previousTargets is not null)
+            {
+                spriteBatch.End();
+                graphicsDevice.SetRenderTargets(previousTargets);
+            }
+        }
     }
 
     private void PaintBackgrounds(Rectangle viewport, float? selectionAngle)
     {
         effect.World = Matrix.CreateTranslation(viewport.X, viewport.Y, 0);
         effect.Projection = Matrix.CreateOrthographic(viewport.Width, viewport.Height, 0, 1);
-        var oldRasterizerState = graphicsDevice.RasterizerState;
-        // Unsure why this doesn't seem to have any effect. Keeping it here in case we figure it
-        // out, because the circle looks jagged without it.
-        graphicsDevice.RasterizerState = new() { MultiSampleAntiAlias = true };
-        try
+        // Cursor is just 1 triangle, so we can compute this on every frame.
+        var cursorVertices =
+            selectionAngle != null
+                ? GenerateCursorVertices(
+                    (styles.InnerRadius - styles.CursorDistance) * Scale,
+                    selectionAngle.Value
+                )
+                : [];
+        foreach (var pass in effect.CurrentTechnique.Passes)
         {
-            // Cursor is just 1 triangle, so we can compute this on every frame.
-            var cursorVertices =
-                selectionAngle != null
-                    ? GenerateCursorVertices(
-                        (styles.InnerRadius - styles.CursorDistance) * Scale,
-                        selectionAngle.Value
-                    )
-                    : [];
-            foreach (var pass in effect.CurrentTechnique.Passes)
+            pass.Apply();
+            graphicsDevice.DrawUserPrimitives(
+                PrimitiveType.TriangleList,
+                innerVertices,
+                0,
+                innerVertices.Length / 3
+            );
+            graphicsDevice.DrawUserPrimitives(
+                PrimitiveType.TriangleList,
+                outerVertices,
+                0,
+                outerVertices.Length / 3
+            );
+            if (cursorVertices.Length > 0)
             {
-                pass.Apply();
                 graphicsDevice.DrawUserPrimitives(
                     PrimitiveType.TriangleList,
-                    innerVertices,
+                    cursorVertices,
                     0,
-                    innerVertices.Length / 3
+                    cursorVertices.Length / 3
                 );
-                graphicsDevice.DrawUserPrimitives(
-                    PrimitiveType.TriangleList,
-                    outerVertices,
-                    0,
-                    outerVertices.Length / 3
-                );
-                if (cursorVertices.Length > 0)
-                {
-                    graphicsDevice.DrawUserPrimitives(
-                        PrimitiveType.TriangleList,
-                        cursorVertices,
-                        0,
-                        cursorVertices.Length / 3
-                    );
-                }
             }
-        }
-        finally
-        {
-            graphicsDevice.RasterizerState = oldRasterizerState;
         }
     }
 
@@ -164,6 +178,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             }
             else
             {
+                // TODO: Shadows may end up in wrong place when using non-default sizes. Fix.
                 var shadowTexture = Game1.shadowTexture;
                 spriteBatch.Draw(
                     shadowTexture,

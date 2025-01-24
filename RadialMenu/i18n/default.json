@@ -83,6 +83,7 @@
   "Config.Palette.ItemDetails.Description": "Text color for the item description displayed under the title in the spotlight.",
   "Config.Palette.ItemCount.Title": "Item count",
   "Config.Palette.ItemCount.Description": "Text color for the quantity associated with the item, e.g. the stack size in the player inventory, or remaining times a limited mod action can be used.",
+  "Config.Preview.Heading": "Preview",
 
   // Config menu - Actions page
   "Config.Inventory.Heading": "Inventory Menu",

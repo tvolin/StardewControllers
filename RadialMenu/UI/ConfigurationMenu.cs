@@ -35,6 +35,7 @@ internal static class ConfigurationMenu
                     Game1.exitActiveMenu();
                 }
                 onClose?.Invoke();
+                context.Dispose();
             }
         };
         // CloseSound is normally played before CloseAction has a chance to run; in order to

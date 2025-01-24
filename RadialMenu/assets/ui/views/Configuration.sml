@@ -61,6 +61,29 @@
                        tint="#9f9"
                        action="Save" />
     </lane>
+    <frame *float="after; -16, -32"
+           *context={:Preview}
+           layout="content stretch"
+           vertical-content-alignment="middle"
+           clip-size="stretch">
+        <frame background={@Mods/StardewUI/Sprites/White}
+               background-tint="#111a"
+               transform="translateX: -500"
+               +state:visible={^IsPreviewVisible}
+               +state:visible:transform=""
+               +transition:transform="150ms EaseOutCubic">
+            <lane orientation="vertical" horizontal-content-alignment="middle">
+                <label margin="0, 8, 0, 0"
+                       font="dialogue"
+                       color="#d93"
+                       shadow-alpha="0.6"
+                       shadow-color="#666"
+                       shadow-offset="-3, 3"
+                       text={#Config.Preview.Heading} />
+                <image sprite={:Texture} />
+            </lane>
+        </frame>
+    </frame>
 </frame>
 
 <template name="nav-tab">
