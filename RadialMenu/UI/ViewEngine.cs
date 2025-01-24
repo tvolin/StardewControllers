@@ -1,4 +1,6 @@
-﻿namespace RadialMenu.UI;
+﻿using StardewValley.Menus;
+
+namespace RadialMenu.UI;
 
 /// <summary>
 /// Wrapper class to hold the <see cref="IViewEngine"/> instance used for the mod.
@@ -10,6 +12,11 @@
 /// </remarks>
 internal static class ViewEngine
 {
+    /// <summary>
+    /// Whether the StardewUI mod appears to be installed and correctly initialized.
+    /// </summary>
+    public static bool IsInstalled => Instance is not null;
+
     /// <summary>
     /// The mod's view engine.
     /// </summary>
@@ -25,18 +32,12 @@ internal static class ViewEngine
     /// </summary>
     /// <param name="viewName">Local name of the view, excluding the path prefix.</param>
     /// <param name="context">View model for the menu.</param>
+    /// <returns>The menu controller for further customization.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the <see cref="Instance"/> has not
     /// been assigned by the mod's entry point.</exception>
     public static IMenuController OpenChildMenu(string viewName, object? context)
     {
-        if (Instance is null)
-        {
-            throw new InvalidOperationException(
-                $"ViewEngine Instance is not set up; StardewUI is probably not installed."
-            );
-        }
-        var assetName = ViewAssetPrefix + '/' + viewName;
-        var controller = Instance.CreateMenuControllerFromAsset(assetName, context);
+        var controller = CreateMenuController(viewName, context);
         var parent = Game1.activeClickableMenu;
         for (; parent?.GetChildMenu() is not null; parent = parent.GetChildMenu()) { }
         if (parent is not null)
@@ -49,5 +50,44 @@ internal static class ViewEngine
             Game1.activeClickableMenu = controller.Menu;
         }
         return controller;
+    }
+
+    /// <summary>
+    /// Creates a menu and opens it as the top-level menu, replacing any other open menu.
+    /// </summary>
+    /// <param name="viewName">Local name of the view, excluding the path prefix.</param>
+    /// <param name="context">View model for the menu.</param>
+    /// <returns>The menu controller for further customization.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the <see cref="Instance"/> has not
+    /// been assigned by the mod's entry point.</exception>
+    public static IMenuController OpenRootMenu(string viewName, object? context)
+    {
+        var controller = CreateMenuController(viewName, context);
+        if (Game1.activeClickableMenu is TitleMenu)
+        {
+            // TODO: Fix two small bugs that may be bugs in StardewUI.
+            //  1. Pressing ESC to dismiss child menu also dismisses root - but dismissing by
+            //     clicking outside the menu area works fine. Seems both menus receive the events.
+            //  2. Tooltip still shows for menu underneath, even though it gets "stuck" on the last
+            //     item to be hovered.
+            TitleMenu.subMenu = controller.Menu;
+        }
+        else
+        {
+            Game1.activeClickableMenu = controller.Menu;
+        }
+        return controller;
+    }
+
+    private static IMenuController CreateMenuController(string viewName, object? context)
+    {
+        if (Instance is null)
+        {
+            throw new InvalidOperationException(
+                $"ViewEngine Instance is not set up; StardewUI is probably not installed."
+            );
+        }
+        var assetName = ViewAssetPrefix + '/' + viewName;
+        return Instance.CreateMenuControllerFromAsset(assetName, context);
     }
 }

@@ -1,13 +1,21 @@
 using RadialMenu.Config;
+using StardewValley.Menus;
 
 namespace RadialMenu.UI;
 
 internal static class ConfigurationMenu
 {
-    public static void Open(IModHelper helper, ModConfig config)
+    public static void Open(
+        IModHelper helper,
+        ModConfig config,
+        bool asRoot = false,
+        Action? onClose = null
+    )
     {
         var context = new ConfigurationViewModel(helper, config);
-        context.Controller = ViewEngine.OpenChildMenu("Configuration", context);
+        context.Controller = asRoot
+            ? ViewEngine.OpenRootMenu("Configuration", context)
+            : ViewEngine.OpenChildMenu("Configuration", context);
         context.Controller.CanClose = () => context.IsNavigationEnabled;
         context.Controller.CloseAction = () =>
         {
@@ -18,7 +26,15 @@ internal static class ConfigurationMenu
             else
             {
                 Game1.playSound("bigDeSelect");
-                Game1.exitActiveMenu();
+                if (Game1.activeClickableMenu is TitleMenu)
+                {
+                    TitleMenu.subMenu = null;
+                }
+                else
+                {
+                    Game1.exitActiveMenu();
+                }
+                onClose?.Invoke();
             }
         };
         // CloseSound is normally played before CloseAction has a chance to run; in order to

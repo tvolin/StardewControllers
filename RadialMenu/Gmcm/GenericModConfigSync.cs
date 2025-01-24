@@ -3,14 +3,14 @@
 namespace RadialMenu.Gmcm;
 
 internal class GenericModConfigSync(
-    Func<LegacyModConfig> getConfig,
+    Func<ModConfig> getConfig,
     GenericModConfigKeybindings bindings,
     IMonitor monitor
 )
 {
-    public void Sync(CustomMenuItemConfiguration item, bool ignoreOverrides = false)
+    public void Sync(ModMenuItemConfiguration item)
     {
-        if (item.Gmcm is not GmcmAssociation gmcm)
+        if (item.GmcmSync is not { } gmcm)
         {
             return;
         }
@@ -25,9 +25,12 @@ internal class GenericModConfigSync(
             );
             return;
         }
-        if (ignoreOverrides || !gmcm.UseCustomName)
+        if (gmcm.EnableNameSync)
         {
             item.Name = keybindOption.ModManifest.Name;
+        }
+        if (gmcm.EnableDescriptionSync)
+        {
             // Some mod names can be quite long, the most obvious being "Generic Mod Config Menu"
             // itself. Since the title uses large font and there is limited space, it's usually a
             // better idea to combine both the field name and tooltip into the description, instead
@@ -48,9 +51,12 @@ internal class GenericModConfigSync(
     public void SyncAll()
     {
         var config = getConfig();
-        foreach (var item in config.CustomMenuItems)
+        foreach (var page in config.Items.ModMenuPages)
         {
-            Sync(item);
+            foreach (var item in page)
+            {
+                Sync(item);
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 
     private static readonly float ROOT_3 = MathF.Sqrt(3);
 
-    private static readonly TextureSegment UnknownSprite = new(
+    private static readonly Sprite UnknownSprite = new(
         Game1.mouseCursors, // Question Mark
         new(176, 425, 9, 12)
     );
@@ -443,7 +443,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
         {
             var monogramSize = Monogram.Measure(item.Title)?.ToPoint();
             isMonogram = monogramSize.HasValue;
-            return monogramSize ?? UnknownSprite.SourceRect!.Value.Size;
+            return monogramSize ?? UnknownSprite.SourceRect.Size;
         }
         isMonogram = false;
         return item.SourceRectangle?.Size ?? new Point(item.Texture.Width, item.Texture.Height);

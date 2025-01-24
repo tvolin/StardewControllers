@@ -50,7 +50,7 @@ internal class GenericModConfigKeybindings
     public static GenericModConfigKeybindings Load()
     {
         var allOptions = new List<GenericModConfigKeybindOption>();
-        foreach (var modConfig in GenericModConfigMenu.Mod.instance.ConfigManager.GetAll())
+        foreach (var modConfig in global::GenericModConfigMenu.Mod.instance.ConfigManager.GetAll())
         {
             foreach (var page in modConfig.Pages.Values)
             {

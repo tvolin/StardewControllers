@@ -13,7 +13,6 @@ namespace RadialMenu;
 public class ModEntry : Mod
 {
     private const string GMCM_MOD_ID = "spacechase0.GenericModConfigMenu";
-    private const string GMCM_OPTIONS_MOD_ID = "jltaylor-us.GMCMOptions";
 
     private readonly PerScreen<RadialMenuController> menuController;
     private readonly PageRegistry pageRegistry = new();
@@ -23,13 +22,10 @@ public class ModEntry : Mod
     // Global state
     private Api api = null!;
     private ModConfig config = null!;
-    private LegacyModConfig legacyConfig = null!;
-    private ConfigMenu? configMenu;
+    private Gmcm.GenericModConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
-    private IGMCMOptionsAPI? gmcmOptionsApi;
     private GenericModConfigKeybindings? gmcmKeybindings;
     private GenericModConfigSync? gmcmSync;
-    private TextureHelper textureHelper = null!;
     private KeybindActivator keybindActivator = null!;
 
     public ModEntry()
@@ -41,10 +37,8 @@ public class ModEntry : Mod
     {
         Logger.Monitor = Monitor;
         config = Helper.ReadConfig<ModConfig>();
-        legacyConfig = new();
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
-        textureHelper = new(Helper.GameContent, Monitor);
         keybindActivator = new(helper.Input);
         ConfigurationViewModel.Saved += ConfigurationViewModel_Saved;
 
@@ -85,9 +79,7 @@ public class ModEntry : Mod
     private void GameLoop_GameLaunched(object? sender, GameLaunchedEventArgs e)
     {
         configMenuApi = Helper.ModRegistry.GetApi<IGenericModMenuConfigApi>(GMCM_MOD_ID);
-        gmcmOptionsApi = Helper.ModRegistry.GetApi<IGMCMOptionsAPI>(GMCM_OPTIONS_MOD_ID);
         LoadGmcmKeybindings();
-        RegisterConfigMenu();
 
         var viewEngine = Helper.ModRegistry.GetApi<IViewEngine>("focustense.StardewUI");
         if (viewEngine is null)
@@ -106,6 +98,8 @@ public class ModEntry : Mod
 #endif
         ViewEngine.Instance = viewEngine;
         ViewEngine.ViewAssetPrefix = $"Mods/{ModManifest.UniqueID}/Views";
+
+        RegisterConfigMenu();
     }
 
     private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
@@ -221,6 +215,11 @@ public class ModEntry : Mod
             sourceRectangle: settingsSprite?.SourceRect,
             activate: (_, _, _) =>
             {
+                if (!ViewEngine.IsInstalled)
+                {
+                    Game1.showRedMessage(I18n.Error_MissingStardewUI());
+                    return ItemActivationResult.Ignored;
+                }
                 ConfigurationMenu.Open(Helper, config);
                 return ItemActivationResult.Custom;
             }
@@ -269,7 +268,7 @@ public class ModEntry : Mod
             GenericModConfigKeybindings.Instance = gmcmKeybindings =
                 GenericModConfigKeybindings.Load();
             Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
-            if (legacyConfig.DumpAvailableKeyBindingsOnStartup)
+            if (config.Debug.EnableGmcmDetailedLogging)
             {
                 foreach (var option in gmcmKeybindings.AllOptions)
                 {
@@ -280,9 +279,9 @@ public class ModEntry : Mod
                     );
                 }
             }
-            gmcmSync = new(() => legacyConfig, gmcmKeybindings, Monitor);
+            gmcmSync = new(() => config, gmcmKeybindings, Monitor);
             gmcmSync.SyncAll();
-            // Helper.WriteConfig(legacyConfig);
+            Helper.WriteConfig(config);
         }
         catch (Exception ex)
             when (ex is InvalidOperationException || ex is TargetInvocationException)
@@ -301,23 +300,11 @@ public class ModEntry : Mod
         {
             return;
         }
-        configMenuApi.Register(mod: ModManifest, reset: ResetConfiguration, save: () => { });
         configMenu = new(
             configMenuApi,
-            gmcmOptionsApi,
-            gmcmKeybindings,
-            gmcmSync,
             ModManifest,
-            Helper.ModContent,
-            textureHelper,
-            Helper.Events.GameLoop,
-            () => legacyConfig
+            onClose => ConfigurationMenu.Open(Helper, config, asRoot: true, onClose: onClose)
         );
         configMenu.Setup();
-    }
-
-    private void ResetConfiguration()
-    {
-        legacyConfig = new();
     }
 }
