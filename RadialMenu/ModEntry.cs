@@ -317,8 +317,17 @@ public class ModEntry : Mod
         }
         Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
         gmcmSync = new(() => config, gmcmBindings, Monitor);
-        gmcmSync.SyncAll();
-        Helper.WriteConfig(config);
+        if (gmcmSync.SyncAll())
+        {
+            Helper.WriteConfig(config);
+        }
+        gmcmBindings.Saved += (_, e) =>
+        {
+            if (gmcmSync.SyncAll(e.Mod))
+            {
+                Helper.WriteConfig(config);
+            }
+        };
     }
 
     private void RegisterConfigMenu()

@@ -10,6 +10,7 @@ public static class Loader
         {
             var data = KeybindData.Load();
             monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
+            HarmonyPatches.Data = data;
             if (enableDetailedLogging)
             {
                 foreach (var option in data.AllOptions)
@@ -23,8 +24,7 @@ public static class Loader
             }
             IGenericModConfigKeybindings.Instance = data;
         }
-        catch (Exception ex)
-            when (ex is InvalidOperationException || ex is TargetInvocationException)
+        catch (Exception ex) when (ex is InvalidOperationException or TargetInvocationException)
         {
             monitor.Log(
                 "Couldn't read global keybindings; the current version of GMCM is not compatible.\n"
@@ -32,5 +32,7 @@ public static class Loader
                 LogLevel.Error
             );
         }
+
+        HarmonyPatches.Initialize(monitor);
     }
 }

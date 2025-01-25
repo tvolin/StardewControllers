@@ -8,11 +8,29 @@ internal class GenericModConfigSync(
     IMonitor monitor
 )
 {
-    public void Sync(ModMenuItemConfiguration item)
+    public bool SyncAll(IManifest? mod = null)
+    {
+        var anyModified = false;
+        var config = getConfig();
+        foreach (var page in config.Items.ModMenuPages)
+        {
+            foreach (var item in page)
+            {
+                if (mod is not null && item.GmcmSync?.ModId != mod.UniqueID)
+                {
+                    continue;
+                }
+                anyModified |= Sync(item, config.Debug.EnableGmcmSyncLogging);
+            }
+        }
+        return anyModified;
+    }
+
+    private bool Sync(ModMenuItemConfiguration item, bool enableLogging = false)
     {
         if (item.GmcmSync is not { } gmcm)
         {
-            return;
+            return false;
         }
         var keybindOption = bindings.Find(gmcm.ModId, gmcm.FieldId, gmcm.FieldName, item.Keybind);
         if (keybindOption is null)
@@ -23,7 +41,7 @@ internal class GenericModConfigSync(
                     + $"field ID {gmcm.FieldId}.",
                 LogLevel.Warn
             );
-            return;
+            return false;
         }
         if (gmcm.EnableNameSync)
         {
@@ -43,18 +61,10 @@ internal class GenericModConfigSync(
         gmcm.FieldId = keybindOption.FieldId;
         gmcm.FieldName = keybindOption.UniqueFieldName;
         item.Keybind = keybindOption.GetCurrentBinding();
-        monitor.Log($"Synced GMCM keybinding for item '{item.Name}'.", LogLevel.Info);
-    }
-
-    public void SyncAll()
-    {
-        var config = getConfig();
-        foreach (var page in config.Items.ModMenuPages)
+        if (enableLogging)
         {
-            foreach (var item in page)
-            {
-                Sync(item);
-            }
+            monitor.Log($"Synced GMCM keybinding for item '{item.Name}'.", LogLevel.Info);
         }
+        return true;
     }
 }

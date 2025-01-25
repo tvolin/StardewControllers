@@ -6,6 +6,8 @@ public interface IGenericModConfigKeybindings
 {
     public static IGenericModConfigKeybindings? Instance { get; set; }
 
+    public event EventHandler<ModEventArgs>? Saved;
+
     IReadOnlyDictionary<string, IManifest> AllMods { get; }
     IReadOnlyList<IGenericModConfigKeybindOption> AllOptions { get; }
 

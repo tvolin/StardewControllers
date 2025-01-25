@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <EnableHarmony>true</EnableHarmony>
         <EnableGameDebugging>false</EnableGameDebugging>
         <EnableModDeploy>False</EnableModDeploy>
         <EnableModZip>False</EnableModZip>

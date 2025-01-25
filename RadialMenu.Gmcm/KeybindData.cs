@@ -5,10 +5,15 @@ namespace RadialMenu.Gmcm;
 
 internal class KeybindData : IGenericModConfigKeybindings
 {
+    public event EventHandler<ModEventArgs>? Saved;
+
+    public IReadOnlyDictionary<string, IManifest> AllMods { get; }
+    public IReadOnlyList<IGenericModConfigKeybindOption> AllOptions { get; }
+
     public static KeybindData Load()
     {
         var allOptions = new List<KeybindOption>();
-        foreach (var modConfig in global::GenericModConfigMenu.Mod.instance.ConfigManager.GetAll())
+        foreach (var modConfig in GenericModConfigMenu.Mod.instance.ConfigManager.GetAll())
         {
             foreach (var page in modConfig.Pages.Values)
             {
@@ -47,11 +52,13 @@ internal class KeybindData : IGenericModConfigKeybindings
         return new(allOptions);
     }
 
-    public IReadOnlyDictionary<string, IManifest> AllMods { get; }
-    public IReadOnlyList<IGenericModConfigKeybindOption> AllOptions { get; }
-
     private readonly Dictionary<(string, string), KeybindOption> optionsByModAndFieldId;
     private readonly ILookup<(string, string), KeybindOption> optionsByModAndFieldName;
+
+    public void NotifySaved(IManifest mod)
+    {
+        Saved?.Invoke(this, new(mod));
+    }
 
     private KeybindData(IReadOnlyList<KeybindOption> allOptions)
     {
