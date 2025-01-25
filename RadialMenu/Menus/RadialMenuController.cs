@@ -43,6 +43,7 @@ internal class RadialMenuController(
     private PendingActivation? delayedItem;
     private TimeSpan elapsedActivationDelay;
     private bool enabled;
+    private float fadeOpacity;
     private int focusedIndex;
     private IRadialMenuItem? focusedItem;
     private float menuOpenTimeMs;
@@ -56,6 +57,11 @@ internal class RadialMenuController(
             return;
         }
         viewport ??= Viewports.DefaultViewport;
+        b.Draw(Game1.fadeToBlackRect, viewport.Value, null, Color.Black * fadeOpacity);
+        // Forcing a new sprite batch appears to be the only way to get the menu, which includes a
+        // BasicEffect, to draw over rather than under the fade.
+        b.End();
+        b.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
         radialMenuPainter.Items = page.Items;
         radialMenuPainter.Scale = menuScale;
         radialMenuPainter.Paint(
@@ -198,6 +204,7 @@ internal class RadialMenuController(
         var progress = MathHelper.Clamp(menuOpenTimeMs / MENU_ANIMATION_DURATION_MS, 0, 1);
         menuScale = progress < 1 ? 1 - MathF.Pow(1 - progress, 3) : 1;
         quickSlotOpacity = progress < 1 ? MathF.Sin(progress * MathF.PI / 2f) : 1;
+        fadeOpacity = quickSlotOpacity * 0.5f;
     }
 
     private float GetSelectionBlend()
@@ -227,6 +234,7 @@ internal class RadialMenuController(
         menuOpenTimeMs = 0;
         menuScale = 0;
         quickSlotOpacity = 0;
+        fadeOpacity = 0;
     }
 
     private bool SuppressIfPressed(SButton button)
