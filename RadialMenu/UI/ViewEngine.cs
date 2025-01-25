@@ -65,11 +65,6 @@ internal static class ViewEngine
         var controller = CreateMenuController(viewName, context);
         if (Game1.activeClickableMenu is TitleMenu)
         {
-            // TODO: Fix two small bugs that may be bugs in StardewUI.
-            //  1. Pressing ESC to dismiss child menu also dismisses root - but dismissing by
-            //     clicking outside the menu area works fine. Seems both menus receive the events.
-            //  2. Tooltip still shows for menu underneath, even though it gets "stuck" on the last
-            //     item to be hovered.
             TitleMenu.subMenu = controller.Menu;
         }
         else
