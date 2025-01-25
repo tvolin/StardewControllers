@@ -4,7 +4,7 @@ using StardewModdingAPI.Utilities;
 
 namespace RadialMenu.UI;
 
-internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bindings)
+internal partial class GmcmSyncSettingsViewModel(IGenericModConfigKeybindings bindings)
 {
     public IReadOnlyList<IManifest> AvailableMods { get; } = bindings.AllMods.Values.ToList();
     public Func<IManifest, string> FormatModName { get; } = manifest => manifest.Name;
@@ -73,7 +73,7 @@ internal partial class GmcmSyncSettingsViewModel(GenericModConfigKeybindings bin
     }
 }
 
-internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption option)
+internal partial class GmcmKeybindOptionViewModel(IGenericModConfigKeybindOption option)
 {
     public Keybind CurrentKeybind => option.GetCurrentBinding();
 
@@ -93,14 +93,14 @@ internal partial class GmcmKeybindOptionViewModel(GenericModConfigKeybindOption 
 
     public IManifest Mod => option.ModManifest;
 
-    public string SimpleName => option.GetFieldName();
+    public string SimpleName => option.FieldName;
 
     public string UniqueFieldName => option.UniqueFieldName;
 
     [Notify]
     private bool selected;
 
-    private readonly GenericModConfigKeybindOption option = option;
+    private readonly IGenericModConfigKeybindOption option = option;
 
     public bool IsSameOptionAs(GmcmKeybindOptionViewModel other)
     {

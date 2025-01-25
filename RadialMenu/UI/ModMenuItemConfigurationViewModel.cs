@@ -112,7 +112,10 @@ internal partial class ModMenuItemConfigurationViewModel
         IconType.SelectedValue = !string.IsNullOrWhiteSpace(config.Icon.ItemId)
             ? ItemIconType.Item
             : ItemIconType.Custom;
-        if (config.GmcmSync is { } gmcm && GenericModConfigKeybindings.Instance is { } gmcmBindings)
+        if (
+            config.GmcmSync is { } gmcm
+            && IGenericModConfigKeybindings.Instance is { } gmcmBindings
+        )
         {
             SyncType.SelectedValue = ItemSyncType.Gmcm;
             GmcmSync = new(gmcmBindings)
@@ -281,10 +284,10 @@ internal partial class ModMenuItemConfigurationViewModel
     {
         if (
             SyncType.SelectedValue == ItemSyncType.Gmcm
-            && GenericModConfigKeybindings.Instance is not null
+            && IGenericModConfigKeybindings.Instance is { } gmcmKeybindings
         )
         {
-            GmcmSync ??= new(GenericModConfigKeybindings.Instance);
+            GmcmSync ??= new(gmcmKeybindings);
             GmcmSync.PropertyChanged += GmcmSync_PropertyChanged;
         }
         OnPropertyChanged(new(nameof(IsGmcmSyncVisible)));

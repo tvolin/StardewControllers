@@ -24,7 +24,6 @@ public class ModEntry : Mod
     private ModConfig config = null!;
     private Gmcm.GenericModConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
-    private GenericModConfigKeybindings? gmcmKeybindings;
     private GenericModConfigSync? gmcmSync;
     private KeybindActivator keybindActivator = null!;
 
@@ -254,6 +253,9 @@ public class ModEntry : Mod
 
     private void LoadGmcmKeybindings()
     {
+        const string LOADER_METHOD = "Load";
+        const string LOADER_TYPE = "RadialMenu.Gmcm.Loader";
+
         if (configMenuApi is null)
         {
             Monitor.Log(
@@ -265,33 +267,58 @@ public class ModEntry : Mod
         Monitor.Log("Generic Mod Config Menu is loaded; reading keybindings.", LogLevel.Info);
         try
         {
-            GenericModConfigKeybindings.Instance = gmcmKeybindings =
-                GenericModConfigKeybindings.Load();
-            Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
-            if (config.Debug.EnableGmcmDetailedLogging)
+            var gmcmExtensionPath = Path.Combine(
+                Helper.DirectoryPath,
+                "assets",
+                "extensions",
+                "RadialMenu.Gmcm.dll"
+            );
+            var gmcmExtensionAssembly = Assembly.LoadFile(gmcmExtensionPath);
+            var loaderType = gmcmExtensionAssembly.GetType("RadialMenu.Gmcm.Loader");
+            if (loaderType is null)
             {
-                foreach (var option in gmcmKeybindings.AllOptions)
-                {
-                    Monitor.Log(
-                        "Found keybind option: "
-                            + $"[{option.ModManifest.UniqueID}] - {option.UniqueFieldName}",
-                        LogLevel.Info
-                    );
-                }
+                Monitor.Log(
+                    $"Failed to initialize GMCM extension: Type {LOADER_TYPE} was not found.",
+                    LogLevel.Error
+                );
+                return;
             }
-            gmcmSync = new(() => config, gmcmKeybindings, Monitor);
-            gmcmSync.SyncAll();
-            Helper.WriteConfig(config);
+            var loadMethod = loaderType.GetMethod(
+                LOADER_METHOD,
+                BindingFlags.Static | BindingFlags.Public
+            );
+            if (loadMethod is null)
+            {
+                Monitor.Log(
+                    $"Failed to initialize GMCM extension: Method {LOADER_METHOD} was not "
+                        + $"found on type {LOADER_TYPE}.",
+                    LogLevel.Error
+                );
+                return;
+            }
+            loadMethod.Invoke(null, [Monitor, config.Debug.EnableGmcmDetailedLogging]);
         }
         catch (Exception ex)
-            when (ex is InvalidOperationException || ex is TargetInvocationException)
         {
             Monitor.Log(
-                $"Couldn't read global keybindings; the current version of {GMCM_MOD_ID} is "
-                    + $"not compatible.\n{ex.GetType().FullName}: {ex.Message}\n{ex.StackTrace}",
+                "Error loading GMCM extension; keybindings will not be synced.\n" + ex,
                 LogLevel.Error
             );
+            return;
         }
+        if (IGenericModConfigKeybindings.Instance is not { } gmcmBindings)
+        {
+            Monitor.Log(
+                "Failed to load keybindings from installed version of GMCM. "
+                    + "Check previous log messages for details.",
+                LogLevel.Error
+            );
+            return;
+        }
+        Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
+        gmcmSync = new(() => config, gmcmBindings, Monitor);
+        gmcmSync.SyncAll();
+        Helper.WriteConfig(config);
     }
 
     private void RegisterConfigMenu()

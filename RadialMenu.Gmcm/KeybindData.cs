@@ -1,55 +1,13 @@
-﻿using System.Text;
-using GenericModConfigMenu.Framework.ModOption;
-using StardewModdingAPI;
+﻿using GenericModConfigMenu.Framework.ModOption;
 using StardewModdingAPI.Utilities;
 
 namespace RadialMenu.Gmcm;
 
-internal record GenericModConfigKeybindOption(
-    IManifest ModManifest,
-    string FieldId,
-    Func<string> GetPageTitle,
-    Func<string> GetSectionTitle,
-    Func<string> GetFieldName,
-    Func<string> GetTooltip,
-    Func<Keybind> GetCurrentBinding
-)
+internal class KeybindData : IGenericModConfigKeybindings
 {
-    // Used for GMCM; not displayed in UI.
-    public string UniqueDisplayName => $"{ModManifest.Name}: {UniqueFieldName}";
-
-    public string UniqueFieldName
+    public static KeybindData Load()
     {
-        get
-        {
-            var sb = new StringBuilder();
-            var pageTitle = GetPageTitle();
-            if (!string.IsNullOrWhiteSpace(pageTitle))
-            {
-                sb.Append(pageTitle).Append(" > ");
-            }
-            var sectionTitle = GetSectionTitle();
-            if (!string.IsNullOrWhiteSpace(sectionTitle))
-            {
-                sb.Append(sectionTitle).Append(" > ");
-            }
-            return sb.Append(GetFieldName()).ToString();
-        }
-    }
-
-    public bool MatchesBinding(Keybind? otherBinding)
-    {
-        return GetCurrentBinding().Equals(otherBinding);
-    }
-}
-
-internal class GenericModConfigKeybindings
-{
-    public static GenericModConfigKeybindings? Instance { get; set; }
-
-    public static GenericModConfigKeybindings Load()
-    {
-        var allOptions = new List<GenericModConfigKeybindOption>();
+        var allOptions = new List<KeybindOption>();
         foreach (var modConfig in global::GenericModConfigMenu.Mod.instance.ConfigManager.GetAll())
         {
             foreach (var page in modConfig.Pages.Values)
@@ -90,18 +48,12 @@ internal class GenericModConfigKeybindings
     }
 
     public IReadOnlyDictionary<string, IManifest> AllMods { get; }
-    public IReadOnlyList<GenericModConfigKeybindOption> AllOptions { get; }
+    public IReadOnlyList<IGenericModConfigKeybindOption> AllOptions { get; }
 
-    private readonly Dictionary<
-        (string, string),
-        GenericModConfigKeybindOption
-    > optionsByModAndFieldId;
-    private readonly ILookup<
-        (string, string),
-        GenericModConfigKeybindOption
-    > optionsByModAndFieldName;
+    private readonly Dictionary<(string, string), KeybindOption> optionsByModAndFieldId;
+    private readonly ILookup<(string, string), KeybindOption> optionsByModAndFieldName;
 
-    private GenericModConfigKeybindings(IReadOnlyList<GenericModConfigKeybindOption> allOptions)
+    private KeybindData(IReadOnlyList<KeybindOption> allOptions)
     {
         AllOptions = allOptions;
         AllMods = allOptions
@@ -117,7 +69,7 @@ internal class GenericModConfigKeybindings
         );
     }
 
-    public GenericModConfigKeybindOption? Find(
+    public IGenericModConfigKeybindOption? Find(
         string modId,
         string fieldId,
         string fieldName = "",
@@ -125,7 +77,7 @@ internal class GenericModConfigKeybindings
     )
     {
         var nameMatches = optionsByModAndFieldName[(modId, fieldName)];
-        GenericModConfigKeybindOption? bestNameMatch = null;
+        KeybindOption? bestNameMatch = null;
         if (!string.IsNullOrEmpty(fieldName))
         {
             foreach (var nameMatch in nameMatches)

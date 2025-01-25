@@ -1,4 +1,5 @@
 {
+  "$schema": "https://smapi.io/schemas/manifest.json",
   "Name": "Radial Menu",
   "Author": "focustense",
   "Version": "0.2.2",
@@ -8,9 +9,14 @@
   "Dependencies": [
     {
       "UniqueID": "spacechase0.GenericModConfigMenu",
-      "IsRequired": true
+      "IsRequired": false
+    },
+    {
+      "UniqueID": "focustense.StardewUI",
+      "IsRequired": false
     }
   ],
-  "MinimumApiVersion": "4.1.3",
+  "MinimumApiVersion": "4.1.10",
+  "MinimumGameVersion": "1.6.15",
   "UpdateKeys": [ "Nexus:25257", "GitHub:focustense/StardewRadialMenu" ]
 }

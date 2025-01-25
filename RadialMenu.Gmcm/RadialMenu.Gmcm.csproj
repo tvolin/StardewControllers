@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>RadialMenu.Gmcm</AssemblyName>
+        <RootNamespace>RadialMenu.Gmcm</RootNamespace>
+        <Version>1.0.2</Version>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>Latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <EnableGameDebugging>false</EnableGameDebugging>
+        <EnableModDeploy>False</EnableModDeploy>
+        <EnableModZip>False</EnableModZip>
+        <BundleExtraAssemblies>All</BundleExtraAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CSharpier.MsBuild" Version="0.30.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Publicize Include="GenericModConfigMenu" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="GenericModConfigMenu">
+            <HintPath>..\ReferenceLibs\GenericModConfigMenu.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="StardewModdingAPI" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RadialMenu\RadialMenu.csproj" />
+    </ItemGroup>
+
+    <Target Name="Deploy" AfterTargets="Build">
+        <Copy SourceFiles="$(OutDir)RadialMenu.Gmcm.dll"
+              DestinationFolder="$(SolutionDir)RadialMenu\assets\extensions"
+              ContinueOnError="false" />
+    </Target>
+
+</Project>

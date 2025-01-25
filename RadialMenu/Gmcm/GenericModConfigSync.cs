@@ -4,7 +4,7 @@ namespace RadialMenu.Gmcm;
 
 internal class GenericModConfigSync(
     Func<ModConfig> getConfig,
-    GenericModConfigKeybindings bindings,
+    IGenericModConfigKeybindings bindings,
     IMonitor monitor
 )
 {
@@ -36,11 +36,9 @@ internal class GenericModConfigSync(
             // better idea to combine both the field name and tooltip into the description, instead
             // of making the field name part of the title as it might be shown in the GMCM select
             // box.
-            var fieldName = keybindOption.GetFieldName();
-            var tooltip = keybindOption.GetTooltip();
-            item.Description = !string.IsNullOrWhiteSpace(tooltip)
-                ? $"{fieldName} - {tooltip}"
-                : fieldName;
+            item.Description = !string.IsNullOrWhiteSpace(keybindOption.Tooltip)
+                ? $"{keybindOption.FieldName} - {keybindOption.Tooltip}"
+                : keybindOption.FieldName;
         }
         gmcm.FieldId = keybindOption.FieldId;
         gmcm.FieldName = keybindOption.UniqueFieldName;
