@@ -1,16 +1,20 @@
-using System.Reflection;
 using GenericModConfigMenu.Framework;
 using HarmonyLib;
+using StardewValley;
+using StardewValley.Menus;
+using Mod = GenericModConfigMenu.Mod;
 
 namespace RadialMenu.Gmcm;
 
 internal static class HarmonyPatches
 {
-    public static KeybindData? Data { get; set; }
+    internal static KeybindData? Data { get; set; }
+    internal static IManifest? ModManifest { get; set; }
+    internal static Action<Action>? OpenRealConfigMenu { get; set; }
 
     public static void Initialize(IMonitor monitor)
     {
-        var harmony = new Harmony("focustense.RadialMenu.Gmcm");
+        var harmony = new Harmony("focustense.StarControl.Gmcm");
         TryPatch(
             harmony,
             typeof(SpecificModConfigMenu),
@@ -18,6 +22,56 @@ internal static class HarmonyPatches
             postfix: new(typeof(HarmonyPatches), nameof(SpecificModConfigMenu_SaveConfig_Postfix)),
             monitor: monitor
         );
+        if (OpenRealConfigMenu is not null)
+        {
+            var openModMenuPrefix = new HarmonyMethod(
+                typeof(HarmonyPatches),
+                nameof(OpenModMenu_Prefix)
+            );
+            TryPatch(
+                harmony,
+                typeof(Mod),
+                nameof(Mod.OpenModMenu),
+                prefix: openModMenuPrefix,
+                monitor: monitor
+            );
+            TryPatch(
+                harmony,
+                typeof(Mod),
+                nameof(Mod.OpenModMenuNew),
+                prefix: openModMenuPrefix,
+                monitor: monitor
+            );
+        }
+        else
+        {
+            monitor.Log(
+                "Unable to set up direct config menu integration because the Star Control "
+                    + "configuration callback has not been set up.",
+                LogLevel.Error
+            );
+        }
+    }
+
+    private static bool OpenModMenu_Prefix(Mod __instance, IManifest mod, int? listScrollRow)
+    {
+        if (mod != ModManifest)
+        {
+            return true;
+        }
+        if (Game1.activeClickableMenu is TitleMenu titleMenu)
+        {
+            // GMCM hacks this to be false, so we hack it back to be true. Otherwise the fake cursor
+            // movement will fight with the real gamepad controls supported by Stardew UI.
+            titleMenu.titleInPosition = true;
+        }
+        OpenRealConfigMenu!.Invoke(() => __instance.OpenListMenu(listScrollRow));
+        return false;
+    }
+
+    private static void SpecificModConfigMenu_SaveConfig_Postfix(SpecificModConfigMenu __instance)
+    {
+        Data?.NotifySaved(__instance.Manifest);
     }
 
     private static void TryPatch(
@@ -50,10 +104,5 @@ internal static class HarmonyPatches
         return;
 
         string MethodName() => targetType.FullName + targetMethodName;
-    }
-
-    private static void SpecificModConfigMenu_SaveConfig_Postfix(SpecificModConfigMenu __instance)
-    {
-        Data?.NotifySaved(__instance.Manifest);
     }
 }

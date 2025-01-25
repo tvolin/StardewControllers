@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Microsoft.Xna.Framework.Graphics;
 using PropertyChanged.SourceGenerator;
 using RadialMenu.Config;
 
@@ -114,7 +115,9 @@ internal partial class ConfigurationViewModel : IDisposable
 
     public void ShowCloseConfirmation()
     {
-        var portrait = Game1.getCharacterFromName("Krobus").Portrait;
+        var portrait =
+            Game1.getCharacterFromName("Krobus")?.Portrait
+            ?? Game1.content.Load<Texture2D>("Portraits\\Krobus");
         var context = new ConfirmationViewModel()
         {
             DialogTitle = I18n.Confirmation_Config_Title(),

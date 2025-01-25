@@ -4,8 +4,15 @@ namespace RadialMenu.Gmcm;
 
 public static class Loader
 {
-    public static void Load(IMonitor monitor, bool enableDetailedLogging)
+    public static void Load(
+        IManifest modManifest,
+        Action<Action> openRealConfigMenu,
+        IMonitor monitor,
+        bool enableDetailedLogging
+    )
     {
+        HarmonyPatches.ModManifest = modManifest;
+        HarmonyPatches.OpenRealConfigMenu = openRealConfigMenu;
         try
         {
             var data = KeybindData.Load();

@@ -143,7 +143,7 @@ public class ModEntry : Mod
             && ViewEngine.Instance is not null
         )
         {
-            ConfigurationMenu.Open(Helper, config);
+            OpenConfigMenu();
         }
     }
 
@@ -219,7 +219,7 @@ public class ModEntry : Mod
                     Game1.showRedMessage(I18n.Error_MissingStardewUI());
                     return ItemActivationResult.Ignored;
                 }
-                ConfigurationMenu.Open(Helper, config);
+                OpenConfigMenu();
                 return ItemActivationResult.Custom;
             }
         );
@@ -296,7 +296,12 @@ public class ModEntry : Mod
                 );
                 return;
             }
-            loadMethod.Invoke(null, [Monitor, config.Debug.EnableGmcmDetailedLogging]);
+            Action<Action> openRealConfigMenu = onClose =>
+                OpenConfigMenu(asRoot: true, onClose: onClose);
+            loadMethod.Invoke(
+                null,
+                [ModManifest, openRealConfigMenu, Monitor, config.Debug.EnableGmcmDetailedLogging]
+            );
         }
         catch (Exception ex)
         {
@@ -330,6 +335,11 @@ public class ModEntry : Mod
         };
     }
 
+    private void OpenConfigMenu(bool asRoot = false, Action? onClose = null)
+    {
+        ConfigurationMenu.Open(Helper, config, asRoot: asRoot, onClose: onClose);
+    }
+
     private void RegisterConfigMenu()
     {
         if (configMenuApi is null)
@@ -339,7 +349,7 @@ public class ModEntry : Mod
         configMenu = new(
             configMenuApi,
             ModManifest,
-            onClose => ConfigurationMenu.Open(Helper, config, asRoot: true, onClose: onClose)
+            onClose => OpenConfigMenu(asRoot: true, onClose: onClose)
         );
         configMenu.Setup();
     }
