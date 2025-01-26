@@ -1,7 +1,8 @@
 <lane *context={:~ConfigurationViewModel.Mods} layout="stretch content" orientation="vertical" clip-size="stretch">
     <form-heading title={#Config.ModPriorities.Heading} />
-    <label margin="0, 0, 0, 16" color="#666" text={#Config.ModPriorities.Help} />
+    <label margin="16, 0, 8, 16" color="#666" text={#Config.ModPriorities.Help} />
     <lane layout="stretch content"
+          margin="16, 0"
           orientation="vertical"
           button-press=|HandleListButton($Button)|>
         <frame *repeat={Priorities}
