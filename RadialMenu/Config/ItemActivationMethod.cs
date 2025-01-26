@@ -6,13 +6,9 @@
 public enum ItemActivationMethod
 {
     /// <summary>
-    /// Activate by pressing the action button (typically the "A" button).
+    /// Activate by pressing the assigned button/keybind.
     /// </summary>
-    /// <remarks>
-    /// Most often used in combination with <see cref="ThumbStickPreference.AlwaysLeft"/>, since
-    /// pressing the action button while using the right thumbstick is awkward.
-    /// </remarks>
-    ActionButtonPress,
+    Keybind,
 
     /// <summary>
     /// Activate by pressing the same thumbstick that is being used for selection.

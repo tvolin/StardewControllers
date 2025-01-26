@@ -31,9 +31,21 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
     public SButton PrimaryActionButton { get; set; } = SButton.ControllerA;
 
     /// <summary>
+    /// Alternate method to invoke an item's primary action in place of the
+    /// <see cref="PrimaryActionButton"/>.
+    /// </summary>
+    public ItemActivationMethod PrimaryActivationMethod { get; set; }
+
+    /// <summary>
     /// Button to perform the secondary action on the selected menu item (typically "select").
     /// </summary>
     public SButton SecondaryActionButton { get; set; } = SButton.ControllerX;
+
+    /// <summary>
+    /// Alternate method to invoke an item's secondary action in place of the
+    /// <see cref="SecondaryActionButton"/>.
+    /// </summary>
+    public ItemActivationMethod SecondaryActivationMethod { get; set; }
 
     /// <summary>
     /// Selects which thumbstick is used to navigate the wheel after opening.
@@ -55,7 +67,7 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
     /// Only affects <see cref="MenuToggleMode.Hold"/>, since <see cref="MenuToggleMode.Toggle"/>
     /// already watches for press-release transitions.
     /// </remarks>
-    public bool ReopenOnHold { get; set; } = true;
+    public bool ReopenOnHold { get; set; }
 
     /// <summary>
     /// Specifies which actions chosen from the inventory/mod wheels should be delayed (blink)
@@ -129,7 +141,9 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
             && PreviousPageButton == other.PreviousPageButton
             && NextPageButton == other.NextPageButton
             && PrimaryActionButton == other.PrimaryActionButton
+            && PrimaryActivationMethod == other.PrimaryActivationMethod
             && SecondaryActionButton == other.SecondaryActionButton
+            && SecondaryActivationMethod == other.SecondaryActivationMethod
             && ThumbStickPreference == other.ThumbStickPreference
             && ToggleMode == other.ToggleMode
             && ReopenOnHold == other.ReopenOnHold

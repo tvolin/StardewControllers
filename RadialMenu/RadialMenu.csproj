@@ -62,6 +62,10 @@
     <Content Include="assets\ui\views\Confirmation.sml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="assets\ui\views\ControlsAdvanced.sml" />
+    <Content Include="assets\ui\views\ControlsAdvanced.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

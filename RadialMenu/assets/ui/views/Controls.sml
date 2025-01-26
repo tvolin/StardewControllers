@@ -25,24 +25,25 @@
                         button={<>SecondaryActionButton} />
     </form-row-container>
     <form-heading title={#Config.Selection.Heading} />
+    <form-row title={#Config.Keybind.PrimaryActivation.Title}
+              description={#Config.Keybind.PrimaryActivation.Description}>
+        <enum-segments *context={:PrimaryActivationMethod} />
+    </form-row>
+    <form-row title={#Config.Keybind.SecondaryActivation.Title} description={#Config.Keybind.SecondaryActivation.Description}>
+        <enum-segments *context={:SecondaryActivationMethod} />
+    </form-row>
     <form-row title={#Config.Selection.ToggleMode.Title} description={#Config.Selection.ToggleMode.Description}>
         <enum-segments *context={:ToggleMode} />
-    </form-row>
-    <form-row title={#Config.Selection.ReopenOnHold.Title} description={#Config.Selection.ReopenOnHold.Description}>
-        <checkbox margin="0, 4"
-                  is-checked={<>ReopenOnHold}
-                  +state:disabled={ReopenOnHoldDisabled}
-                  +state:disabled:opacity="0.6"
-                  +state:disabled:pointer-events-enabled="false"
-                  +transition:opacity="120ms EaseOutSine" />
     </form-row>
     <form-row title={#Config.Keybind.Navigation.Title} description={#Config.Keybind.Navigation.Description}>
         <enum-segments *context={:ThumbStickPreference} />
     </form-row>
-    <form-row title={#Config.Selection.DelayedActions.Title} description={#Config.Selection.DelayedActions.Description}>
+    <form-row title={#Config.Selection.DelayedActions.Title}
+              description={#Config.Selection.DelayedActions.Description}>
         <enum-segments *context={:DelayedActions} />
     </form-row>
-    <form-row title={#Config.Selection.ActivationDelay.Title} description={#Config.Selection.ActivationDelay.Description}>
+    <form-row title={#Config.Selection.ActivationDelay.Title}
+              description={#Config.Selection.ActivationDelay.Description}>
         <slider track-width="300"
                 min="0"
                 max="1000"
@@ -53,23 +54,14 @@
     <form-row title={#Config.Selection.Remember.Title} description={#Config.Selection.Remember.Description}>
         <checkbox is-checked={<>RememberSelection} />
     </form-row>
-    <form-heading title={#Config.Sensitivity.Heading} />
-    <form-row title={#Config.Sensitivity.TriggerDeadZone.Title} description={#Config.Sensitivity.TriggerDeadZone.Description}>
-        <slider track-width="300"
-                min="0"
-                max="1"
-                interval="0.01"
-                value={<>TriggerDeadZone}
-                value-format={:FormatDeadZone} />
-    </form-row>
-    <form-row title={#Config.Sensitivity.ThumbstickDeadZone.Title} description={#Config.Sensitivity.ThumbstickDeadZone.Description}>
-        <slider track-width="300"
-                min="0"
-                max="1"
-                interval="0.01"
-                value={<>ThumbstickDeadZone}
-                value-format={:FormatDeadZone} />
-    </form-row>
+    <button margin="12, 24, 0, 0"
+            text={#Config.Controls.Advanced.Title}
+            tooltip={#Config.Controls.Advanced.Description}
+            transform-origin="0.5, 0.5"
+            +hover:transform="scale: 1.1"
+            +transition:transform="150ms EaseOutQuint"
+            pointer-enter=|OnAdvancedButtonHover()|
+            left-click=|OpenAdvanced()| />
 </lane>
 
 <template name="form-heading">
