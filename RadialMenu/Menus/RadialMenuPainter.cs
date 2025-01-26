@@ -81,7 +81,12 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             previousTargets = graphicsDevice.GetRenderTargets();
             graphicsDevice.SetRenderTarget(RenderTarget);
             graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            spriteBatch.Begin(
+                SpriteSortMode.Deferred,
+                BlendState.AlphaBlend,
+                rasterizerState: new() { MultiSampleAntiAlias = false },
+                samplerState: SamplerState.PointClamp
+            );
         }
         try
         {
@@ -209,7 +214,10 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 // From StardewValley:Object.cs
                 Rectangle qualitySourceRect =
                     quality < 4 ? new(338 + (quality - 1) * 8, 400, 8, 8) : new(346, 392, 8, 8);
-                var qualityIconPos = new Vector2(destinationRect.Left, destinationRect.Bottom - 16);
+                var qualityIconPos = new Vector2(
+                    destinationRect.Left,
+                    destinationRect.Bottom - 16 * Scale
+                );
                 spriteBatch.Draw(
                     Game1.mouseCursors,
                     qualityIconPos,
@@ -228,7 +236,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 var stackTextWidth = Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
                 var stackLabelPos = new Vector2(
                     destinationRect.Right - stackTextWidth,
-                    destinationRect.Bottom - 8
+                    destinationRect.Bottom - 8 * Scale
                 );
                 Utility.drawTinyDigits(
                     stackSize,
