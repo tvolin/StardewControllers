@@ -44,6 +44,9 @@ internal partial class InputConfigurationViewModel
     private bool rememberSelection;
 
     [Notify]
+    private bool suppressRightStickChatBox;
+
+    [Notify]
     private float triggerDeadZone;
 
     [Notify]
@@ -79,6 +82,7 @@ internal partial class InputConfigurationViewModel
         DelayedActions.SelectedValue = config.DelayedActions;
         ActivationDelayMs = config.ActivationDelayMs;
         RememberSelection = config.RememberSelection;
+        SuppressRightStickChatBox = config.SuppressRightStickChatBox;
         TriggerDeadZone = config.TriggerDeadZone;
         ThumbstickDeadZone = config.ThumbstickDeadZone;
     }
@@ -109,6 +113,7 @@ internal partial class InputConfigurationViewModel
         config.DelayedActions = DelayedActions.SelectedValue;
         config.ActivationDelayMs = ActivationDelayMs;
         config.RememberSelection = RememberSelection;
+        config.SuppressRightStickChatBox = SuppressRightStickChatBox;
         config.TriggerDeadZone = TriggerDeadZone;
         config.ThumbstickDeadZone = ThumbstickDeadZone;
     }

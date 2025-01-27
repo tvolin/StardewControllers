@@ -1,14 +1,17 @@
 <frame padding="24, 24, 32, 32"
        background={@Mods/StardewUI/Sprites/ControlBorder}>
     <lane orientation="vertical">
-        <form-heading title={#Config.Menus.Heading} />
-        <form-row title={#Config.Menus.ReopenOnHold.Title} description={#Config.Menus.ReopenOnHold.Description}>
-            <checkbox margin="0, 4"
-                      is-checked={<>ReopenOnHold}
-                      +state:disabled={ReopenOnHoldDisabled}
-                      +state:disabled:opacity="0.6"
-                      +state:disabled:pointer-events-enabled="false"
-                      +transition:opacity="120ms EaseOutSine" />
+        <lane *!if={ReopenOnHoldDisabled} orientation="vertical">
+            <form-heading title={#Config.Menus.Heading} />
+            <form-row title={#Config.Menus.ReopenOnHold.Title} description={#Config.Menus.ReopenOnHold.Description}>
+                <checkbox margin="0, 4" is-checked={<>ReopenOnHold} />
+            </form-row>
+        </lane>
+        
+        <form-heading title={#Config.Patches.Heading} />
+        <form-row title={#Config.Patches.SuppressRightStickChatBox.Title}
+                  description={#Config.Patches.SuppressRightStickChatBox.Description}>
+            <checkbox margin="0, 4" is-checked={<>SuppressRightStickChatBox} />
         </form-row>
 
         <form-heading title={#Config.Sensitivity.Heading} />

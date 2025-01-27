@@ -4,6 +4,7 @@ using RadialMenu.Gmcm;
 using RadialMenu.Graphics;
 using RadialMenu.Input;
 using RadialMenu.Menus;
+using RadialMenu.Patches;
 using RadialMenu.UI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -50,6 +51,9 @@ public class ModEntry : Mod
         helper.Events.GameLoop.UpdateTicked += GameLoop_UpdateTicked;
         helper.Events.Input.ButtonsChanged += Input_ButtonsChanged;
         helper.Events.Display.RenderedHud += Display_RenderedHud;
+
+        Patcher.PatchAll(ModManifest);
+        GamePatches.SuppressRightStickChatBox = config.Input.SuppressRightStickChatBox;
     }
 
     public override object? GetApi()
@@ -63,6 +67,7 @@ public class ModEntry : Mod
         {
             menuController.Value.Invalidate();
         }
+        GamePatches.SuppressRightStickChatBox = config.Input.SuppressRightStickChatBox;
     }
 
     [EventPriority(EventPriority.Low)]

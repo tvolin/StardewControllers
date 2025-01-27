@@ -125,6 +125,17 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
     /// </remarks>
     public float ThumbstickDeadZone { get; set; } = 0.2f;
 
+    /// <summary>
+    /// Whether to suppress the game's default behavior of opening the chat box when the right
+    /// stick is pressed.
+    /// </summary>
+    /// <remarks>
+    /// This does not perform a blanket suppression and will not interfere with the emote menu or
+    /// other right-stick functions; it exclusively blocks only the chat box, and only when it is
+    /// activated using the right stick, i.e. not when using the keyboard bindings.
+    /// </remarks>
+    public bool SuppressRightStickChatBox { get; set; }
+
     /// <inheritdoc />
     public bool Equals(InputConfiguration? other)
     {

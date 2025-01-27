@@ -96,10 +96,11 @@ internal static class HarmonyPatches
                 );
             }
             harmony.Patch(method, prefix, postfix, transpiler, finalizer);
+            monitor?.Log($"Patched {MethodName()}.", LogLevel.Info);
         }
         catch (Exception ex)
         {
-            monitor?.Log($"Failed to patch method {MethodName()}: {ex}");
+            monitor?.Log($"Failed to patch {MethodName()}: {ex}", LogLevel.Error);
         }
         return;
 
