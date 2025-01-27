@@ -18,7 +18,6 @@ internal static class GamePatches
         nameof(IsRightStickDownOrSuppressed)
     );
 
-    [HarmonyDebug]
     public static IEnumerable<CodeInstruction> UpdateChatBox_Transpiler(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator gen,
