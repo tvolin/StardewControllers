@@ -152,11 +152,17 @@ internal class RadialMenuController(
         {
             return;
         }
-        if (SuppressIfPressed(config.Input.PrimaryActionButton))
+        if (
+            SuppressIfPressed(config.Input.PrimaryActionButton)
+            || CheckStickActivation(secondaryAction: false)
+        )
         {
             ActivateItem(focusedItem, secondaryAction: false);
         }
-        else if (SuppressIfPressed(config.Input.SecondaryActionButton))
+        else if (
+            SuppressIfPressed(config.Input.SecondaryActionButton)
+            || CheckStickActivation(secondaryAction: true)
+        )
         {
             ActivateItem(focusedItem, secondaryAction: true);
         }
@@ -205,6 +211,28 @@ internal class RadialMenuController(
         menuScale = progress < 1 ? 1 - MathF.Pow(1 - progress, 3) : 1;
         quickSlotOpacity = progress < 1 ? MathF.Sin(progress * MathF.PI / 2f) : 1;
         fadeOpacity = quickSlotOpacity * 0.5f;
+    }
+
+    private bool CheckStickActivation(bool secondaryAction)
+    {
+        if (activeMenu is null)
+        {
+            return false;
+        }
+        var activationMethod = secondaryAction
+            ? config.Input.SecondaryActivationMethod
+            : config.Input.PrimaryActivationMethod;
+        if (activationMethod != ItemActivationMethod.ThumbStickPress)
+        {
+            return false;
+        }
+        var stickButton = config.Input.ThumbStickPreference switch
+        {
+            ThumbStickPreference.AlwaysLeft => SButton.LeftStick,
+            ThumbStickPreference.AlwaysRight => SButton.RightStick,
+            _ => activeMenu.Toggle.IsRightSided() ? SButton.RightStick : SButton.LeftStick,
+        };
+        return SuppressIfPressed(stickButton);
     }
 
     private float GetSelectionBlend()
@@ -322,7 +350,24 @@ internal class RadialMenuController(
         activeMenu.Toggle.Update(allowOn: false);
         if (activeMenu.Toggle.State != MenuToggleState.On)
         {
-            Reset();
+            if (
+                config.Input.PrimaryActivationMethod == ItemActivationMethod.TriggerRelease
+                && focusedItem is not null
+            )
+            {
+                ActivateItem(focusedItem, secondaryAction: false);
+            }
+            else if (
+                config.Input.SecondaryActivationMethod == ItemActivationMethod.TriggerRelease
+                && focusedItem is not null
+            )
+            {
+                ActivateItem(focusedItem, secondaryAction: true);
+            }
+            else
+            {
+                Reset();
+            }
             return;
         }
 
