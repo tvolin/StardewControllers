@@ -18,6 +18,8 @@ internal partial class ConfigurationViewModel : IDisposable
     public ModIntegrationsViewModel Mods { get; }
     public PagerViewModel<NavPageViewModel> Pager { get; } = new();
     public RadialMenuPreview Preview { get; }
+
+    public SoundSettingsViewModel Sound { get; } = new();
     public StyleConfigurationViewModel Style { get; } = new();
 
     [Notify]
@@ -52,6 +54,7 @@ internal partial class ConfigurationViewModel : IDisposable
             ),
             new(NavPage.Style, I18n.Config_Tab_Style_Title(), $"Mods/{modId}/Views/Style"),
             new(NavPage.Actions, I18n.Config_Tab_Actions_Title(), $"Mods/{modId}/Views/Actions"),
+            new(NavPage.Sound, I18n.Config_Tab_Sound_Title(), $"Mods/{modId}/Views/Sound"),
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), $"Mods/{modId}/Views/ModIntegrations"),
             new(NavPage.Debug, I18n.Config_Tab_Debug_Title(), $"Mods/{modId}/Views/Debug"),
         ];
@@ -206,6 +209,7 @@ internal partial class ConfigurationViewModel : IDisposable
         Input.Load(config.Input);
         Style.Load(config.Style);
         Items.Load(config.Items);
+        Sound.Load(config.Sound);
         Mods.Load(config.Integrations);
         Debug.Load(config.Debug);
     }
@@ -231,6 +235,7 @@ internal partial class ConfigurationViewModel : IDisposable
         Input.Save(config.Input);
         Style.Save(config.Style);
         Items.Save(config.Items);
+        Sound.Save(config.Sound);
         Mods.Save(config.Integrations);
         Debug.Save(config.Debug);
     }
@@ -241,6 +246,7 @@ internal enum NavPage
     Controls,
     Style,
     Actions,
+    Sound,
     Mods,
     Debug,
 }

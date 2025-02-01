@@ -102,6 +102,7 @@
         <nav-image *case="Controls" icon={@Mods/focustense.RadialMenu/Sprites/UI:Gamepad} />
         <nav-image *case="Style" icon={@Mods/focustense.RadialMenu/Sprites/UI:Paintbrush} />
         <nav-image *case="Actions" icon={@Mods/focustense.RadialMenu/Sprites/UI:Backpack} />
+        <nav-image *case="Sound" icon={@Mods/focustense.RadialMenu/Sprites/UI:Music} />
         <nav-image *case="Mods" icon={@Mods/focustense.RadialMenu/Sprites/UI:Plug} />
         <nav-image *case="Debug" icon={@Mods/focustense.RadialMenu/Sprites/UI:BugNet} />
         <label margin="0, 8, 0, 0"

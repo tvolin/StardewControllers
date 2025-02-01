@@ -85,6 +85,17 @@
     },
     "MouseButtonRight": {
       "SourceRect": "48, 48, 16, 16"
+    },
+    "Music": {
+      "SourceRect": "64, 48, 16, 16"
+    },
+    "SoundOn": {
+      "SourceRect": "80, 48, 16, 16",
+      "Scale": 2
+    },
+    "SoundOff": {
+      "SourceRect": "96, 48, 16, 16",
+      "Scale": 2
     }
   }
 }

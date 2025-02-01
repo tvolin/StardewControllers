@@ -53,7 +53,7 @@ internal class QuickSlotController(
             if (!slotItems.TryGetValue(button, out var item))
             {
                 Logger.Log(LogCategory.QuickSlots, $"No item in the slot for {button}.");
-                Game1.playSound("cancel");
+                Sound.Play(config.Sound.ItemErrorSound);
                 renderer.FlashError(button);
                 continue;
             }

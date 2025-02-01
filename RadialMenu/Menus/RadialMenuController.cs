@@ -134,7 +134,7 @@ internal class RadialMenuController(
                 $"Menu {Array.IndexOf(menus, menu)} became active; "
                     + $"RememberSelection = {config.Input.RememberSelection})."
             );
-            Game1.playSound("shwip");
+            Sound.Play(config.Sound.MenuOpenSound);
             if (!config.Input.RememberSelection)
             {
                 menu.ResetSelectedPage();
@@ -209,7 +209,7 @@ internal class RadialMenuController(
             case ItemActivationResult.Ignored:
                 return result;
             case ItemActivationResult.Delayed:
-                Game1.playSound("select");
+                Sound.Play(config.Sound.ItemDelaySound);
                 delayedItem = new(item, SecondaryAction: secondaryAction);
                 break;
             default:
@@ -218,6 +218,7 @@ internal class RadialMenuController(
                 {
                     activeMenu?.Toggle.ForceOff();
                 }
+                Sound.Play(config.Sound.ItemActivationSound);
                 Reset();
                 break;
         }
@@ -456,6 +457,7 @@ internal class RadialMenuController(
             }
             else
             {
+                Sound.Play(config.Sound.MenuCloseSound);
                 Reset();
             }
             return;
@@ -466,7 +468,7 @@ internal class RadialMenuController(
         {
             if (activeMenu.PreviousPage())
             {
-                Game1.playSound("shwip");
+                Sound.Play(config.Sound.PreviousPageSound);
                 Logger.Log(
                     LogCategory.Menus,
                     "Navigated to previous page "
@@ -482,7 +484,7 @@ internal class RadialMenuController(
         {
             if (activeMenu.NextPage())
             {
-                Game1.playSound("shwip");
+                Sound.Play(config.Sound.NextPageSound);
                 Logger.Log(
                     LogCategory.Menus,
                     "Navigated to next page "
@@ -525,7 +527,7 @@ internal class RadialMenuController(
                     $"Changed focused index from {focusedIndex} -> {nextFocusedIndex}. "
                         + $"(cursor angle = {cursorAngle} for {page.Items.Count} total items)"
                 );
-                Game1.playSound("shiny4");
+                Sound.Play(config.Sound.ItemFocusSound);
                 focusedIndex = nextFocusedIndex;
                 focusedItem = page.Items[focusedIndex];
             }

@@ -1,14 +1,15 @@
 {
   // Common strings
   "ModTitle": "Star Control",
-  
+
   // Config menu - Navigation
   "Config.Tab.Controls.Title": "Controls",
   "Config.Tab.Style.Title": "Style",
   "Config.Tab.Actions.Title": "Actions",
+  "Config.Tab.Sound.Title": "Sound",
   "Config.Tab.Mods.Title": "Mods",
   "Config.Tab.Debug.Title": "Debug",
-  
+
   // Config menu - Actions
   "Config.Action.Cancel.Title": "Cancel",
   "Config.Action.Cancel.Description": "Close without updating - all changes will be lost.",
@@ -48,7 +49,7 @@
   "Config.Selection.Remember.Description": "Menus automatically open to the last page that was shown, instead of resetting to the current backpack page in the inventory wheel or first page of the mod wheel.",
   "Config.Controls.Advanced.Title": "Advanced Settings...",
   "Config.Controls.Advanced.Description": "Additional settings that most players don't need to change, such as dead zones.",
-  
+
   // Config menu - Advanced Controls popup
   "Config.Menus.Heading": "Menus",
   "Config.Menus.ReopenOnHold.Title": "Reopen On Hold",
@@ -152,7 +153,7 @@
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Title": "Pixel Region",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Description": "The area (source rectangle) within the sprite sheet asset where the specific sprite (icon) is located.",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder": "X, Y, Width, Height",
-  
+
   // Config menu - Quick slot editor
   "Config.QuickSlot.Assigned.Title": "Assigned",
   "Config.QuickSlot.Unassigned.Title": "Empty",
@@ -167,12 +168,30 @@
   "Config.QuickSlot.RequireConfirmation.Description": "Show a confirmation dialog before using the item or performing the action. Good for avoiding accidental uses of expensive or destructive items, but may not pause the game in multiplayer.",
   "Config.QuickSlot.SecondaryAction.Title": "Secondary Action",
   "Config.QuickSlot.SecondaryAction.Description": "Perform the item's secondary action instead of the primary action (e.g. for consumable items, Select instead of Use).\n\nSome items, including all Tools, only have a single action (Select) and will ignore this setting.",
-  
+
+  // Config menu - Sound settings page
+  "Config.Sound.Heading": "Sound",
+  "Config.Sound.Enabled.Title": "UI Sounds",
+  "Config.Sound.Enabled.Description": "Toggle sound on/off",
+  "Config.Sound.MenuOpen.Title": "Open Menu",
+  "Config.Sound.MenuClose.Title": "Close Menu",
+  "Config.Sound.NextPage.Title": "Next Page",
+  "Config.Sound.PreviousPage.Title": "Previous Page",
+  "Config.Sound.Focus.Title": "Hover Item",
+  "Config.Sound.ActivateDefault.Title": "Activate Item",
+  "Config.Sound.ActivateDelayed.Title": "Delayed Activate",
+  "Config.Sound.ActivateError.Title": "Item Unavailable",
+  "Config.Sound.Entry.Description": "Name of the sound cue to play. Click the @ and > buttons to select known sounds, or type the name of a custom sound (must exist in the game's sound bank, click the Play button to test).",
+  "Config.Sound.NextSound.Description": "Next Sound",
+  "Config.Sound.PreviousSound.Description": "Previous Sound",
+  "Config.Sound.NoSound": "(no sound)",
+  "Config.Sound.Preview.Description": "Play",
+
   // Config menu - Mod integrations page
   "Config.ModIntegrations.CustomItems": "Includes the {{PageCount}} page(s) of your personal Mod Menu, as configured in the Actions tab.",
   "Config.ModPriorities.Heading": "Mod Priorities",
   "Config.ModPriorities.Help": "Click the checkbox or mod name to enable or disable its menus.\n\nTo change the page order, drag items with the mouse, or press the secondary (X) button on your controller.",
-  
+
   // Config menu - Debug settings page
   "Config.Logging.Heading": "Logging",
   "Config.Logging.Help": "Star Control always logs warnings and critical failures when something isn't working right. Developers, API users and anyone submitting a bug report can enable more detailed logs to help with troubleshooting.\n\nIt is not recommended to leave these enabled at all items, as the log output will quickly fill up the console and may slow down your gameplay.",
@@ -190,7 +209,7 @@
   "Config.Logging.GmcmSync.Description": "Log when keybinds are synced from Generic Mod Config Menu, on startup and when the mod configuration changes.",
   "Config.Logging.GmcmDetailed.Title": "GMCM Verbose",
   "Config.Logging.GmcmDetailed.Description": "Log detailed information about Generic Mod Config Menu integration, including a list of all available key binding settings and field names/IDs on startup.",
-  
+
   // Confirmation dialog
   "Confirmation.Config.Title": "Settings have been changed",
   "Confirmation.Config.Description": "You've made changes to the configuration that haven't been saved. What would you like to do?",
@@ -200,7 +219,7 @@
   "Confirmation.Config.Revert.Description": "Changes made since the menu was opened will be lost.",
   "Confirmation.Config.Cancel.Title": "Back",
   "Confirmation.Config.Cancel.Description": "Return to the configuration menu without saving or reverting.",
-  
+
   // Standard menu items
   "ModMenu.SettingsItem.Name": "Star Control Settings",
   "ModMenu.SettingsItem.Description": "Open the configuration menu",
@@ -242,15 +261,15 @@
   "Enum.ThumbStickPreference.AlwaysRight.Description": "Always use the right stick for wheel navigation.",
   "Enum.ThumbStickPreference.SameAsTrigger.Name": "Adaptive",
   "Enum.ThumbStickPreference.SameAsTrigger.Description": "Use the stick that is on the same side as the wheel button; e.g. use the Left Stick for a wheel controlled by the Left Trigger and Right Stick for a wheel controlled by the Right Trigger.",
-  
+
   // Error messages
   "Error.MissingBinding": "No keybinding is set up for this action.",
   "Error.MissingStardewUI": "This feature requires the StardewUI mod to be installed.",
-  
+
   // Misc
   "QuickSlotConfirmation.Item": "Use {{name}}?",
   "QuickSlotConfirmation.Mod": "Activate {{name}}?",
-  
+
   // GMCM config integration
   "Gmcm.Info.Default": "Star Control provides its own configuration system you can use to change input settings, menu contents and other features.",
   "Gmcm.Info.MissingStardewUI": "Star Control's in-game configuration requires the StardewUI mod, which is not currently installed. Please install StardewUI first, then reopen this menu.",

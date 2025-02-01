@@ -21,6 +21,11 @@ public class ModConfig : IConfigEquatable<ModConfig>
     public ItemsConfiguration Items { get; set; } = new();
 
     /// <summary>
+    /// Configures the sounds that will play related to controller menus and items.
+    /// </summary>
+    public SoundConfiguration Sound { get; set; } = new();
+
+    /// <summary>
     /// Settings for third-party mod integrations.
     /// </summary>
     public ModIntegrationsConfiguration Integrations { get; set; } = new();
@@ -44,6 +49,7 @@ public class ModConfig : IConfigEquatable<ModConfig>
         return Input.Equals(other.Input)
             && Style.Equals(other.Style)
             && Items.Equals(other.Items)
+            && Sound.Equals(other.Sound)
             && Integrations.Equals(other.Integrations)
             && Debug.Equals(other.Debug);
     }

@@ -40,6 +40,7 @@ public class ModEntry : Mod
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
         keybindActivator = new(helper.Input);
+        Sound.Enabled = config.Sound.EnableUiSounds;
         ConfigurationViewModel.Saved += ConfigurationViewModel_Saved;
 
         helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
@@ -67,6 +68,7 @@ public class ModEntry : Mod
         {
             menuController.Value.Invalidate();
         }
+        Sound.Enabled = config.Sound.EnableUiSounds;
         GamePatches.SuppressRightStickChatBox = config.Input.SuppressRightStickChatBox;
     }
 
