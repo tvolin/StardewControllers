@@ -27,6 +27,7 @@ internal class RadialMenuController(
             {
                 return;
             }
+            Logger.Log(LogCategory.Menus, $"Controller enabled -> {value}");
             enabled = value;
             if (!value)
             {
@@ -77,6 +78,7 @@ internal class RadialMenuController(
 
     public void Invalidate()
     {
+        Logger.Log(LogCategory.Menus, "Menu controller invalidated.", LogLevel.Info);
         foreach (var menu in menus)
         {
             menu.Invalidate();
@@ -110,6 +112,7 @@ internal class RadialMenuController(
 
         if (TryActivateDelayedItem(elapsed))
         {
+            Logger.Log(LogCategory.Menus, "Delayed item was activated; skipping rest of update.");
             return;
         }
 
@@ -126,6 +129,11 @@ internal class RadialMenuController(
             {
                 continue;
             }
+            Logger.Log(
+                LogCategory.Menus,
+                $"Menu {Array.IndexOf(menus, menu)} became active; "
+                    + $"RememberSelection = {config.Input.RememberSelection})."
+            );
             Game1.playSound("shwip");
             if (!config.Input.RememberSelection)
             {
@@ -133,6 +141,12 @@ internal class RadialMenuController(
             }
             else if (menu.GetSelectedPage()?.IsEmpty() == true)
             {
+                Logger.Log(
+                    LogCategory.Menus,
+                    "Menu is configured to remember selection, but the selected page is empty. "
+                        + "Attempting to navigate to previous page.",
+                    LogLevel.Info
+                );
                 // Will automatically try to find a non-empty page.
                 menu.PreviousPage();
             }
@@ -157,6 +171,7 @@ internal class RadialMenuController(
             || CheckStickActivation(secondaryAction: false)
         )
         {
+            Logger.Log(LogCategory.Menus, $"Primary activation triggered for {focusedItem.Title}.");
             ActivateItem(focusedItem, secondaryAction: false);
         }
         else if (
@@ -164,6 +179,10 @@ internal class RadialMenuController(
             || CheckStickActivation(secondaryAction: true)
         )
         {
+            Logger.Log(
+                LogCategory.Menus,
+                $"Secondary activation triggered for {focusedItem.Title}."
+            );
             ActivateItem(focusedItem, secondaryAction: true);
         }
     }
@@ -179,6 +198,11 @@ internal class RadialMenuController(
             player,
             allowDelay ? config.Input.DelayedActions : DelayedActions.None,
             secondaryAction
+        );
+        Logger.Log(
+            LogCategory.Activation,
+            $"Activated {item.Title} with result: {result}",
+            LogLevel.Info
         );
         switch (result)
         {
@@ -211,6 +235,11 @@ internal class RadialMenuController(
         menuScale = progress < 1 ? 1 - MathF.Pow(1 - progress, 3) : 1;
         quickSlotOpacity = progress < 1 ? MathF.Sin(progress * MathF.PI / 2f) : 1;
         fadeOpacity = quickSlotOpacity * 0.5f;
+        Logger.Log(
+            LogCategory.Menus,
+            $"Menu animation frame: scale = {menuScale}, opacity = {fadeOpacity}",
+            LogLevel.Trace
+        );
     }
 
     private bool CheckStickActivation(bool secondaryAction)
@@ -232,7 +261,16 @@ internal class RadialMenuController(
             ThumbStickPreference.AlwaysRight => SButton.RightStick,
             _ => activeMenu.Toggle.IsRightSided() ? SButton.RightStick : SButton.LeftStick,
         };
-        return SuppressIfPressed(stickButton);
+        var result = SuppressIfPressed(stickButton);
+        if (result)
+        {
+            Logger.Log(
+                LogCategory.Input,
+                $"Detected thumbstick activation on {stickButton}, "
+                    + $"secondary action = {secondaryAction}."
+            );
+        }
+        return result;
     }
 
     private float GetSelectionBlend()
@@ -249,6 +287,7 @@ internal class RadialMenuController(
 
     private void Reset()
     {
+        Logger.Log(LogCategory.Menus, "Resetting menu controller state");
         delayedItem = null;
         elapsedActivationDelay = TimeSpan.Zero;
         focusedIndex = -1;
@@ -271,6 +310,7 @@ internal class RadialMenuController(
         {
             return false;
         }
+        Logger.Log(LogCategory.Input, $"Suppressing pressed button {button}.");
         inputHelper.Suppress(button);
         return true;
     }
@@ -282,12 +322,30 @@ internal class RadialMenuController(
             return false;
         }
         elapsedActivationDelay += elapsed;
+        Logger.Log(
+            LogCategory.Menus,
+            "Delayed activation pending, "
+                + $"{elapsedActivationDelay.TotalMilliseconds:F0} / "
+                + $"{config.Input.ActivationDelayMs} ms elapsed.",
+            LogLevel.Trace
+        );
         if (elapsedActivationDelay.TotalMilliseconds >= config.Input.ActivationDelayMs)
         {
+            Logger.Log(
+                LogCategory.Menus,
+                $"Delay of {config.Input.ActivationDelayMs} ms expired; activating "
+                    + $"{activation.Item.Title}.",
+                LogLevel.Info
+            );
             var result = activation.Item.Activate(
                 player,
                 DelayedActions.None,
                 activation.SecondaryAction
+            );
+            Logger.Log(
+                LogCategory.Activation,
+                $"Activated {activation.Item.Title} with result: {result}",
+                LogLevel.Info
             );
             ItemActivated?.Invoke(this, new(activation.Item, result));
             Reset();
@@ -306,9 +364,22 @@ internal class RadialMenuController(
         var nextActivation = quickSlotController.TryGetNextActivation(out var pressedButton);
         if (nextActivation is not null)
         {
+            Logger.Log(
+                LogCategory.QuickSlots,
+                $"Quick slot activation detected for {nextActivation.Item.Title} in "
+                    + $"{pressedButton} slot."
+            );
             inputHelper.Suppress(pressedButton);
+            Logger.Log(
+                LogCategory.Input,
+                $"Suppressed quick-slot activation button {pressedButton}."
+            );
             if (nextActivation.RequireConfirmation)
             {
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    "Confirmation required for quick slot; creating dialog."
+                );
                 var message = nextActivation.IsRegularItem
                     ? I18n.QuickSlotConfirmation_Item(nextActivation.Item.Title)
                     : I18n.QuickSlotConfirmation_Mod(nextActivation.Item.Title);
@@ -316,6 +387,10 @@ internal class RadialMenuController(
                     message,
                     _ =>
                     {
+                        Logger.Log(
+                            LogCategory.Activation,
+                            "Activation confirmed from confirmation dialog."
+                        );
                         Game1.activeClickableMenu = null;
                         ActivateItem(
                             nextActivation.Item,
@@ -325,6 +400,13 @@ internal class RadialMenuController(
                             // principle-of-least-surprise compliant not to have the menu immediately reopen or
                             // appear to stay open after e.g. switching a tool.
                             forceSuppression: true
+                        );
+                    },
+                    onCancel: _ =>
+                    {
+                        Logger.Log(
+                            LogCategory.Activation,
+                            "Activation cancelled from confirmation dialog."
                         );
                     }
                 );
@@ -355,6 +437,10 @@ internal class RadialMenuController(
                 && focusedItem is not null
             )
             {
+                Logger.Log(
+                    LogCategory.Input,
+                    "Trigger release activation detected for primary action."
+                );
                 ActivateItem(focusedItem, secondaryAction: false);
             }
             else if (
@@ -362,6 +448,10 @@ internal class RadialMenuController(
                 && focusedItem is not null
             )
             {
+                Logger.Log(
+                    LogCategory.Input,
+                    "Trigger release activation detected for secondary action."
+                );
                 ActivateItem(focusedItem, secondaryAction: true);
             }
             else
@@ -371,11 +461,21 @@ internal class RadialMenuController(
             return;
         }
 
+        int previousPageIndex = activeMenu.SelectedPageIndex;
         if (SuppressIfPressed(config.Input.PreviousPageButton))
         {
             if (activeMenu.PreviousPage())
             {
                 Game1.playSound("shwip");
+                Logger.Log(
+                    LogCategory.Menus,
+                    "Navigated to previous page "
+                        + $"({previousPageIndex} -> {activeMenu.SelectedPageIndex})."
+                );
+            }
+            else
+            {
+                Logger.Log(LogCategory.Menus, "Couldn't navigate to previous page.");
             }
         }
         else if (SuppressIfPressed(config.Input.NextPageButton))
@@ -383,6 +483,15 @@ internal class RadialMenuController(
             if (activeMenu.NextPage())
             {
                 Game1.playSound("shwip");
+                Logger.Log(
+                    LogCategory.Menus,
+                    "Navigated to next page "
+                        + $"({previousPageIndex} -> {activeMenu.SelectedPageIndex})."
+                );
+            }
+            else
+            {
+                Logger.Log(LogCategory.Menus, "Couldn't navigate to next page.");
             }
         }
 
@@ -411,6 +520,11 @@ internal class RadialMenuController(
                 (int)MathF.Round(cursorAngle.Value / itemAngle) % page.Items.Count;
             if (nextFocusedIndex != focusedIndex)
             {
+                Logger.Log(
+                    LogCategory.Menus,
+                    $"Changed focused index from {focusedIndex} -> {nextFocusedIndex}. "
+                        + $"(cursor angle = {cursorAngle} for {page.Items.Count} total items)"
+                );
                 Game1.playSound("shiny4");
                 focusedIndex = nextFocusedIndex;
                 focusedItem = page.Items[focusedIndex];

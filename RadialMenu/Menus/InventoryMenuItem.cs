@@ -10,7 +10,6 @@ namespace RadialMenu.Menus;
 /// <summary>
 /// A menu item that corresponds to an item in the player's inventory.
 /// </summary>
-/// <param name="item">The inventory item.</param>
 internal class InventoryMenuItem : IRadialMenuItem
 {
     /// <summary>
@@ -36,6 +35,7 @@ internal class InventoryMenuItem : IRadialMenuItem
 
     public InventoryMenuItem(Item item)
     {
+        Logger.Log(LogCategory.Menus, "Starting refresh of inventory menu.");
         Item = item;
         Title = item.DisplayName;
         Description = UnparseText(item.getDescription());
@@ -63,7 +63,7 @@ internal class InventoryMenuItem : IRadialMenuItem
 
     private static ParsedItemData? GetTextureRedirect(Item item)
     {
-        return item is StardewValley.Object obj && item.ItemId == "SmokedFish"
+        return item is SObject obj && item.ItemId == "SmokedFish"
             ? ItemRegistry.GetData(obj.preservedParentSheetIndex.Value)
             : null;
     }

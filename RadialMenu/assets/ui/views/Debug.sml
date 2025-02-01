@@ -6,6 +6,9 @@
                   label-text={#Config.Logging.All.Title}
                   tooltip={#Config.Logging.All.Description}
                   is-checked={<>EnableAllLogging} />
+        <logging-setting title={#Config.Logging.Input.Title}
+                         description={#Config.Logging.Input.Description}
+                         checked={<>Input} />
         <logging-setting title={#Config.Logging.MenuInteraction.Title}
                          description={#Config.Logging.MenuInteraction.Description}
                          checked={<>EnableMenuInteractionLogging} />

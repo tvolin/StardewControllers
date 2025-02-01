@@ -33,6 +33,7 @@ public class MenuToggle(
     public void ForceOff()
     {
         State = Mode == MenuToggleMode.Hold ? MenuToggleState.Suppressed : MenuToggleState.Off;
+        Logger.Log(LogCategory.Input, $"Toggle for {Button} was forced off; new state is {State}.");
     }
 
     /// <inheritdoc />
@@ -53,6 +54,11 @@ public class MenuToggle(
     {
         if (RequiresSmapiBypass(Button))
         {
+            Logger.LogOnce(
+                LogCategory.Input,
+                $"Button {Button} used for menu toggle requires SMAPI bypass due to timing/state "
+                    + "discrepancies and will be suppressed before every update tick."
+            );
             inputHelper.Suppress(Button);
         }
     }
@@ -62,7 +68,14 @@ public class MenuToggle(
     {
         gamePadState = GetRawGamePadState();
         var isDown = IsButtonDown(Button);
-        State = State switch
+        if (isDown != wasDown)
+        {
+            Logger.Log(
+                LogCategory.Input,
+                $"Down state for {Button} changed from {wasDown} -> {isDown}."
+            );
+        }
+        var nextState = State switch
         {
             MenuToggleState.Off when !wasDown && isDown => allowOn
                 ? MenuToggleState.On
@@ -75,9 +88,21 @@ public class MenuToggle(
             MenuToggleState.Suppressed when !isDown => MenuToggleState.Off,
             _ => State,
         };
+        if (nextState != State)
+        {
+            Logger.LogOnce(
+                LogCategory.Input,
+                $"Toggle state is changing from {State} -> {nextState}. (Current mode: {Mode})"
+            );
+        }
+        State = nextState;
         wasDown = isDown;
         if (isDown && !RequiresSmapiBypass(Button))
         {
+            Logger.Log(
+                LogCategory.Input,
+                $"Suppressing button {Button} which triggered state change."
+            );
             inputHelper.Suppress(Button);
         }
     }

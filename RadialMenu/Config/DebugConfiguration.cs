@@ -18,6 +18,12 @@ public class DebugConfiguration : IConfigEquatable<DebugConfiguration>
     public bool EnableGmcmSyncLogging { get; set; }
 
     /// <summary>
+    /// Whether to log events related to low-level input handling for interacting with menus or
+    /// quick slots.
+    /// </summary>
+    public bool EnableInputLogging { get; set; }
+
+    /// <summary>
     /// Whether to log events related to item activation, i.e. actions taken and outcomes received.
     /// </summary>
     public bool EnableItemActivationLogging { get; set; }

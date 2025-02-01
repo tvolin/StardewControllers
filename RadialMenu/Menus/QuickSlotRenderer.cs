@@ -252,18 +252,44 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
 
     private void RefreshSlots()
     {
+        Logger.Log(LogCategory.QuickSlots, "Starting refresh of quick slot renderer data.");
         enabledSlots.Clear();
         slotSprites.Clear();
         foreach (var (button, slotConfig) in config.Items.QuickSlots)
         {
+            Logger.Log(LogCategory.QuickSlots, $"Checking slot for {button}...");
             Sprite? sprite = null;
             if (SlotItems.TryGetValue(button, out var item))
             {
                 if (item.Texture is not null)
                 {
+                    Logger.Log(
+                        LogCategory.QuickSlots,
+                        $"Using configured item sprite for {item.Title} in {button} slot."
+                    );
                     sprite = new(item.Texture, item.SourceRectangle ?? item.Texture.Bounds);
                 }
+                else
+                {
+                    Logger.Log(
+                        LogCategory.QuickSlots,
+                        $"Item {item.Title} in {button} slot has no texture; using default sprite."
+                    );
+                }
                 enabledSlots.Add(button);
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    $"Enabled {button} slot with '{item.Title}'.",
+                    LogLevel.Info
+                );
+            }
+            else
+            {
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    $"Disabled unassigned {button} slot.",
+                    LogLevel.Info
+                );
             }
             sprite ??= GetSlotSprite(slotConfig);
             if (sprite is not null)

@@ -30,12 +30,14 @@ internal class QuickSlotController(
 
     public void Invalidate()
     {
+        Logger.Log(LogCategory.QuickSlots, "Quick slots invalidated.", LogLevel.Info);
         renderer.Invalidate();
         isDirty = true;
     }
 
     public void ShowDelayedActivation(SButton button)
     {
+        Logger.Log(LogCategory.QuickSlots, $"Starting blink ({button}) for delayed activation.");
         renderer.FlashDelay(button);
     }
 
@@ -47,13 +49,21 @@ internal class QuickSlotController(
             {
                 continue;
             }
+            Logger.Log(LogCategory.QuickSlots, $"Detected button press for {button}.");
             if (!slotItems.TryGetValue(button, out var item))
             {
+                Logger.Log(LogCategory.QuickSlots, $"No item in the slot for {button}.");
                 Game1.playSound("cancel");
                 renderer.FlashError(button);
                 continue;
             }
             var itemConfig = config.Items.QuickSlots[button];
+            Logger.Log(
+                LogCategory.QuickSlots,
+                $"Found item in slot for {button}: ID = {itemConfig.IdType}:{itemConfig.Id}, "
+                    + $"secondary action = {itemConfig.UseSecondaryAction}, "
+                    + $"require confirmation = {itemConfig.RequireConfirmation}"
+            );
             pressedButton = button;
             return new(
                 item,
@@ -73,6 +83,7 @@ internal class QuickSlotController(
 
     private void RefreshSlots()
     {
+        Logger.Log(LogCategory.QuickSlots, "Starting refresh of Quick Slots.");
         slotItems.Clear();
         foreach (var (button, slot) in config.Items.QuickSlots)
         {
@@ -80,6 +91,12 @@ internal class QuickSlotController(
             {
                 continue;
             }
+            Logger.Log(
+                LogCategory.QuickSlots,
+                $"Item data for quick slot {button}: ID = {slot.IdType}:{slot.Id}, "
+                    + $"secondary action = {slot.UseSecondaryAction}, "
+                    + $"require confirmation = {slot.RequireConfirmation}"
+            );
             var slottedItem = slot.IdType switch
             {
                 ItemIdType.GameItem => TryGetInventoryItem(slot.Id) is { } item
@@ -90,7 +107,19 @@ internal class QuickSlotController(
             };
             if (slottedItem is not null)
             {
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    $"Created quick slot item '{slottedItem.Title}' for {button} slot.",
+                    LogLevel.Info
+                );
                 slotItems.Add(button, slottedItem);
+            }
+            else
+            {
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    $"No item or invalid item data for quick slot button {button}."
+                );
             }
         }
         isDirty = false;
@@ -98,8 +127,13 @@ internal class QuickSlotController(
 
     private Item? TryGetInventoryItem(string id)
     {
+        Logger.Log(LogCategory.QuickSlots, $"Searching for inventory item equivalent to '{id}'...");
         if (ItemRegistry.GetData(id) is not { } data)
         {
+            Logger.Log(
+                LogCategory.QuickSlots,
+                $"'{id}' does not have valid item data; aborting search."
+            );
             return null;
         }
         // Melee weapons don't have upgrades or base items, but if we didn't find an exact match, it
@@ -119,6 +153,10 @@ internal class QuickSlotController(
             // weapons specifically (and only those), give preference to exact matches before
             // sorting by level.
             var isScythe = data.InternalName.Contains("Scythe");
+            Logger.Log(
+                LogCategory.QuickSlots,
+                $"Item '{id}' appears to be a weapon with (scythe = {isScythe})."
+            );
             var bestWeapon = player
                 .Items.OfType<MeleeWeapon>()
                 .Where(weapon => weapon.Name.Contains("Scythe") == isScythe)
@@ -127,11 +165,21 @@ internal class QuickSlotController(
                 .FirstOrDefault();
             if (bestWeapon is not null)
             {
+                Logger.Log(
+                    LogCategory.QuickSlots,
+                    "Best weapon match in inventory is "
+                        + $"{bestWeapon.Name} with ID {bestWeapon.QualifiedItemId}."
+                );
                 return bestWeapon;
             }
         }
         var baseItem = data.GetBaseItem();
-        return player
+        Logger.Log(
+            LogCategory.QuickSlots,
+            "Searching for regular item using base item "
+                + $"{baseItem.InternalName} with ID {baseItem.QualifiedItemId}."
+        );
+        var match = player
             .Items.Where(item => item is not null)
             .Where(item =>
                 item.QualifiedItemId == id
@@ -141,6 +189,13 @@ internal class QuickSlotController(
                     .QualifiedItemId == baseItem.QualifiedItemId
             )
             .OrderByDescending(item => item is Tool tool ? tool.UpgradeLevel : 0)
+            .ThenByDescending(item => item.Quality)
             .FirstOrDefault();
+        Logger.Log(
+            LogCategory.QuickSlots,
+            $"Best match by quality/upgrade level is "
+                + $"{match?.Name ?? "(nothing)"} with ID {match?.QualifiedItemId ?? "N/A"}."
+        );
+        return match;
     }
 }

@@ -182,6 +182,8 @@
   "Config.Logging.MenuInteraction.Description": "Log details about opening and closing the menu, pointing at or selecting items, and any other direct interactions between you and the menu.",
   "Config.Logging.QuickSlots.Title": "Quick slots",
   "Config.Logging.QuickSlots.Description": "Log when a quick slot combo is pressed, what item was in the slot, how/why it did or did not activate, etc.",
+  "Config.Logging.Input.Title": "Input handling",
+  "Config.Logging.Input.Description": "Log changes to the state of buttons, keybinds, etc. that are used to control the menus and quick slots.",
   "Config.Logging.ItemActivation.Title": "Item activation",
   "Config.Logging.ItemActivation.Description": "Log every activation of a menu item, including the specific action taken, the reason for taking it, and the outcome (if known).",
   "Config.Logging.GmcmSync.Title": "GMCM Sync",

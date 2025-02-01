@@ -59,20 +59,28 @@ internal class ModMenu(
     /// </remarks>
     public void Invalidate()
     {
+        Logger.Log(LogCategory.Menus, "Mod menu invalidated.", LogLevel.Info);
         isDirty = true;
         additionalPages.Invalidate();
     }
 
     public void ResetSelectedPage()
     {
+        Logger.Log(LogCategory.Menus, "Resetting page selection for mod menu.");
         for (int i = 0; i < Pages.Count; i++)
         {
-            if (!Pages[i].IsEmpty())
+            if (Pages[i].IsEmpty())
             {
-                SelectedPageIndex = i;
-                return;
+                continue;
             }
+            Logger.Log(LogCategory.Menus, $"Defaulting selection to non-empty page {i}");
+            SelectedPageIndex = i;
+            return;
         }
+        Logger.Log(
+            LogCategory.Menus,
+            "Couldn't find non-empty page; defaulting selection to first page."
+        );
         SelectedPageIndex = 0;
     }
 
@@ -82,6 +90,7 @@ internal class ModMenu(
         int pageIndex = 0;
         foreach (var pageConfig in config.Items.ModMenuPages)
         {
+            Logger.Log(LogCategory.Menus, $"Creating page {pageIndex} of mod menu...");
             pages.Add(
                 MenuPage.FromModItemConfiguration(
                     pageConfig,
@@ -92,12 +101,21 @@ internal class ModMenu(
             pageIndex++;
         }
         pages.AddRange(additionalPages);
+        Logger.Log(
+            LogCategory.Menus,
+            $"Added {config.Items.ModMenuPages.Count} user pages and {additionalPages.Count} "
+                + "external pages to mod menu."
+        );
         return pages;
 
         void InsertSettingsItem(List<ModMenuItem> items)
         {
             var index = Math.Clamp(config.Items.SettingsItemPositionIndex, 0, items.Count - 1);
             items.Insert(index, settingsItem);
+            Logger.Log(
+                LogCategory.Menus,
+                $"Inserted built-in Mod Settings item at position {index}."
+            );
         }
     }
 }

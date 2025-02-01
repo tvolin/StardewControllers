@@ -15,6 +15,9 @@ internal partial class DebugSettingsViewModel
     private bool enableGmcmSyncLogging;
 
     [Notify]
+    private bool enableInputLogging;
+
+    [Notify]
     private bool enableItemActivationLogging;
 
     [Notify]
@@ -32,6 +35,7 @@ internal partial class DebugSettingsViewModel
         {
             EnableGmcmDetailedLogging = config.EnableGmcmDetailedLogging;
             EnableGmcmSyncLogging = config.EnableGmcmSyncLogging;
+            EnableInputLogging = config.EnableInputLogging;
             EnableItemActivationLogging = config.EnableItemActivationLogging;
             EnableMenuInteractionLogging = config.EnableMenuInteractionLogging;
             EnableQuickSlotLogging = config.EnableQuickSlotLogging;
@@ -52,6 +56,7 @@ internal partial class DebugSettingsViewModel
     {
         config.EnableGmcmDetailedLogging = EnableGmcmDetailedLogging;
         config.EnableGmcmSyncLogging = EnableGmcmSyncLogging;
+        config.EnableInputLogging = EnableInputLogging;
         config.EnableItemActivationLogging = EnableItemActivationLogging;
         config.EnableMenuInteractionLogging = EnableMenuInteractionLogging;
         config.EnableQuickSlotLogging = EnableQuickSlotLogging;
@@ -65,6 +70,7 @@ internal partial class DebugSettingsViewModel
         }
         EnableGmcmDetailedLogging = EnableAllLogging;
         EnableGmcmSyncLogging = EnableAllLogging;
+        EnableInputLogging = EnableAllLogging;
         EnableItemActivationLogging = EnableAllLogging;
         EnableMenuInteractionLogging = EnableAllLogging;
         EnableQuickSlotLogging = EnableAllLogging;

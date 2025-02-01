@@ -263,13 +263,17 @@ public class ModEntry : Mod
 
         if (configMenuApi is null)
         {
-            Monitor.Log(
+            Logger.Log(
                 $"Couldn't read global keybindings; mod {GMCM_MOD_ID} is not installed.",
                 LogLevel.Warn
             );
             return;
         }
-        Monitor.Log("Generic Mod Config Menu is loaded; reading keybindings.", LogLevel.Info);
+        Logger.Log(
+            LogCategory.GmcmSync,
+            "Generic Mod Config Menu is loaded; reading keybindings.",
+            LogLevel.Info
+        );
         try
         {
             var gmcmExtensionPath = Path.Combine(
@@ -282,7 +286,7 @@ public class ModEntry : Mod
             var loaderType = gmcmExtensionAssembly.GetType("RadialMenu.Gmcm.Loader");
             if (loaderType is null)
             {
-                Monitor.Log(
+                Logger.Log(
                     $"Failed to initialize GMCM extension: Type {LOADER_TYPE} was not found.",
                     LogLevel.Error
                 );
@@ -294,7 +298,7 @@ public class ModEntry : Mod
             );
             if (loadMethod is null)
             {
-                Monitor.Log(
+                Logger.Log(
                     $"Failed to initialize GMCM extension: Method {LOADER_METHOD} was not "
                         + $"found on type {LOADER_TYPE}.",
                     LogLevel.Error
@@ -310,7 +314,7 @@ public class ModEntry : Mod
         }
         catch (Exception ex)
         {
-            Monitor.Log(
+            Logger.Log(
                 "Error loading GMCM extension; keybindings will not be synced.\n" + ex,
                 LogLevel.Error
             );
@@ -318,21 +322,26 @@ public class ModEntry : Mod
         }
         if (IGenericModConfigKeybindings.Instance is not { } gmcmBindings)
         {
-            Monitor.Log(
+            Logger.Log(
                 "Failed to load keybindings from installed version of GMCM. "
                     + "Check previous log messages for details.",
                 LogLevel.Error
             );
             return;
         }
-        Monitor.Log("Finished reading keybindings from GMCM.", LogLevel.Info);
-        gmcmSync = new(() => config, gmcmBindings, Monitor);
+        Logger.Log(LogCategory.GmcmSync, "Finished reading keybindings from GMCM.", LogLevel.Info);
+        gmcmSync = new(() => config, gmcmBindings);
         if (gmcmSync.SyncAll())
         {
             Helper.WriteConfig(config);
         }
         gmcmBindings.Saved += (_, e) =>
         {
+            Logger.Log(
+                LogCategory.GmcmSync,
+                "Detected save from GMCM; re-syncing options.",
+                LogLevel.Info
+            );
             if (gmcmSync.SyncAll(e.Mod))
             {
                 Helper.WriteConfig(config);

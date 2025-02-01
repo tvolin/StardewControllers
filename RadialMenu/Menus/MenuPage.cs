@@ -23,6 +23,11 @@ internal static class MenuPage
         bool includeEmpty
     )
     {
+        Logger.Log(
+            LogCategory.Menus,
+            $"Create page from inventory: from = {startIndex}, count = {count}, include empty = "
+                + $"{includeEmpty}."
+        );
         var items = Enumerable
             .Range(startIndex, count)
             .Select(i => who.Items[i])
@@ -60,13 +65,19 @@ internal static class MenuPage
         var sprite = !string.IsNullOrEmpty(config.Icon.ItemId)
             ? Sprite.ForItemId(config.Icon.ItemId)
             : Sprite.TryLoad(config.Icon.TextureAssetPath, config.Icon.SourceRect);
+        Logger.Log(
+            LogCategory.Menus,
+            $"Creating mod menu item with: ID = {config.Id}, name = {config.Name}, "
+                + $"keybind = {config.Keybind}, delay = {config.EnableActivationDelay}, "
+                + $"icon = {config.Icon}"
+        );
         return new(
             id: config.Id,
             title: config.Name,
             description: config.Description,
             texture: sprite?.Texture,
             sourceRectangle: sprite?.SourceRect,
-            activate: (who, delayedActions, _) =>
+            activate: (_, delayedActions, _) =>
             {
                 if (
                     delayedActions == DelayedActions.All

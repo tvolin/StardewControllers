@@ -4,8 +4,7 @@ namespace RadialMenu.Gmcm;
 
 internal class GenericModConfigSync(
     Func<ModConfig> getConfig,
-    IGenericModConfigKeybindings bindings,
-    IMonitor monitor
+    IGenericModConfigKeybindings bindings
 )
 {
     public bool SyncAll(IManifest? mod = null)
@@ -35,7 +34,7 @@ internal class GenericModConfigSync(
         var keybindOption = bindings.Find(gmcm.ModId, gmcm.FieldId, gmcm.FieldName, item.Keybind);
         if (keybindOption is null)
         {
-            monitor.Log(
+            Logger.Log(
                 $"Couldn't sync key binding information for item named '{item.Name}'. "
                     + $"No keybinding field in {gmcm.ModId} for field name '{gmcm.FieldName}' or "
                     + $"field ID {gmcm.FieldId}.",
@@ -63,7 +62,11 @@ internal class GenericModConfigSync(
         item.Keybind = keybindOption.GetCurrentBinding();
         if (enableLogging)
         {
-            monitor.Log($"Synced GMCM keybinding for item '{item.Name}'.", LogLevel.Info);
+            Logger.Log(
+                LogCategory.GmcmSync,
+                $"Synced GMCM keybinding for item '{item.Name}'.",
+                LogLevel.Info
+            );
         }
         return true;
     }
