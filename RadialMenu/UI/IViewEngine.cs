@@ -124,6 +124,34 @@ public interface IViewEngine
     void EnableHotReloading(string? sourceDirectory = null);
 
     /// <summary>
+    /// Begins preloading assets found in this mod's registered asset directories.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Preloading is performed in the background, and can typically help reduce first-time latency for showing menus or
+    /// drawables, without any noticeable lag in game startup.
+    /// </para>
+    /// <para>
+    /// Must be called after asset registration (<see cref="RegisterViews"/>, <see cref="RegisterSprites"/> and so on)
+    /// in order to be effective, and must not be called more than once per mod otherwise errors or crashes may occur.
+    /// </para>
+    /// </remarks>
+    void PreloadAssets();
+
+    /// <summary>
+    /// Declares that the specified context types will be used as either direct arguments or subproperties in one or
+    /// more subsequent <c>CreateMenu</c> or <c>CreateDrawable</c> APIs, and instructs the framework to begin inspecting
+    /// those types and optimizing for later use.
+    /// </summary>
+    /// <remarks>
+    /// Data binding to mod-defined types uses reflection, which can become expensive when loading a very complex menu
+    /// and/or binding to a very complex model for the first time. Preloading can perform this work in the background
+    /// instead of causing latency when opening the menu.
+    /// </remarks>
+    /// <param name="types">The types that the mod expects to use as context.</param>
+    void PreloadModels(params Type[] types);
+
+    /// <summary>
     /// Registers a mod directory to be searched for special-purpose mod data, i.e. that is not either views or sprites.
     /// </summary>
     /// <remarks>

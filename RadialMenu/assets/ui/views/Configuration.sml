@@ -36,6 +36,7 @@
            margin="0, 0, 0, 4"
            clip-size="stretch">
         <frame *repeat={Pages}
+               *if={Loaded}
                layout="stretch content"
                pointer-events-enabled={Selected}
                transform={Transform}

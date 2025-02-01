@@ -32,6 +32,9 @@ internal partial class ConfigurationViewModel : IDisposable
     private readonly ModConfig config;
     private readonly IModHelper helper;
 
+    private int loadingFrameCount;
+    private int loadingPageIndex = 1;
+
     public ConfigurationViewModel(IModHelper helper, ModConfig config)
     {
         this.helper = helper;
@@ -41,7 +44,12 @@ internal partial class ConfigurationViewModel : IDisposable
         Mods = new(helper.ModRegistry, selfPriority);
         Pager.Pages =
         [
-            new(NavPage.Controls, I18n.Config_Tab_Controls_Title(), $"Mods/{modId}/Views/Controls"),
+            new(
+                NavPage.Controls,
+                I18n.Config_Tab_Controls_Title(),
+                $"Mods/{modId}/Views/Controls",
+                autoLoad: true
+            ),
             new(NavPage.Style, I18n.Config_Tab_Style_Title(), $"Mods/{modId}/Views/Style"),
             new(NavPage.Actions, I18n.Config_Tab_Actions_Title(), $"Mods/{modId}/Views/Actions"),
             new(NavPage.Mods, I18n.Config_Tab_Mods_Title(), $"Mods/{modId}/Views/ModIntegrations"),
@@ -136,6 +144,21 @@ internal partial class ConfigurationViewModel : IDisposable
         confirmationController.Closed += () => ConfirmClose(context.Result);
     }
 
+    public void Update()
+    {
+        if (loadingPageIndex >= Pager.Pages.Count)
+        {
+            return;
+        }
+        loadingFrameCount = (loadingFrameCount + 1) % 3;
+        if (loadingFrameCount > 0)
+        {
+            return;
+        }
+        Pager.Pages[loadingPageIndex].Loaded = true;
+        loadingPageIndex++;
+    }
+
     private void ConfirmClose(ConfirmationResult result)
     {
         switch (result)
@@ -222,10 +245,17 @@ internal enum NavPage
     Debug,
 }
 
-internal partial class NavPageViewModel(NavPage id, string title, string pageAssetName)
-    : PageViewModel((int)id)
+internal partial class NavPageViewModel(
+    NavPage id,
+    string title,
+    string pageAssetName,
+    bool autoLoad = false
+) : PageViewModel((int)id)
 {
     public NavPage Id { get; } = id;
     public string PageAssetName { get; } = pageAssetName;
     public string Title { get; } = title;
+
+    [Notify]
+    private bool loaded = autoLoad;
 }

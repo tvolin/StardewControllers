@@ -100,6 +100,12 @@ public class ModEntry : Mod
 #if DEBUG
         viewEngine.EnableHotReloadingWithSourceSync();
 #endif
+        viewEngine.PreloadAssets();
+        viewEngine.PreloadModels(
+            typeof(ConfigurationViewModel),
+            typeof(QuickSlotPickerViewModel),
+            typeof(ConfirmationViewModel)
+        );
         ViewEngine.Instance = viewEngine;
         ViewEngine.ViewAssetPrefix = $"Mods/{ModManifest.UniqueID}/Views";
 
