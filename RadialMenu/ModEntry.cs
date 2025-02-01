@@ -37,6 +37,7 @@ public class ModEntry : Mod
     {
         Logger.Monitor = Monitor;
         config = Helper.ReadConfig<ModConfig>();
+        Logger.Config = config.Debug;
         I18n.Init(helper.Translation);
         api = new(pageRegistry, Monitor);
         keybindActivator = new(helper.Input);
@@ -338,7 +339,7 @@ public class ModEntry : Mod
             return;
         }
         Logger.Log(LogCategory.GmcmSync, "Finished reading keybindings from GMCM.", LogLevel.Info);
-        gmcmSync = new(() => config, gmcmBindings);
+        gmcmSync = new(config, gmcmBindings);
         if (gmcmSync.SyncAll())
         {
             Helper.WriteConfig(config);

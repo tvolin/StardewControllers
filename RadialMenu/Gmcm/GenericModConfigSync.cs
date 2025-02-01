@@ -2,15 +2,11 @@
 
 namespace RadialMenu.Gmcm;
 
-internal class GenericModConfigSync(
-    Func<ModConfig> getConfig,
-    IGenericModConfigKeybindings bindings
-)
+internal class GenericModConfigSync(ModConfig config, IGenericModConfigKeybindings bindings)
 {
     public bool SyncAll(IManifest? mod = null)
     {
         var anyModified = false;
-        var config = getConfig();
         foreach (var page in config.Items.ModMenuPages)
         {
             foreach (var item in page)
