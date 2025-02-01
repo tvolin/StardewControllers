@@ -60,7 +60,10 @@ internal partial class ItemsConfigurationViewModel
     private QuickSlotGroupConfigurationViewModel quickSlots = new();
 
     // Settings item can receive empty list for allItems because it is not editable.
-    private readonly ModMenuItemConfigurationViewModel settingsItem = new("0", [])
+    private readonly ModMenuItemConfigurationViewModel settingsItem = new(
+        "focustense.StarControl.Settings",
+        []
+    )
     {
         Name = I18n.Config_ModMenu_SettingsItem_Name(),
         Description = I18n.Config_ModMenu_SettingsItem_Description(),
@@ -261,7 +264,10 @@ internal partial class ItemsConfigurationViewModel
                 item.Save(itemConfig);
                 pageItems.Add(itemConfig);
             }
-            config.ModMenuPages.Add(pageItems);
+            if (pageItems.Count > 0)
+            {
+                config.ModMenuPages.Add(pageItems);
+            }
         }
         config.ShowSettingsItem = settingsItem.Enabled;
         config.SettingsItemPageIndex = settingsItemPageIndex;
