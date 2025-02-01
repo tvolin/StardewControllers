@@ -8,7 +8,7 @@
                   is-checked={<>EnableAllLogging} />
         <logging-setting title={#Config.Logging.Input.Title}
                          description={#Config.Logging.Input.Description}
-                         checked={<>Input} />
+                         checked={<>EnableInputLogging} />
         <logging-setting title={#Config.Logging.MenuInteraction.Title}
                          description={#Config.Logging.MenuInteraction.Description}
                          checked={<>EnableMenuInteractionLogging} />
