@@ -68,6 +68,7 @@
         <image layout="32px"
                sprite={@Mods/StardewUI/Sprites/CaretLeft}
                tooltip={#Config.Sound.PreviousSound.Description}
+               focusable="true"
                transform-origin="0.5, 0.5"
                +hover:transform="scale: 1.2"
                +transition:transform="100ms EaseOutCubic"
@@ -82,6 +83,7 @@
         <image layout="32px"
                sprite={@Mods/StardewUI/Sprites/CaretRight}
                tooltip={#Config.Sound.NextSound.Description}
+               focusable="true"
                transform-origin="0.5, 0.5"
                +hover:transform="scale: 1.2"
                +transition:transform="100ms EaseOutCubic"
@@ -91,6 +93,7 @@
                margin="8, 0"
                sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:PlayButton}
                tooltip={#Config.Sound.Preview.Description}
+               focusable="true"
                transform-origin="0.5, 0.5"
                +hover:transform="scale: 1.15"
                +transition:transform="100ms EaseOutCubic"
