@@ -38,6 +38,7 @@ internal class RadialMenuController(
     public bool IsMenuActive => activeMenu is not null;
 
     private const int MENU_ANIMATION_DURATION_MS = 120;
+    private const int QUICK_SLOT_ANIMATION_DURATION_MS = 250;
 
     private IRadialMenu? activeMenu;
     private float? cursorAngle;
@@ -227,15 +228,20 @@ internal class RadialMenuController(
 
     private void AnimateMenuOpen(TimeSpan elapsed)
     {
-        if (activeMenu is null || menuOpenTimeMs >= MENU_ANIMATION_DURATION_MS)
+        if (activeMenu is null || menuOpenTimeMs >= QUICK_SLOT_ANIMATION_DURATION_MS)
         {
             return;
         }
         menuOpenTimeMs += (float)elapsed.TotalMilliseconds;
-        var progress = MathHelper.Clamp(menuOpenTimeMs / MENU_ANIMATION_DURATION_MS, 0, 1);
-        menuScale = progress < 1 ? 1 - MathF.Pow(1 - progress, 3) : 1;
-        quickSlotOpacity = progress < 1 ? MathF.Sin(progress * MathF.PI / 2f) : 1;
-        fadeOpacity = quickSlotOpacity * 0.5f;
+        var menuProgress = MathHelper.Clamp(menuOpenTimeMs / MENU_ANIMATION_DURATION_MS, 0, 1);
+        menuScale = menuProgress < 1 ? 1 - MathF.Pow(1 - menuProgress, 3) : 1;
+        fadeOpacity = 0.5f * (menuProgress < 1 ? MathF.Sin(menuProgress * MathF.PI / 2f) : 1);
+        var quickSlotProgress = MathHelper.Clamp(
+            menuOpenTimeMs / QUICK_SLOT_ANIMATION_DURATION_MS,
+            0,
+            1
+        );
+        quickSlotOpacity = quickSlotProgress < 1 ? MathF.Sin(quickSlotProgress * MathF.PI / 2f) : 1;
         Logger.Log(
             LogCategory.Menus,
             $"Menu animation frame: scale = {menuScale}, opacity = {fadeOpacity}",
