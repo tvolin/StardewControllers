@@ -77,7 +77,7 @@ internal partial class QuickSlotPickerViewModel
     )
     {
         Slot = slot;
-        SecondaryActionAllowed = Slot.ItemData is not null;
+        SecondaryActionAllowed = Slot.ItemData is not null || Slot.ModAction is not null;
         this.allItems = allItems;
         ModMenuPages = modMenuPages;
         UpdateSearchResults();
@@ -88,7 +88,7 @@ internal partial class QuickSlotPickerViewModel
     {
         Game1.playSound("drumkit6");
         item.UpdateSlot(Slot);
-        SecondaryActionAllowed = Slot.ItemData is not null;
+        SecondaryActionAllowed = Slot.ItemData is not null || Slot.ModAction is not null;
     }
 
     public void ClearAssignment()
