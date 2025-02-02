@@ -132,7 +132,7 @@ internal class RadialMenuController(
             Logger.Log(
                 LogCategory.Menus,
                 $"Menu {Array.IndexOf(menus, menu)} became active; "
-                    + $"RememberSelection = {config.Input.RememberSelection})."
+                    + $"RememberSelection = {config.Input.RememberSelection}."
             );
             Sound.Play(config.Sound.MenuOpenSound);
             if (!config.Input.RememberSelection)
@@ -520,7 +520,7 @@ internal class RadialMenuController(
             var itemAngle = MathHelper.TwoPi / page.Items.Count;
             var nextFocusedIndex =
                 (int)MathF.Round(cursorAngle.Value / itemAngle) % page.Items.Count;
-            if (nextFocusedIndex != focusedIndex)
+            if (nextFocusedIndex != focusedIndex || page.Items[nextFocusedIndex] != focusedItem)
             {
                 Logger.Log(
                     LogCategory.Menus,
