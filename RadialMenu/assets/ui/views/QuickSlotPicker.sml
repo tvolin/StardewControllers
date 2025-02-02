@@ -1,35 +1,122 @@
-<frame layout="660px content[660..]"
-       padding="24, 24, 24, 16"
-       background={@Mods/StardewUI/Sprites/ControlBorder}
-       button-press=|HandleButtonPress($Button)|>
-    <frame *float="after; 4, 0"
-           *context={:Slot}
-           padding="24"
-           background={@Mods/StardewUI/Sprites/ControlBorder}>
-        <lane layout="content[105..] content" orientation="vertical" horizontal-content-alignment="middle">
-            <image layout="64px"
-                   horizontal-alignment="middle"
-                   vertical-alignment="middle"
-                   sprite={Icon}
-                   tint={Tint}
-                   tooltip={Tooltip} />
-            <label margin="0, 8, 0, 0"
-                   color={CurrentAssignmentColor}
-                   text={CurrentAssignmentLabel}
-                   shadow-alpha="0.9"
-                   shadow-offset="-2, 2" />
+<lane orientation="vertical" horizontal-content-alignment="middle">
+    <frame layout="660px content[660..]"
+           padding="24, 24, 24, 16"
+           background={@Mods/StardewUI/Sprites/ControlBorder}
+           button-press=|HandleButtonPress($Button)|>
+        <frame *float="after; 4, 0"
+               *context={:Slot}
+               padding="24"
+               background={@Mods/StardewUI/Sprites/ControlBorder}>
+            <lane layout="content[105..] content" orientation="vertical" horizontal-content-alignment="middle">
+                <image layout="64px"
+                       horizontal-alignment="middle"
+                       vertical-alignment="middle"
+                       sprite={Icon}
+                       tint={Tint}
+                       tooltip={Tooltip} />
+                <label margin="0, 8, 0, 0"
+                       color={CurrentAssignmentColor}
+                       text={CurrentAssignmentLabel}
+                       shadow-alpha="0.9"
+                       shadow-offset="-2, 2" />
+            </lane>
+        </frame>
+        <lane layout="stretch content" orientation="vertical">
+            <form-row title={#Config.QuickSlot.ItemSource.Title} description={#Config.QuickSlot.ItemSource.Description}>
+                <lane vertical-content-alignment="middle">
+                    <enum-segments *context={:ItemSource} />
+                    <spacer layout="stretch 0px" />
+                    <button layout="48px"
+                            hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+                            tooltip={#Config.QuickSlot.Unassign.Description}
+                            left-click=|ClearAssignment()|>
+                        <image sprite={@Mods/StardewUI/Sprites/TinyTrashCan} scale="3" />
+                    </button>
+                </lane>
+            </form-row>
+            <image layout="stretch content" margin="0, 8" fit="stretch" sprite={@Mods/StardewUI/Sprites/ThinHorizontalDivider} tint="#8888" />
+            <panel *context={:Pager}
+                   layout="stretch content"
+                   margin="0, 8, 0, 4"
+                   clip-size="stretch"
+                   outer-size={>ContentPanelSize}>
+                <page *repeat={Pages} *switch={Index}>
+                    <lane *case="0" layout="stretch content" margin="8, 0" orientation="vertical">
+                        <label *if={:^^HasLoadedGame}
+                               margin="0, -4, 0, 16"
+                               color="#666"
+                               text={#Config.QuickSlot.Inventory.Description} />
+                        <item-grid *if={:^^HasLoadedGame} items={:^^InventoryItems} />
+                        <label *!if={:^^HasLoadedGame} text={#Config.QuickSlot.Inventory.Unavailable} />
+                    </lane>
+                    <lane *case="1" layout="stretch content" margin="8, 0" orientation="vertical">
+                        <panel layout="stretch content"
+                               margin="0, 0, 0, 16"
+                               vertical-content-alignment="middle">
+                            <textinput layout="stretch 52px"
+                                       border-thickness="56, 12, 12, 12"
+                                       placeholder={#Config.ModMenuItem.Search.Placeholder}
+                                       text={<>^^SearchText} />
+                            <image layout="32px"
+                                   margin="18, 2, 0, 0"
+                                   sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
+                                   shadow-alpha="0.25"
+                                   shadow-offset="-2, 2" />
+                        </panel>
+                        <item-grid items={^^SearchResults} />
+                        <label *if={^^HasMoreSearchResults}
+                               margin="0, 8, 0, 8"
+                               color="#666"
+                               text={^^MoreResultsMessage} />
+                    </lane>
+                    <lane *case="2" layout="stretch content" orientation="vertical">
+                        <form-row title={#Config.ModMenu.Pages.Title}>
+                            <lane vertical-content-alignment="middle">
+                                <button layout="content 48px"
+                                        margin="2, 0"
+                                        default-background-tint={^^AllModPagesTint}
+                                        hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+                                        left-click=|^^SelectModMenuPage("-1")|>
+                                    <label color="#fff" text="ALL" shadow-offset="-2, 2" shadow-alpha="0.8" shadow-color="#333" />
+                                </button>
+                                <button *repeat={:^^ModMenuPages}
+                                        layout="48px"
+                                        margin="2, 0"
+                                        default-background-tint={ButtonTint}
+                                        hover-background={@Mods/StardewUI/Sprites/ButtonLight}
+                                        left-click=|^^^^SelectModMenuPage(Index)|>
+                                    <digits number={:DisplayIndex} scale="3" />
+                                </button>
+                            </lane>
+                        </form-row>
+                        <item-grid margin="8, 8, 8, 0" items={^^ModMenuItems} />
+                        <label *if={^^HasMoreModItems}
+                               margin="0, 8, 0, 8"
+                               color="#666"
+                               text={^^MoreModItemsMessage} />
+                    </lane>
+                </page>
+            </panel>
         </lane>
     </frame>
-    <frame *float="below; 0, 4"
-           *context={:Slot}
-           layout="stretch content"
+    <frame *context={:Slot}
+           margin="0, 4, 0, 0"
            padding="24"
            background={@Mods/StardewUI/Sprites/ControlBorder}>
         <lane padding="4">
-            <checkbox label-text={#Config.QuickSlot.RequireConfirmation.Title}
+            <checkbox margin="0, 0, 32, 0"
+                      label-text={#Config.QuickSlot.ActiveOutsideMenu.Title}
+                      tooltip={#Config.QuickSlot.ActiveOutsideMenu.Description}
+                      is-checked={<>ActiveOutsideMenu}
+                      opacity="0.5"
+                      pointer-events-enabled="false"
+                      +state:enabled={AllowActiveOutsideMenu}
+                      +state:enabled:opacity="1"
+                      +state:enabled:pointer-events-enabled="true" />
+            <checkbox margin="0, 0, 32, 0"
+                      label-text={#Config.QuickSlot.RequireConfirmation.Title}
                       tooltip={#Config.QuickSlot.RequireConfirmation.Description}
                       is-checked={<>RequireConfirmation} />
-            <spacer layout="32px 0px" />
             <checkbox label-text={#Config.QuickSlot.SecondaryAction.Title}
                       tooltip={#Config.QuickSlot.SecondaryAction.Description}
                       is-checked={<>UseSecondaryAction}
@@ -39,84 +126,7 @@
                       +transition:opacity="150ms EaseOutSine" />
         </lane>
     </frame>
-    <lane layout="stretch content" orientation="vertical">
-        <form-row title={#Config.QuickSlot.ItemSource.Title} description={#Config.QuickSlot.ItemSource.Description}>
-            <lane vertical-content-alignment="middle">
-                <enum-segments *context={:ItemSource} />
-                <spacer layout="stretch 0px" />
-                <button layout="48px"
-                        hover-background={@Mods/StardewUI/Sprites/ButtonLight}
-                        tooltip={#Config.QuickSlot.Unassign.Description}
-                        left-click=|ClearAssignment()|>
-                    <image sprite={@Mods/StardewUI/Sprites/TinyTrashCan} scale="3" />
-                </button>
-            </lane>
-        </form-row>
-        <image layout="stretch content" margin="0, 8" fit="stretch" sprite={@Mods/StardewUI/Sprites/ThinHorizontalDivider} tint="#8888" />
-        <panel *context={:Pager}
-               layout="stretch content"
-               margin="0, 8, 0, 4"
-               clip-size="stretch"
-               outer-size={>ContentPanelSize}>
-            <page *repeat={Pages} *switch={Index}>
-                <lane *case="0" layout="stretch content" margin="8, 0" orientation="vertical">
-                    <label *if={:^^HasLoadedGame}
-                           margin="0, -4, 0, 16"
-                           color="#666"
-                           text={#Config.QuickSlot.Inventory.Description} />
-                    <item-grid *if={:^^HasLoadedGame} items={:^^InventoryItems} />
-                    <label *!if={:^^HasLoadedGame} text={#Config.QuickSlot.Inventory.Unavailable} />
-                </lane>
-                <lane *case="1" layout="stretch content" margin="8, 0" orientation="vertical">
-                    <panel layout="stretch content"
-                           margin="0, 0, 0, 16"
-                           vertical-content-alignment="middle">
-                        <textinput layout="stretch 52px"
-                                   border-thickness="56, 12, 12, 12"
-                                   placeholder={#Config.ModMenuItem.Search.Placeholder}
-                                   text={<>^^SearchText} />
-                        <image layout="32px"
-                               margin="18, 2, 0, 0"
-                               sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
-                               shadow-alpha="0.25"
-                               shadow-offset="-2, 2" />
-                    </panel>
-                    <item-grid items={^^SearchResults} />
-                    <label *if={^^HasMoreSearchResults}
-                           margin="0, 8, 0, 8"
-                           color="#666"
-                           text={^^MoreResultsMessage} />
-                </lane>
-                <lane *case="2" layout="stretch content" orientation="vertical">
-                    <form-row title={#Config.ModMenu.Pages.Title}>
-                        <lane vertical-content-alignment="middle">
-                            <button layout="content 48px"
-                                    margin="2, 0"
-                                    default-background-tint={^^AllModPagesTint}
-                                    hover-background={@Mods/StardewUI/Sprites/ButtonLight}
-                                    left-click=|^^SelectModMenuPage("-1")|>
-                                <label color="#fff" text="ALL" shadow-offset="-2, 2" shadow-alpha="0.8" shadow-color="#333" />
-                            </button>
-                            <button *repeat={:^^ModMenuPages}
-                                    layout="48px"
-                                    margin="2, 0"
-                                    default-background-tint={ButtonTint}
-                                    hover-background={@Mods/StardewUI/Sprites/ButtonLight}
-                                    left-click=|^^^^SelectModMenuPage(Index)|>
-                                <digits number={:DisplayIndex} scale="3" />
-                            </button>
-                        </lane>
-                    </form-row>
-                    <item-grid margin="8, 8, 8, 0" items={^^ModMenuItems} />
-                    <label *if={^^HasMoreModItems}
-                           margin="0, 8, 0, 8"
-                           color="#666"
-                           text={^^MoreModItemsMessage} />
-                </lane>
-            </page>
-        </panel>
-    </lane>
-</frame>
+</lane>
 
 <template name="form-row">
     <lane margin="4" vertical-content-alignment="middle">

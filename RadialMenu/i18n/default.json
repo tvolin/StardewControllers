@@ -168,6 +168,8 @@
   "Config.QuickSlot.RequireConfirmation.Description": "Show a confirmation dialog before using the item or performing the action. Good for avoiding accidental uses of expensive or destructive items, but may not pause the game in multiplayer.",
   "Config.QuickSlot.SecondaryAction.Title": "Secondary Action",
   "Config.QuickSlot.SecondaryAction.Description": "Perform the item's secondary action instead of the primary action (e.g. for consumable items, Select instead of Use).\n\nSome items, including all Tools, only have a single action (Select) and will ignore this setting.",
+  "Config.QuickSlot.ActiveOutsideMenu.Title": "Always On",
+  "Config.QuickSlot.ActiveOutsideMenu.Description": "Allow this quick slot to be activated even when the menu is not open.\n\nThis takes over the button's default in-world function; for example, setting this on a d-pad slot will prevent it from moving the character.",
 
   // Config menu - Sound settings page
   "Config.Sound.Heading": "Sound",

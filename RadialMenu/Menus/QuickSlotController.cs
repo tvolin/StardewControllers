@@ -21,8 +21,6 @@ internal class QuickSlotController(
         if (isDirty)
         {
             RefreshSlots();
-            renderer.SlotItems = slotItems;
-            isDirty = false;
         }
         renderer.Opacity = opacity;
         renderer.Draw(spriteBatch, viewport);
@@ -41,11 +39,23 @@ internal class QuickSlotController(
         renderer.FlashDelay(button);
     }
 
-    public PendingActivation? TryGetNextActivation(out SButton pressedButton)
+    public PendingActivation? TryGetNextActivation(bool isMenuActive, out SButton pressedButton)
     {
+        if (
+            isDirty
+            && config.Items.QuickSlots.Values.Any(slotConfig => slotConfig.ActiveOutsideMenu)
+        )
+        {
+            RefreshSlots();
+        }
         foreach (var button in config.Items.QuickSlots.Keys)
         {
             if (inputHelper.GetState(button) != SButtonState.Pressed)
+            {
+                continue;
+            }
+            var itemConfig = config.Items.QuickSlots[button];
+            if (!isMenuActive && !itemConfig.ActiveOutsideMenu)
             {
                 continue;
             }
@@ -55,9 +65,14 @@ internal class QuickSlotController(
                 Logger.Log(LogCategory.QuickSlots, $"No item in the slot for {button}.");
                 Sound.Play(config.Sound.ItemErrorSound);
                 renderer.FlashError(button);
+                if (!isMenuActive)
+                {
+                    // Suppress explicitly, since it will not be suppressed implicitly as the result
+                    // of item activation.
+                    inputHelper.Suppress(button);
+                }
                 continue;
             }
-            var itemConfig = config.Items.QuickSlots[button];
             Logger.Log(
                 LogCategory.QuickSlots,
                 $"Found item in slot for {button}: ID = {itemConfig.IdType}:{itemConfig.Id}, "
@@ -122,6 +137,7 @@ internal class QuickSlotController(
                 );
             }
         }
+        renderer.SlotItems = slotItems;
         isDirty = false;
     }
 

@@ -87,23 +87,16 @@ internal class RadialMenuController(
         quickSlotController.Invalidate();
     }
 
-    public void PreUpdate()
-    {
-        if (!Enabled)
-        {
-            return;
-        }
-        foreach (var menu in menus)
-        {
-            menu.Toggle.PreUpdate();
-        }
-    }
-
     public void Update(TimeSpan elapsed)
     {
         if (!Enabled)
         {
             return;
+        }
+
+        foreach (var menu in menus)
+        {
+            menu.Toggle.PreUpdate();
         }
 
         AnimateMenuOpen(elapsed);
@@ -364,11 +357,14 @@ internal class RadialMenuController(
 
     private void TryActivateQuickSlot()
     {
-        if (activeMenu is null || delayedItem is not null || cursorAngle is not null)
+        if (delayedItem is not null || cursorAngle is not null)
         {
             return;
         }
-        var nextActivation = quickSlotController.TryGetNextActivation(out var pressedButton);
+        var nextActivation = quickSlotController.TryGetNextActivation(
+            activeMenu is not null,
+            out var pressedButton
+        );
         if (nextActivation is not null)
         {
             Logger.Log(
@@ -420,7 +416,11 @@ internal class RadialMenuController(
             }
             else
             {
-                var result = ActivateItem(nextActivation.Item, nextActivation.SecondaryAction);
+                var result = ActivateItem(
+                    nextActivation.Item,
+                    nextActivation.SecondaryAction,
+                    allowDelay: activeMenu is not null
+                );
                 if (result == ItemActivationResult.Delayed)
                 {
                     quickSlotController.ShowDelayedActivation(pressedButton);

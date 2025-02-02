@@ -50,7 +50,6 @@ public class ModEntry : Mod
         helper.Events.Player.InventoryChanged += Player_InventoryChanged;
         // For optimal latency: handle input before the Update loop, perform actions/rendering after.
         helper.Events.GameLoop.UpdateTicking += GameLoop_UpdateTicking;
-        helper.Events.GameLoop.UpdateTicked += GameLoop_UpdateTicked;
         helper.Events.Input.ButtonsChanged += Input_ButtonsChanged;
         helper.Events.Display.RenderedHud += Display_RenderedHud;
 
@@ -120,7 +119,7 @@ public class ModEntry : Mod
         menuController.ResetAllScreens();
     }
 
-    private void GameLoop_UpdateTicked(object? sender, UpdateTickedEventArgs e)
+    private void GameLoop_UpdateTicking(object? sender, UpdateTickingEventArgs e)
     {
         if (!Context.IsWorldReady)
         {
@@ -138,14 +137,6 @@ public class ModEntry : Mod
         else if (wasActive && !MenuController.IsMenuActive)
         {
             Game1.freezeControls = false;
-        }
-    }
-
-    private void GameLoop_UpdateTicking(object? sender, UpdateTickingEventArgs e)
-    {
-        if (Context.CanPlayerMove)
-        {
-            MenuController.PreUpdate();
         }
     }
 

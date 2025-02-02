@@ -5,12 +5,13 @@ using StardewValley.ItemTypeDefinitions;
 
 namespace RadialMenu.UI;
 
-internal partial class QuickSlotConfigurationViewModel
+internal partial class QuickSlotConfigurationViewModel(bool allowActiveOutsideMenu = true)
 {
     private static readonly Color AssignedColor = new(50, 100, 50);
     private static readonly Color UnassignedColor = new(60, 60, 60);
     private static readonly Color UnavailableColor = new(0x44, 0x44, 0x44, 0x44);
 
+    public bool AllowActiveOutsideMenu { get; } = allowActiveOutsideMenu;
     public Color CurrentAssignmentColor => IsAssigned ? AssignedColor : UnassignedColor;
     public string CurrentAssignmentLabel =>
         IsAssigned
@@ -28,6 +29,9 @@ internal partial class QuickSlotConfigurationViewModel
 
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public TooltipData Tooltip => GetTooltip();
+
+    [Notify]
+    private bool activeOutsideMenu;
 
     [Notify]
     private ParsedItemData? itemData;
