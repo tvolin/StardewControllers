@@ -1,8 +1,6 @@
 ﻿using RadialMenu.Menus;
-using StardewModdingAPI;
-using StardewValley;
 
-namespace RadialMenu;
+namespace RadialMenu.Api;
 
 /// <summary>
 /// Public API for mod integrations.
@@ -30,13 +28,30 @@ public interface IRadialMenuApi
     void InvalidatePage(IManifest mod, string id);
 
     /// <summary>
-    /// Registers a new page to be made available in the Custom Menu (default: right trigger).
+    /// Registers a new page to be made available in the Mod Menu (default: right trigger).
     /// </summary>
     /// <param name="mod">Manifest for the mod that will own the menu.</param>
     /// <param name="id">Unique (per mod) ID for the page. Registering a page with a previously-used ID will overwrite
     /// the previous page.</param>
     /// <param name="factory">Factory for creating the page.</param>
     void RegisterCustomMenuPage(IManifest mod, string id, IRadialMenuPageFactory factory);
+
+    /// <summary>
+    /// Registers items to be available in the user's item library.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Items registered this way are not immediately associated with a menu page, and do not appear in an enforced order;
+    /// instead, they can be assigned to Mod Menu pages and Quick Slots in Star Control's settings menu.
+    /// </para>
+    /// <para>
+    /// Mods should use this registration method when they wish to simply provide access to their features without
+    /// enforcing a particular order or hierarchy on the player.
+    /// </para>
+    /// </remarks>
+    /// <param name="mod">Manifest for the mod providing the item.</param>
+    /// <param name="items">The items to register.</param>
+    void RegisterItems(IManifest mod, IEnumerable<IRadialMenuItem> items);
 }
 
 /// <summary>
@@ -56,48 +71,4 @@ public interface IRadialMenuPageFactory
     /// <param name="who">The player for whom the page will be displayed. Callers should use this whenever possible
     /// instead of <see cref="Game1.player"/> in case of co-op play.</param>
     IRadialMenuPage CreatePage(Farmer who);
-}
-
-/// <summary>
-/// Implementation of the <see cref="IRadialMenuApi"/>.
-/// </summary>
-/// <remarks>
-/// Must be public to satisfy SMAPI requirements. Avoid passing concrete references.
-/// </remarks>
-public class Api : IRadialMenuApi
-{
-    private readonly PageRegistry registry;
-    private readonly IMonitor monitor;
-
-    internal Api(PageRegistry registry, IMonitor monitor)
-    {
-        this.registry = registry;
-        this.monitor = monitor;
-    }
-
-    internal IReadOnlyList<IRadialMenuPage> GetPages(Farmer who)
-    {
-        return registry.CreatePageList(who);
-    }
-
-    public void InvalidatePage(IManifest mod, string id)
-    {
-        var pageKey = GetPageKey(mod, id);
-        if (!registry.InvalidatePage(pageKey))
-        {
-            monitor.Log($"No menu page '{id}' registered for mod '{mod.UniqueID}'.", LogLevel.Warn);
-        }
-    }
-
-    public void RegisterCustomMenuPage(IManifest mod, string id, IRadialMenuPageFactory factory)
-    {
-        var pageKey = GetPageKey(mod, id);
-        registry.RegisterPage(pageKey, factory);
-        monitor.Log($"Registered menu page '{id}' for mod '{mod.UniqueID}'.", LogLevel.Info);
-    }
-
-    private static string GetPageKey(IManifest mod, string id)
-    {
-        return $"{mod.UniqueID}:{id}";
-    }
 }

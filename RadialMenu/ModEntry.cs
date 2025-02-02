@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using RadialMenu.Api;
 using RadialMenu.Config;
 using RadialMenu.Gmcm;
 using RadialMenu.Graphics;
@@ -21,7 +22,7 @@ public class ModEntry : Mod
     private RadialMenuController MenuController => menuController.Value;
 
     // Global state
-    private Api api = null!;
+    private RadialMenuApi api = null!;
     private ModConfig config = null!;
     private Gmcm.GenericModConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
@@ -233,7 +234,8 @@ public class ModEntry : Mod
             config,
             settingsItem,
             ActivateModMenuItem,
-            registeredPages
+            registeredPages,
+            pageRegistry.StandaloneItems.Select(x => x.Item)
         );
         var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
         var quickSlotController = new QuickSlotController(
@@ -351,7 +353,7 @@ public class ModEntry : Mod
 
     private void OpenConfigMenu(bool asRoot = false, Action? onClose = null)
     {
-        ConfigurationMenu.Open(Helper, config, asRoot: asRoot, onClose: onClose);
+        ConfigurationMenu.Open(Helper, config, pageRegistry, asRoot: asRoot, onClose: onClose);
     }
 
     private void RegisterConfigMenu()

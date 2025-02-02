@@ -12,7 +12,8 @@ internal class ModMenu(
     ModConfig config,
     ModMenuItem settingsItem,
     Action<ModMenuItemConfiguration> shortcutActivator,
-    IInvalidatableList<IRadialMenuPage> additionalPages
+    IInvalidatableList<IRadialMenuPage> additionalPages,
+    IEnumerable<IRadialMenuItem> standaloneItems
 ) : IRadialMenu
 {
     public IReadOnlyList<IRadialMenuPage> Pages
@@ -44,7 +45,7 @@ internal class ModMenu(
     public IRadialMenuItem? GetItem(string id)
     {
         return Pages
-            .OfType<MenuPage<ModMenuItem>>()
+            .OfType<MenuPage<IRadialMenuItem>>()
             .SelectMany(page => page.InternalItems)
             .FirstOrDefault(item => item?.Id == id);
     }
@@ -92,8 +93,9 @@ internal class ModMenu(
         {
             Logger.Log(LogCategory.Menus, $"Creating page {pageIndex} of mod menu...");
             pages.Add(
-                MenuPage.FromModItemConfiguration(
+                MenuPage.FromModItemConfigurations(
                     pageConfig,
+                    standaloneItems,
                     shortcutActivator,
                     pageIndex == config.Items.SettingsItemPageIndex ? InsertSettingsItem : null
                 )
@@ -108,7 +110,7 @@ internal class ModMenu(
         );
         return pages;
 
-        void InsertSettingsItem(List<ModMenuItem> items)
+        void InsertSettingsItem(List<IRadialMenuItem> items)
         {
             var index = Math.Clamp(config.Items.SettingsItemPositionIndex, 0, items.Count - 1);
             items.Insert(index, settingsItem);

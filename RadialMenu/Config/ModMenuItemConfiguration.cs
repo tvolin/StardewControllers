@@ -55,13 +55,31 @@ public class ModMenuItemConfiguration : IConfigEquatable<ModMenuItemConfiguratio
     /// <summary>
     /// The icon representing this item, to display in the radial menu.
     /// </summary>
-    public IconConfig Icon { get; set; } = new();
+    public IconConfig? Icon { get; set; } = new();
 
     /// <summary>
     /// Configures some information to be automatically synchronized from the target mod's options
     /// in Generic Mod Config Menu.
     /// </summary>
     public GmcmAssociation? GmcmSync { get; set; }
+
+    /// <summary>
+    /// Whether this item is a reference to an item added by an API client.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// If <c>true</c>, then the <see cref="Id"/> must match the
+    /// <see cref="Menus.IRadialMenuItem.Id"/> of a registered <see cref="Menus.IRadialMenuItem"/>,
+    /// otherwise it will not be available during gameplay.
+    /// </para>
+    /// <para>
+    /// Enabling this setting overrides every other property, since the third-party mod controls
+    /// everything about the menu item. <see cref="Name"/>, <see cref="Icon"/>,
+    /// <see cref="Keybind"/> and so on are all ignored, and may be overwritten with empty values
+    /// when the configuration is saved.
+    /// </para>
+    /// </remarks>
+    public bool IsApiItem { get; set; }
 
     /// <inheritdoc />
     public bool Equals(ModMenuItemConfiguration? other)
@@ -77,9 +95,13 @@ public class ModMenuItemConfiguration : IConfigEquatable<ModMenuItemConfiguratio
         return Id == other.Id
             && Name == other.Name
             && Description == other.Description
-            && Keybind.Equals(other.Keybind)
+            && (
+                (!Keybind.IsBound && !other.Keybind.IsBound)
+                || Keybind.Buttons.SequenceEqual(other.Keybind.Buttons)
+            )
             && EnableActivationDelay == other.EnableActivationDelay
-            && Icon.Equals(other.Icon)
+            && (Icon ?? new()).Equals(other.Icon ?? new())
+            && IsApiItem == other.IsApiItem
             && GmcmSync is null == other.GmcmSync is null
             && GmcmSync?.Equals(other.GmcmSync) != false;
     }

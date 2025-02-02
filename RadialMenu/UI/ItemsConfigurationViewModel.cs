@@ -19,6 +19,7 @@ internal partial class ItemsConfigurationViewModel
         IsPageFull
             ? I18n.Config_ModMenu_MaxItems_Description()
             : I18n.Config_ModMenu_AddItem_Description();
+    public IReadOnlyList<ApiItemViewModel> ApiItems { get; set; } = [];
     public bool CanAddItem => !IsReordering;
     public bool CanRemoveItem => IsReordering;
     public bool IsPageFull => SelectedPageSize >= MAX_PAGE_SIZE;
@@ -65,8 +66,8 @@ internal partial class ItemsConfigurationViewModel
         []
     )
     {
-        Name = I18n.Config_ModMenu_SettingsItem_Name(),
-        Description = I18n.Config_ModMenu_SettingsItem_Description(),
+        EditableName = I18n.Config_ModMenu_SettingsItem_Name(),
+        EditableDescription = I18n.Config_ModMenu_SettingsItem_Description(),
         CustomIcon = Sprites.Settings(),
         Editable = false,
         IconType = { SelectedValue = ItemIconType.Custom },
@@ -90,7 +91,11 @@ internal partial class ItemsConfigurationViewModel
         var newItem = new ModMenuItemConfigurationViewModel(
             IdGenerator.NewId(6),
             allItemsTask.Result
-        );
+        )
+        {
+            // Clone the items so we don't get selection state leaking between pickers.
+            ApiItems = ApiItems.Select(item => item.Clone()).ToList(),
+        };
         Pager.SelectedPage!.Items.Add(newItem);
         EditModMenuItem(newItem);
         return true;
@@ -197,7 +202,10 @@ internal partial class ItemsConfigurationViewModel
                             ? itemConfig.Id
                             : IdGenerator.NewId(6),
                         allItems
-                    );
+                    )
+                    {
+                        ApiItems = ApiItems.Select(item => item.Clone()).ToList(),
+                    };
                     itemViewModel.Load(itemConfig);
                     pageViewModel.Items.Add(itemViewModel);
                 }

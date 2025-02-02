@@ -124,7 +124,7 @@
   "Config.ModMenuItem.Gmcm.Mod.Title": "Mod:",
   "Config.ModMenuItem.Gmcm.Mod.Description": "The mod that provides the action that should appear in the menu. Only mods that have registered at least one keybind option with GMCM will show up in this list.",
   "Config.ModMenuItem.Gmcm.SyncName.Title": "Sync Title",
-  "Config.ModMenuItem.Gmcm.SyncName.Description": "Set this item's Title to the exact mod name chosen above, and keep it sync if the mod name changes. Uncheck this to choose your own title.",
+  "Config.ModMenuItem.Gmcm.SyncName.Description": "Set this item's Title to the exact mod name chosen above, and keep it in sync if the mod name changes. Uncheck this to choose your own title.",
   "Config.ModMenuItem.Gmcm.SyncDetails.Title": "Sync Description",
   "Config.ModMenuItem.Gmcm.SyncDetails.Description": "Set this item's Description to the action name chosen below. Uncheck this to write your own description.",
   "Config.ModMenuItem.Gmcm.ConflictingKeybind.Title": "Possible conflict detected.",
@@ -153,6 +153,8 @@
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Title": "Pixel Region",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Description": "The area (source rectangle) within the sprite sheet asset where the specific sprite (icon) is located.",
   "Config.ModMenuItem.CustomIcon.SourceRectangle.Placeholder": "X, Y, Width, Height",
+  "Config.ModMenuItem.Api.EmptyText": "Your item library is currently empty.\n\nTo see items here, install a mod with Star Control integration, such as Iconic Framework.",
+  "Config.ModMenuItem.Api.ItemDescription": "From: {{ModName}}\n({{ModId}})\n\n{{Description}}",
 
   // Config menu - Quick slot editor
   "Config.QuickSlot.Assigned.Title": "Assigned",
@@ -247,6 +249,8 @@
   "Enum.ItemSyncType.None.Description": "Don't sync with any other mod. The settings below will remain exactly as they are until you change them.",
   "Enum.ItemSyncType.Gmcm.Name": "GMCM",
   "Enum.ItemSyncType.Gmcm.Description": "Sync some or all settings with a keybinding registered in Generic Mod Config Menu. Settings will be updated on game launch and when changing configuration in GMCM.",
+  "Enum.ItemSyncType.Api.Name": "Library",
+  "Enum.ItemSyncType.Api.Description": "Choose an item provided by an integrated mod such as Iconic Framework.",
   "Enum.MenuToggleMode.Hold.Name": "Hold",
   "Enum.MenuToggleMode.Hold.Description": "The wheel will stay open while the associated button is held, or until an item is activated.",
   "Enum.MenuToggleMode.Toggle.Name": "Toggle",

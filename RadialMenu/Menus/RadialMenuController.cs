@@ -212,7 +212,12 @@ internal class RadialMenuController(
                 {
                     activeMenu?.Toggle.ForceOff();
                 }
-                Sound.Play(config.Sound.ItemActivationSound);
+                var activationSound = item.GetActivationSound(
+                    player,
+                    secondaryAction,
+                    config.Sound.ItemActivationSound
+                );
+                Sound.Play(activationSound ?? "");
                 Reset();
                 break;
         }

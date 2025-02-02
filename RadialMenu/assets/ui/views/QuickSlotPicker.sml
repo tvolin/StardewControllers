@@ -110,7 +110,7 @@
                       is-checked={<>ActiveOutsideMenu}
                       opacity="0.5"
                       pointer-events-enabled="false"
-                      +state:enabled={AllowActiveOutsideMenu}
+                      +state:enabled={:AllowActiveOutsideMenu}
                       +state:enabled:opacity="1"
                       +state:enabled:pointer-events-enabled="true" />
             <checkbox margin="0, 0, 32, 0"

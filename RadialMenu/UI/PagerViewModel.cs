@@ -133,6 +133,8 @@ internal partial class PageViewModel(int index)
 
 internal record Transform(Vector2 Translation, Vector2 Scale)
 {
+    public static readonly Transform None = new(Vector2.Zero, Vector2.One);
+
     public Transform(Vector2 translation)
         : this(translation, Vector2.One) { }
 }

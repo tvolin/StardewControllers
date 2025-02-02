@@ -1,23 +1,28 @@
 ﻿using System.Collections;
 using RadialMenu.Menus;
-using StardewValley;
 
-namespace RadialMenu;
+namespace RadialMenu.Api;
 
 /// <summary>
 /// Helper for mod-registered pages; manages per-player page lists and handles invalidation.
 /// </summary>
 internal class PageRegistry
 {
+    public record ItemRegistration(IManifest Mod, IRadialMenuItem Item);
+
     record PageRegistration(string Key, IRadialMenuPageFactory Factory);
 
-    public int Count => registrations.Count;
+    public int Count => pages.Count;
+
+    public IReadOnlyList<ItemRegistration> StandaloneItems => standaloneItems;
 
     // The primary data structure should be an indexed collection so that it can be composed into other lists.
-    private readonly List<PageRegistration> registrations = [];
+    private readonly List<PageRegistration> pages = [];
 
     // Re-registrations will happen by key, so we need a way to refer back to the primary data.
     private readonly Dictionary<string, int> registrationIndices = [];
+
+    private readonly List<ItemRegistration> standaloneItems = [];
 
     // Pages have to be tracked in order to be able to invalidate them. We can't do both in the same place because
     // registrations are global and page lists are per-player. Use weak references to prevent memory leaks.
@@ -25,7 +30,7 @@ internal class PageRegistry
 
     public IRadialMenuPage CreatePage(int index, Farmer who)
     {
-        return registrations[index].Factory.CreatePage(who);
+        return pages[index].Factory.CreatePage(who);
     }
 
     public IInvalidatableList<IRadialMenuPage> CreatePageList(Farmer who)
@@ -45,17 +50,22 @@ internal class PageRegistry
         return true;
     }
 
+    public void RegisterItem(IManifest mod, IRadialMenuItem item)
+    {
+        standaloneItems.Add(new(mod, item));
+    }
+
     public void RegisterPage(string key, IRadialMenuPageFactory factory)
     {
         if (registrationIndices.TryGetValue(key, out var index))
         {
             InvalidateIndex(index);
-            registrations[index] = new(key, factory);
+            pages[index] = new(key, factory);
         }
         else
         {
-            registrations.Add(new(key, factory));
-            registrationIndices.Add(key, registrations.Count - 1);
+            pages.Add(new(key, factory));
+            registrationIndices.Add(key, pages.Count - 1);
         }
     }
 

@@ -44,7 +44,7 @@
               transform={Transform}
               +transition:transform="100ms EaseOutCubic"
               visibility={Visible}>
-            <mod-menu-slot *repeat={Items} id={:Id} icon={Icon} tooltip={Name} highlight={IsReordering} />
+            <mod-menu-slot *repeat={Items} id={:Id} highlight={IsReordering} />
             <panel>
                 <frame pointer-events-enabled={~ItemsConfigurationViewModel.CanAddItem}
                        +state:hidden={~ItemsConfigurationViewModel.CanRemoveItem}

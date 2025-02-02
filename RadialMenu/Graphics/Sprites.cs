@@ -13,7 +13,7 @@ public static class Sprites
     /// <summary>
     /// Gets the default error item sprite used for missing items.
     /// </summary>
-    public static Sprite? Error() => Sprite.ForItemId("Error_Invalid");
+    public static Sprite Error() => Sprite.ForItemId("Error_Invalid");
 
     /// <summary>
     /// Sprite used for the mod settings menu item.

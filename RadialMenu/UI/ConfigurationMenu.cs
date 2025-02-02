@@ -1,3 +1,4 @@
+using RadialMenu.Api;
 using RadialMenu.Config;
 using StardewValley.Menus;
 
@@ -8,11 +9,20 @@ internal static class ConfigurationMenu
     public static void Open(
         IModHelper helper,
         ModConfig config,
+        PageRegistry pageRegistry,
         bool asRoot = false,
         Action? onClose = null
     )
     {
-        var context = new ConfigurationViewModel(helper, config);
+        var context = new ConfigurationViewModel(helper, config)
+        {
+            Items =
+            {
+                ApiItems = pageRegistry
+                    .StandaloneItems.Select(x => ApiItemViewModel.FromItem(x.Mod, x.Item))
+                    .ToList(),
+            },
+        };
         context.Controller = asRoot
             ? ViewEngine.OpenRootMenu("Configuration", context)
             : ViewEngine.OpenChildMenu("Configuration", context);

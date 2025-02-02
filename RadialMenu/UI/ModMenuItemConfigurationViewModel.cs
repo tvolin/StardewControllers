@@ -18,33 +18,69 @@ internal enum ItemSyncType
 {
     None,
     Gmcm,
+    Api,
 }
 
 internal partial class ModMenuItemConfigurationViewModel
 {
+    public static Sprite QuestionMark => new(Game1.mouseCursors, new(240, 192, 16, 16));
+
+    [DependsOn(nameof(IsApiPickerVisible), nameof(ContentSize))]
+    public Transform ApiPickerTransform =>
+        IsApiPickerVisible ? Transform.None : new(new(ContentSize.X, 0));
     public bool CanEditDescription =>
-        SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableDescriptionSync != true;
+        SyncType.SelectedValue != ItemSyncType.Api
+        && (SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableDescriptionSync != true);
     public bool CanEditKeybind => SyncType.SelectedValue == ItemSyncType.None;
     public bool CanEditName =>
-        SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableTitleSync != true;
+        SyncType.SelectedValue != ItemSyncType.Api
+        && (SyncType.SelectedValue != ItemSyncType.Gmcm || GmcmSync?.EnableTitleSync != true);
+    public string Description =>
+        SyncType.SelectedValue == ItemSyncType.Api
+            ? SelectedApiItem?.Description ?? ""
+            : EditableDescription;
     public bool Editable { get; set; } = true;
     public string Id { get; private set; }
+    public Sprite EditableIcon =>
+        (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon) ?? QuestionMark;
+
+    [DependsOn(nameof(EditableIcon), nameof(SelectedApiItem))]
     public Sprite Icon =>
-        (IconType.SelectedValue == ItemIconType.Item ? IconFromItemId : CustomIcon)
-        ?? new(Game1.mouseCursors, new(240, 192, 16, 16)); // Question mark
+        SyncType.SelectedValue == ItemSyncType.Api
+            ? SelectedApiItem?.Sprite ?? QuestionMark
+            : EditableIcon;
     public EnumSegmentsViewModel<ItemIconType> IconType { get; } = new();
+    public bool IsApiPickerEmpty => ApiItems.Count == 0;
+    public bool IsApiPickerVisible => SyncType.SelectedValue == ItemSyncType.Api;
     public bool IsCustomIcon => IconType.SelectedValue == ItemIconType.Custom;
     public bool IsGmcmSyncVisible => SyncType.SelectedValue == ItemSyncType.Gmcm;
+    public bool IsMainEditorVisible => SyncType.SelectedValue != ItemSyncType.Api;
     public bool IsStandardIcon => IconType.SelectedValue == ItemIconType.Item;
+
+    [DependsOn(nameof(IsMainEditorVisible), nameof(ContentSize))]
+    public Transform MainEditorTransform =>
+        IsMainEditorVisible ? Transform.None : new(new(-ContentSize.X, 0));
+    public string Name =>
+        SyncType.SelectedValue == ItemSyncType.Api ? SelectedApiItem?.Title ?? "" : EditableName;
+
     public EnumSegmentsViewModel<ItemSyncType> SyncType { get; } = new();
     public TooltipData Tooltip =>
         !string.IsNullOrEmpty(Description) ? new TooltipData(Description, Name) : new(Name);
 
     [Notify]
+    private IReadOnlyList<ApiItemViewModel> apiItems = [];
+
+    [Notify]
+    private Vector2 contentSize;
+
+    [Notify]
     private Sprite? customIcon;
 
     [Notify]
-    private string description = "";
+    private string editableDescription = "";
+
+    [Notify]
+    private string editableName = "";
 
     [Notify]
     private bool enableActivationDelay;
@@ -74,10 +110,13 @@ internal partial class ModMenuItemConfigurationViewModel
     private string iconSourceRectText = "";
 
     [Notify]
+    private bool isApiPickerLoaded; // Prevents glitchy transition on first UI open.
+
+    [Notify]
     private bool isReordering;
 
     [Notify]
-    private string name = "";
+    private ApiItemViewModel? selectedApiItem;
 
     [Notify]
     private ShelfViewModel<ParsedItemData> searchResults = ShelfViewModel<ParsedItemData>.Empty;
@@ -102,14 +141,32 @@ internal partial class ModMenuItemConfigurationViewModel
     public void Load(ModMenuItemConfiguration config)
     {
         Id = config.Id;
-        Name = config.Name;
-        Description = config.Description;
+        if (config.IsApiItem)
+        {
+            var foundItem = !string.IsNullOrEmpty(config.Id)
+                ? ApiItems.FirstOrDefault(item => item.Id == config.Id)
+                : null;
+            SelectApiItem(foundItem);
+            EditableName = SelectedApiItem?.Title ?? "";
+            EditableDescription = SelectedApiItem?.Description ?? "";
+            Keybind = new();
+            EnableActivationDelay = false;
+            IconAssetPath = "";
+            IconSourceRect = default;
+            IconItemId = "";
+            IconType.SelectedValue = ItemIconType.Item;
+            GmcmSync = null;
+            SyncType.SelectedValue = ItemSyncType.Api;
+            return;
+        }
+        EditableName = config.Name;
+        EditableDescription = config.Description;
         Keybind = config.Keybind;
         EnableActivationDelay = config.EnableActivationDelay;
-        IconAssetPath = config.Icon.TextureAssetPath;
-        IconSourceRect = config.Icon.SourceRect;
-        IconItemId = config.Icon.ItemId;
-        IconType.SelectedValue = !string.IsNullOrWhiteSpace(config.Icon.ItemId)
+        IconAssetPath = config.Icon?.TextureAssetPath ?? "";
+        IconSourceRect = config.Icon?.SourceRect ?? default;
+        IconItemId = config.Icon?.ItemId ?? "";
+        IconType.SelectedValue = !string.IsNullOrWhiteSpace(config.Icon?.ItemId)
             ? ItemIconType.Item
             : ItemIconType.Custom;
         if (
@@ -140,11 +197,38 @@ internal partial class ModMenuItemConfigurationViewModel
         }
     }
 
+    public void OnRandomizeButtonHover()
+    {
+        Game1.playSound("Cowboy_Footstep");
+    }
+
+    public void PickRandomIcon()
+    {
+        Game1.playSound("drumkit6");
+        IconType.SelectedValue = ItemIconType.Item;
+        int index = Random.Shared.Next(allItems.Length);
+        IconItemId = allItems[index].QualifiedItemId;
+        UpdateRawSearchResults();
+    }
+
     public void Save(ModMenuItemConfiguration config)
     {
+        if (SyncType.SelectedValue == ItemSyncType.Api)
+        {
+            config.Id = SelectedApiItem?.Id ?? Id;
+            config.IsApiItem = true;
+            config.Name = SelectedApiItem?.Title ?? "";
+            config.Description = SelectedApiItem?.Description ?? "";
+            config.Keybind = new();
+            config.EnableActivationDelay = false;
+            config.Icon = new();
+            config.GmcmSync = null;
+            return;
+        }
         config.Id = Id;
-        config.Name = Name;
-        config.Description = description;
+        config.IsApiItem = false;
+        config.Name = EditableName;
+        config.Description = EditableDescription;
         config.Keybind = Keybind;
         config.EnableActivationDelay = enableActivationDelay;
         config.Icon = IconType.SelectedValue switch
@@ -170,18 +254,22 @@ internal partial class ModMenuItemConfigurationViewModel
                 : null;
     }
 
-    public void OnRandomizeButtonHover()
+    public void SelectApiItem(ApiItemViewModel? apiItem)
     {
-        Game1.playSound("Cowboy_Footstep");
-    }
-
-    public void PickRandomIcon()
-    {
-        Game1.playSound("drumkit6");
-        IconType.SelectedValue = ItemIconType.Item;
-        int index = Random.Shared.Next(allItems.Length);
-        IconItemId = allItems[index].QualifiedItemId;
-        UpdateRawSearchResults();
+        if (apiItem == SelectedApiItem)
+        {
+            return;
+        }
+        Game1.playSound("smallSelect");
+        if (SelectedApiItem is { } previousItem)
+        {
+            previousItem.Selected = false;
+        }
+        SelectedApiItem = apiItem;
+        if (apiItem is not null)
+        {
+            apiItem.Selected = true;
+        }
     }
 
     public void SetIconFromSearchResults(Vector2 position)
@@ -204,7 +292,7 @@ internal partial class ModMenuItemConfigurationViewModel
             && GmcmSync.EnableTitleSync
         )
         {
-            Name = GmcmSync.SelectedMod.Name;
+            EditableName = GmcmSync.SelectedMod.Name;
         }
         else if (
             e.PropertyName
@@ -214,7 +302,7 @@ internal partial class ModMenuItemConfigurationViewModel
             && GmcmSync.EnableDescriptionSync
         )
         {
-            Description = GmcmSync.SelectedOption.SimpleName;
+            EditableDescription = GmcmSync.SelectedOption.SimpleName;
         }
 
         if (
@@ -237,7 +325,7 @@ internal partial class ModMenuItemConfigurationViewModel
 
     private void IconType_ValueChanged(object? sender, EventArgs e)
     {
-        OnPropertyChanged(new(nameof(Icon)));
+        OnPropertyChanged(new(nameof(EditableIcon)));
         OnPropertyChanged(new(nameof(IsCustomIcon)));
         OnPropertyChanged(new(nameof(IsStandardIcon)));
     }
@@ -290,10 +378,16 @@ internal partial class ModMenuItemConfigurationViewModel
             GmcmSync ??= new(gmcmKeybindings);
             GmcmSync.PropertyChanged += GmcmSync_PropertyChanged;
         }
+        IsApiPickerLoaded |= IsApiPickerVisible;
+        OnPropertyChanged(new(nameof(IsApiPickerVisible)));
         OnPropertyChanged(new(nameof(IsGmcmSyncVisible)));
+        OnPropertyChanged(new(nameof(IsMainEditorVisible)));
         OnPropertyChanged(new(nameof(CanEditName)));
         OnPropertyChanged(new(nameof(CanEditDescription)));
         OnPropertyChanged(new(nameof(CanEditKeybind)));
+        OnPropertyChanged(new(nameof(Name)));
+        OnPropertyChanged(new(nameof(Description)));
+        OnPropertyChanged(new(nameof(Icon)));
     }
 
     private void UpdateRawSearchResults()

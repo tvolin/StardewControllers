@@ -212,7 +212,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         var itemConfig = config
             .Items.ModMenuPages.SelectMany(items => items)
             .FirstOrDefault(item => item.Id == id);
-        return itemConfig is not null ? GetIconSprite(itemConfig.Icon) : null;
+        return itemConfig?.Icon is { } icon ? GetIconSprite(icon) : null;
     }
 
     private Sprite? GetPromptSprite(SButton button)

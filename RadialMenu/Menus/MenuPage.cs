@@ -46,15 +46,24 @@ internal static class MenuPage
     /// <param name="activator">Callback for when a custom item is activated.</param>
     /// <param name="transform">Optional callback to transform the item list before creating the page,
     /// e.g. to rearrange or insert items.</param>
-    public static IRadialMenuPage FromModItemConfiguration(
+    public static IRadialMenuPage FromModItemConfigurations(
         IEnumerable<ModMenuItemConfiguration> itemConfigs,
+        IEnumerable<IRadialMenuItem> standaloneItems,
         Action<ModMenuItemConfiguration> activator,
-        Action<List<ModMenuItem>>? transform = null
+        Action<List<IRadialMenuItem>>? transform = null
     )
     {
-        var items = itemConfigs.Select(config => CreateModMenuItem(config, activator)).ToList();
+        var items = itemConfigs
+            .Select(config =>
+                config.IsApiItem
+                    ? standaloneItems.FirstOrDefault(item => item.Id == config.Id)
+                    : CreateModMenuItem(config, activator)
+            )
+            .Where(item => item is not null)
+            .Cast<IRadialMenuItem>()
+            .ToList();
         transform?.Invoke(items);
-        return new MenuPage<ModMenuItem>(items, _ => false);
+        return new MenuPage<IRadialMenuItem>(items, _ => false);
     }
 
     private static ModMenuItem CreateModMenuItem(
@@ -62,9 +71,11 @@ internal static class MenuPage
         Action<ModMenuItemConfiguration> activator
     )
     {
-        var sprite = !string.IsNullOrEmpty(config.Icon.ItemId)
-            ? Sprite.ForItemId(config.Icon.ItemId)
-            : Sprite.TryLoad(config.Icon.TextureAssetPath, config.Icon.SourceRect);
+        var sprite = config.Icon is { } icon
+            ? !string.IsNullOrEmpty(icon.ItemId)
+                ? Sprite.ForItemId(icon.ItemId)
+                : Sprite.TryLoad(icon.TextureAssetPath, icon.SourceRect)
+            : null;
         Logger.Log(
             LogCategory.Menus,
             $"Creating mod menu item with: ID = {config.Id}, name = {config.Name}, "
