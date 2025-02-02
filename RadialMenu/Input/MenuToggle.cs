@@ -120,7 +120,12 @@ public class MenuToggle(
         {
             SButton.LeftTrigger => gamePadState.Triggers.Left > TriggerDeadZone,
             SButton.RightTrigger => gamePadState.Triggers.Right > TriggerDeadZone,
-            _ => inputHelper.IsDown(button),
+            _ => inputHelper.IsDown(button)
+                || (
+                    State == MenuToggleState.On
+                    && Mode == MenuToggleMode.Hold
+                    && inputHelper.IsSuppressed(button)
+                ),
         };
     }
 
