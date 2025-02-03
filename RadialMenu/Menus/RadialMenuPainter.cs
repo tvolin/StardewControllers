@@ -171,6 +171,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 );
             }
             GetSpriteSize(item, out var isMonogram);
+            var opacity = item.Enabled ? 1 : 0.5f;
             // Sprites draw from top left rather than center; we have to adjust for it.
             var itemPoint2d = new Vector2(
                 centerX + itemPoint.X - displaySize.X / 2.0f,
@@ -179,7 +180,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             var destinationRect = new Rectangle(itemPoint2d.ToPoint(), displaySize);
             if (isMonogram)
             {
-                Monogram.Draw(spriteBatch, destinationRect, item.Title, Color.White);
+                Monogram.Draw(spriteBatch, destinationRect, item.Title, Color.White * opacity);
             }
             else
             {
@@ -189,7 +190,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                     shadowTexture,
                     destinationRect.Location.ToVector2() + new Vector2(32f * Scale, 52f * Scale),
                     shadowTexture.Bounds,
-                    new(Color.Gray, 0.5f),
+                    new Color(Color.Gray, 0.5f) * opacity,
                     0.0f,
                     new(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y),
                     3f * Scale,
@@ -203,10 +204,15 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 var baseColor = item.TintRectangle is null
                     ? (item.TintColor ?? Color.White)
                     : Color.White;
-                spriteBatch.Draw(item.Texture, destinationRect, item.SourceRectangle, baseColor);
+                spriteBatch.Draw(
+                    item.Texture,
+                    destinationRect,
+                    item.SourceRectangle,
+                    baseColor * opacity
+                );
                 if (item.TintRectangle is { } tintRect && item.TintColor is { } tintColor)
                 {
-                    spriteBatch.Draw(item.Texture, destinationRect, tintRect, tintColor);
+                    spriteBatch.Draw(item.Texture, destinationRect, tintRect, tintColor * opacity);
                 }
             }
             if (item.Quality is { } quality && quality > 0)
@@ -222,7 +228,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                     Game1.mouseCursors,
                     qualityIconPos,
                     qualitySourceRect,
-                    Color.White,
+                    Color.White * opacity,
                     rotation: 0,
                     origin: Vector2.Zero,
                     scale: 3.0f * Scale,
@@ -244,7 +250,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                     stackLabelPos,
                     stackTextScale,
                     layerDepth: 0.1f,
-                    styles.StackSizeColor
+                    styles.StackSizeColor * opacity
                 );
             }
             currentAngle += angleBetweenItems;
@@ -266,6 +272,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
 
         var centerX = viewport.X + viewport.Width / 2.0f;
         var centerY = viewport.Y + viewport.Height / 2.0f;
+        var opacity = item.Enabled ? 1 : 0.5f;
         if (item.Texture is not null)
         {
             var itemDrawSize = GetScaledSize(item, styles.SelectionSpriteHeight * Scale);
@@ -274,10 +281,10 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             var baseColor = item.TintRectangle is null
                 ? (item.TintColor ?? Color.White)
                 : Color.White;
-            spriteBatch.Draw(item.Texture, itemRect, item.SourceRectangle, baseColor);
+            spriteBatch.Draw(item.Texture, itemRect, item.SourceRectangle, baseColor * opacity);
             if (item.TintRectangle is Rectangle tintRect && item.TintColor is Color tintColor)
             {
-                spriteBatch.Draw(item.Texture, itemRect, tintRect, tintColor);
+                spriteBatch.Draw(item.Texture, itemRect, tintRect, tintColor * opacity);
             }
         }
 
@@ -288,7 +295,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             labelFont,
             item.Title,
             labelPos,
-            styles.SelectionTitleColor,
+            styles.SelectionTitleColor * opacity,
             rotation: 0,
             origin: Vector2.Zero,
             scale: Scale,
@@ -311,7 +318,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 descriptionFont,
                 descriptionLine,
                 descriptionPos,
-                styles.SelectionDescriptionColor,
+                styles.SelectionDescriptionColor * opacity,
                 rotation: 0,
                 origin: Vector2.Zero,
                 scale: Scale,
@@ -376,6 +383,11 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             itemCount,
             segmentCount
         );
+        var isFocusedItemEnabled =
+            focusedIndex >= 0 && focusedIndex < Items.Count && Items[focusedIndex]?.Enabled == true;
+        var highlightColor = isFocusedItemEnabled
+            ? styles.HighlightColor
+            : AlphaBlend(styles.OuterBackgroundColor, styles.HighlightColor, 0.25f);
         for (var i = 0; i < segmentCount; i++)
         {
             var isFocusHighlight =
@@ -392,7 +404,7 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             var outerIndex = i * outerChordSize;
             var outerColor =
                 isFocusHighlight
-                    ? Color.Lerp(styles.OuterBackgroundColor, styles.HighlightColor, selectionBlend)
+                    ? Color.Lerp(styles.OuterBackgroundColor, highlightColor, selectionBlend)
                 : isSelectionHighlight ? styles.SelectionColor
                 : styles.OuterBackgroundColor;
             for (var j = 0; j < outerChordSize; j++)
@@ -400,6 +412,13 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
                 outerVertices[outerIndex + j].Color = outerColor;
             }
         }
+    }
+
+    private static Color AlphaBlend(Color color1, Color color2, float a)
+    {
+        var c1 = color1 * (1 - a);
+        var c2 = color2 * a;
+        return new(c1.R + c2.R, c1.G + c2.G, c1.B + c2.B, color1.A);
     }
 
     private static VertexPositionColor[] GenerateCircleVertices(float radius, Color color)

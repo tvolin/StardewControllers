@@ -188,6 +188,11 @@ internal class RadialMenuController(
         bool forceSuppression = false
     )
     {
+        if (!item.Enabled)
+        {
+            Sound.Play(config.Sound.ItemErrorSound);
+            return ItemActivationResult.Ignored;
+        }
         var result = item.Activate(
             player,
             allowDelay ? config.Input.DelayedActions : DelayedActions.None,

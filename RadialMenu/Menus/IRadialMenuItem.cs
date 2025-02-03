@@ -37,6 +37,14 @@ public interface IRadialMenuItem
     string Description { get; }
 
     /// <summary>
+    /// Whether the item is currently enabled.
+    /// </summary>
+    /// <remarks>
+    /// Disabled items show up in the menu as semi-transparent, and cannot be activated.
+    /// </remarks>
+    bool Enabled => true;
+
+    /// <summary>
     /// The amount available.
     /// </summary>
     /// <remarks>

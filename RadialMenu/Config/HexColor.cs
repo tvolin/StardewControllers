@@ -102,6 +102,11 @@ public class HexColor : IEquatable<HexColor>
         return color.GetHashCode();
     }
 
+    public static Color operator *(HexColor color, float opacity)
+    {
+        return (Color)color * opacity;
+    }
+
     public override string ToString()
     {
         var hexString = new StringBuilder("#");
