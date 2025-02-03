@@ -51,6 +51,7 @@ public class DebugConfiguration : IConfigEquatable<DebugConfiguration>
         }
         return EnableGmcmDetailedLogging == other.EnableGmcmDetailedLogging
             && EnableGmcmSyncLogging == other.EnableGmcmSyncLogging
+            && EnableInputLogging == other.EnableInputLogging
             && EnableItemActivationLogging == other.EnableItemActivationLogging
             && EnableMenuInteractionLogging == other.EnableMenuInteractionLogging
             && EnableQuickSlotLogging == other.EnableQuickSlotLogging;
