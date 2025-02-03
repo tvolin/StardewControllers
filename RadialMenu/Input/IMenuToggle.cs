@@ -12,6 +12,13 @@ public interface IMenuToggle
     MenuToggleState State { get; }
 
     /// <summary>
+    /// Begins a forced suppression of the toggle's bound button, if any forced suppression could be
+    /// required, i.e. if the combination of toggle mode and button binding are at risk of leaking
+    /// presses into a subsequent UI.
+    /// </summary>
+    void ForceButtonSuppression();
+
+    /// <summary>
     /// Enters a forced off state (<see cref="MenuToggleState.Suppressed"/>) that is not removed
     /// until the toggle keybind is released.
     /// </summary>
@@ -35,7 +42,9 @@ public interface IMenuToggle
     /// Performs logic that needs to run before the game's main update loop, such as global input
     /// suppression.
     /// </summary>
-    void PreUpdate();
+    /// <param name="interactive">Whether or not the user is allowed to interact with the menu, i.e.
+    /// the player is being controlled and no other menu is active.</param>
+    void PreUpdate(bool interactive);
 
     /// <summary>
     /// Reads the current input state and updates the <see cref="MenuToggle.State"/> if necessary.

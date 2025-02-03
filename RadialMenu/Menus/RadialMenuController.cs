@@ -89,14 +89,14 @@ internal class RadialMenuController(
 
     public void Update(TimeSpan elapsed)
     {
+        foreach (var menu in menus)
+        {
+            menu.Toggle.PreUpdate(Enabled);
+        }
+
         if (!Enabled)
         {
             return;
-        }
-
-        foreach (var menu in menus)
-        {
-            menu.Toggle.PreUpdate();
         }
 
         AnimateMenuOpen(elapsed);
@@ -217,13 +217,14 @@ internal class RadialMenuController(
                 {
                     activeMenu?.Toggle.ForceOff();
                 }
+                activeMenu?.Toggle.ForceButtonSuppression();
                 var activationSound = item.GetActivationSound(
                     player,
                     secondaryAction,
                     config.Sound.ItemActivationSound
                 );
                 Sound.Play(activationSound ?? "");
-                Reset();
+                Reset(true);
                 break;
         }
         return result;
@@ -295,7 +296,7 @@ internal class RadialMenuController(
         return Animation.GetDelayFlashPosition(elapsed);
     }
 
-    private void Reset()
+    private void Reset(bool fromActivation = false)
     {
         Logger.Log(LogCategory.Menus, "Resetting menu controller state");
         delayedItem = null;
@@ -303,9 +304,13 @@ internal class RadialMenuController(
         focusedIndex = -1;
         focusedItem = null;
         cursorAngle = null;
-        if (!config.Input.ReopenOnHold)
+        if (fromActivation)
         {
-            activeMenu?.Toggle.ForceOff();
+            if (!config.Input.ReopenOnHold)
+            {
+                activeMenu?.Toggle.ForceOff();
+            }
+            activeMenu?.Toggle.ForceButtonSuppression();
         }
         activeMenu = null;
         menuOpenTimeMs = 0;
@@ -358,7 +363,7 @@ internal class RadialMenuController(
                 LogLevel.Info
             );
             ItemActivated?.Invoke(this, new(activation.Item, result));
-            Reset();
+            Reset(true);
         }
         // We still return true here, even if the delay hasn't expired, because a delayed activation
         // should prevent any other menu state from changing.
@@ -458,6 +463,7 @@ internal class RadialMenuController(
                     LogCategory.Input,
                     "Trigger release activation detected for primary action."
                 );
+                activeMenu?.Toggle.ForceButtonSuppression();
                 ActivateItem(focusedItem, secondaryAction: false);
             }
             else if (
@@ -469,6 +475,7 @@ internal class RadialMenuController(
                     LogCategory.Input,
                     "Trigger release activation detected for secondary action."
                 );
+                activeMenu?.Toggle.ForceButtonSuppression();
                 ActivateItem(focusedItem, secondaryAction: true);
             }
             else

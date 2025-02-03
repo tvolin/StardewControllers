@@ -19,6 +19,8 @@ public class MenuToggle(
     Func<InputConfiguration, SButton> buttonSelector
 ) : IMenuToggle
 {
+    private const int FORCED_SUPPRESSION_DURATION_TICKS = 3;
+
     /// <inheritdoc />
     public MenuToggleState State { get; private set; }
 
@@ -26,12 +28,31 @@ public class MenuToggle(
     private MenuToggleMode Mode => inputConfig.ToggleMode;
     private float TriggerDeadZone => inputConfig.TriggerDeadZone;
 
+    private int forcedButtonSuppressionTicks;
     private GamePadState gamePadState;
+    private bool hasForcedButtonSuppression;
     private bool wasDown;
+    private bool wasReleasedWhileNonInteractive;
+
+    /// <inheritdoc />
+    public void ForceButtonSuppression()
+    {
+        if (Mode != MenuToggleMode.Hold || !RequiresSmapiBypass(Button))
+        {
+            return;
+        }
+        hasForcedButtonSuppression = true;
+        forcedButtonSuppressionTicks = 0;
+    }
 
     /// <inheritdoc />
     public void ForceOff()
     {
+        ForceButtonSuppression();
+        if (State == MenuToggleState.Off)
+        {
+            return;
+        }
         State = Mode == MenuToggleMode.Hold ? MenuToggleState.Suppressed : MenuToggleState.Off;
         Logger.Log(LogCategory.Input, $"Toggle for {Button} was forced off; new state is {State}.");
     }
@@ -50,9 +71,42 @@ public class MenuToggle(
     }
 
     /// <inheritdoc />
-    public void PreUpdate()
+    public void PreUpdate(bool interactive)
     {
-        if (RequiresSmapiBypass(Button))
+        // Forced button suppression is an unwieldy but seemingly effective hack for dealing with
+        // trigger presses "leaking" into the menu due to disagreement between vanilla and SMAPI
+        // button states, along with the fact that we proactively suppress the trigger during
+        // interactive frames. These factors together cause the game to think that the trigger was
+        // immediately pressed and then released, when it has only been released after a suppressed
+        // down state.
+        //
+        // There isn't a very clean way around it, so what we do is simply continue suppressing the
+        // button until a few ticks AFTER we detect (bypassing SMAPI's detection) that it has
+        // actually been released. At the end of these ticks, the button has already transitioned
+        // through the dead zone and SDV/SMAPI perceive it as simply up - now and previously.
+        if ((wasDown && !wasReleasedWhileNonInteractive) || hasForcedButtonSuppression)
+        {
+            gamePadState = GetRawGamePadState();
+        }
+        if (wasDown && !wasReleasedWhileNonInteractive && !IsButtonDown(Button))
+        {
+            Logger.Log(LogCategory.Input, $"Button was released during non-interactive update.");
+            wasReleasedWhileNonInteractive = true;
+        }
+        if (hasForcedButtonSuppression)
+        {
+            if (forcedButtonSuppressionTicks >= FORCED_SUPPRESSION_DURATION_TICKS)
+            {
+                hasForcedButtonSuppression = false;
+            }
+            else if (forcedButtonSuppressionTicks > 0 || !IsButtonDown(Button))
+            {
+                forcedButtonSuppressionTicks++;
+            }
+            inputHelper.Suppress(Button);
+        }
+
+        if (interactive && RequiresSmapiBypass(Button))
         {
             Logger.LogOnce(
                 LogCategory.Input,
@@ -85,6 +139,8 @@ public class MenuToggle(
             MenuToggleState.On when !isDown && Mode == MenuToggleMode.Hold => MenuToggleState.Off,
             MenuToggleState.On when !wasDown && isDown && Mode == MenuToggleMode.Toggle =>
                 MenuToggleState.Off,
+            MenuToggleState.Suppressed when isDown && wasReleasedWhileNonInteractive =>
+                MenuToggleState.On,
             MenuToggleState.Suppressed when !isDown => MenuToggleState.Off,
             _ => State,
         };
@@ -105,6 +161,7 @@ public class MenuToggle(
             );
             inputHelper.Suppress(Button);
         }
+        wasReleasedWhileNonInteractive = false;
     }
 
     private static GamePadState GetRawGamePadState()
