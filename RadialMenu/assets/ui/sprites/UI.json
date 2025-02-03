@@ -18,11 +18,8 @@
     "GamepadAlt": {
       "SourceRect": "80, 0, 16, 16"
     },
-    "MagnifyingGlass": {
+    "Music": {
       "SourceRect": "96, 0, 16, 16"
-    },
-    "Error": {
-      "SourceRect": "112, 0, 16, 16"
     },
     "GamepadUp": {
       "SourceRect": "0, 16, 16, 16"
@@ -86,16 +83,31 @@
     "MouseButtonRight": {
       "SourceRect": "48, 48, 16, 16"
     },
-    "Music": {
-      "SourceRect": "64, 48, 16, 16"
-    },
     "SoundOn": {
-      "SourceRect": "80, 48, 16, 16",
+      "SourceRect": "64, 48, 16, 16",
       "Scale": 2
     },
     "SoundOff": {
-      "SourceRect": "96, 48, 16, 16",
+      "SourceRect": "80, 48, 16, 16",
       "Scale": 2
+    },
+    "MagnifyingGlass": {
+      "SourceRect": "96, 48, 16, 16"
+    },
+    "Error": {
+      "SourceRect": "112, 48, 16, 16"
+    },
+    "Hammer": {
+      "SourceRect": "0, 64, 16, 16"
+    },
+    "Letter": {
+      "SourceRect": "16, 64, 15, 16"
+    },
+    "Book": {
+      "SourceRect": "32, 64, 15, 16"
+    },
+    "Menu": {
+      "SourceRect": "48, 64, 16, 16"
     }
   }
 }

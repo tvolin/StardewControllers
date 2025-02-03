@@ -40,6 +40,12 @@ public class ModEntry : Mod
         config = Helper.ReadConfig<ModConfig>();
         Logger.Config = config.Debug;
         I18n.Init(helper.Translation);
+        var builtInItems = new BuiltInItems(ModManifest);
+        pageRegistry.RegisterItem(ModManifest, builtInItems.MainMenu);
+        pageRegistry.RegisterItem(ModManifest, builtInItems.Journal);
+        pageRegistry.RegisterItem(ModManifest, builtInItems.Map);
+        pageRegistry.RegisterItem(ModManifest, builtInItems.Mail);
+        pageRegistry.RegisterItem(ModManifest, builtInItems.Crafting);
         api = new(pageRegistry, Monitor);
         keybindActivator = new(helper.Input);
         Sound.Enabled = config.Sound.EnableUiSounds;
@@ -211,13 +217,13 @@ public class ModEntry : Mod
         var inventoryMenu = new InventoryMenu(inventoryToggle, player, config.Items);
         var registeredPages = pageRegistry.CreatePageList(player);
         var modMenuToggle = new MenuToggle(Helper.Input, config.Input, c => c.ModMenuButton);
-        var settingsSprite = Sprites.Settings();
+        var settingsSprite = new Lazy<Sprite?>(Sprites.Settings);
         var settingsItem = new ModMenuItem(
             id: "focustense.StarControl.Settings",
-            title: I18n.ModMenu_SettingsItem_Name(),
-            description: I18n.ModMenu_SettingsItem_Description(),
-            texture: settingsSprite?.Texture,
-            sourceRectangle: settingsSprite?.SourceRect,
+            title: I18n.ModMenu_SettingsItem_Name,
+            description: I18n.ModMenu_SettingsItem_Description,
+            texture: () => settingsSprite.Value?.Texture,
+            sourceRectangle: () => settingsSprite.Value?.SourceRect,
             activate: (_, _, _) =>
             {
                 if (!ViewEngine.IsInstalled)

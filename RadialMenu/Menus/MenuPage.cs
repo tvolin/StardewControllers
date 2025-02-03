@@ -84,10 +84,10 @@ internal static class MenuPage
         );
         return new(
             id: config.Id,
-            title: config.Name,
-            description: config.Description,
-            texture: sprite?.Texture,
-            sourceRectangle: sprite?.SourceRect,
+            title: () => config.Name,
+            description: () => config.Description,
+            texture: () => sprite?.Texture,
+            sourceRectangle: () => sprite?.SourceRect,
             activate: (_, delayedActions, _) =>
             {
                 if (

@@ -225,6 +225,16 @@
   "Confirmation.Config.Cancel.Description": "Return to the configuration menu without saving or reverting.",
 
   // Standard menu items
+  "ModMenu.Crafting.Name": "Crafting",
+  "ModMenu.Crafting.Description": "Open the crafting page",
+  "ModMenu.Journal.Name": "Journal",
+  "ModMenu.Journal.Description": "Open the quest log",
+  "ModMenu.Mailbox.Name": "Mailbox",
+  "ModMenu.Mailbox.Description": "Check your messages",
+  "ModMenu.MainMenuItem.Name": "Main Menu",
+  "ModMenu.MainMenuItem.Description": "Open the game's main menu",
+  "ModMenu.Map.Name": "Map",
+  "ModMenu.Map.Description": "Show a map of your current location",
   "ModMenu.SettingsItem.Name": "Star Control Settings",
   "ModMenu.SettingsItem.Description": "Open the configuration menu",
 

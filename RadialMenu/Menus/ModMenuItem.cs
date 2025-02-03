@@ -17,31 +17,31 @@ namespace RadialMenu.Menus;
 /// <param name="tintColor">The <see cref="IRadialMenuItem.TintColor"/>.</param>
 internal class ModMenuItem(
     string id,
-    string title,
+    Func<string> title,
     Func<Farmer, DelayedActions, bool, ItemActivationResult> activate,
-    string? description = null,
+    Func<string?>? description = null,
     int? stackSize = null,
     int? quality = null,
-    Texture2D? texture = null,
-    Rectangle? sourceRectangle = null,
-    Rectangle? tintRectangle = null,
+    Func<Texture2D?>? texture = null,
+    Func<Rectangle?>? sourceRectangle = null,
+    Func<Rectangle?>? tintRectangle = null,
     Color? tintColor = null
 ) : IRadialMenuItem
 {
     public string Id { get; } = id;
-    public string Title { get; } = title;
+    public string Title { get; } = title();
 
-    public string Description { get; } = description ?? "";
+    public string Description { get; } = description?.Invoke() ?? "";
 
     public int? StackSize { get; } = stackSize;
 
     public int? Quality { get; } = quality;
 
-    public Texture2D? Texture { get; } = texture;
+    public Texture2D? Texture => texture?.Invoke();
 
-    public Rectangle? SourceRectangle { get; } = sourceRectangle;
+    public Rectangle? SourceRectangle => sourceRectangle?.Invoke();
 
-    public Rectangle? TintRectangle { get; } = tintRectangle;
+    public Rectangle? TintRectangle => tintRectangle?.Invoke();
 
     public Color? TintColor { get; } = tintColor;
 
