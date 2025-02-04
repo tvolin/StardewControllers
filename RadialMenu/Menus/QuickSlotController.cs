@@ -82,7 +82,9 @@ internal class QuickSlotController(
             pressedButton = button;
             return new(
                 item,
-                SecondaryAction: itemConfig.UseSecondaryAction,
+                itemConfig.UseSecondaryAction
+                    ? ItemActivationType.Secondary
+                    : ItemActivationType.Primary,
                 IsRegularItem: itemConfig.IdType == ItemIdType.GameItem,
                 RequireConfirmation: itemConfig.RequireConfirmation
             );

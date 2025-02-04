@@ -166,7 +166,7 @@ internal class RadialMenuController(
         )
         {
             Logger.Log(LogCategory.Menus, $"Primary activation triggered for {focusedItem.Title}.");
-            ActivateItem(focusedItem, secondaryAction: false);
+            ActivateItem(focusedItem, ItemActivationType.Primary);
         }
         else if (
             SuppressIfPressed(config.Input.SecondaryActionButton)
@@ -177,13 +177,13 @@ internal class RadialMenuController(
                 LogCategory.Menus,
                 $"Secondary activation triggered for {focusedItem.Title}."
             );
-            ActivateItem(focusedItem, secondaryAction: true);
+            ActivateItem(focusedItem, ItemActivationType.Secondary);
         }
     }
 
     private ItemActivationResult ActivateItem(
         IRadialMenuItem item,
-        bool secondaryAction,
+        ItemActivationType activationType,
         bool allowDelay = true,
         bool forceSuppression = false
     )
@@ -196,7 +196,7 @@ internal class RadialMenuController(
         var result = item.Activate(
             player,
             allowDelay ? config.Input.DelayedActions : DelayedActions.None,
-            secondaryAction
+            activationType
         );
         Logger.Log(
             LogCategory.Activation,
@@ -209,7 +209,7 @@ internal class RadialMenuController(
                 return result;
             case ItemActivationResult.Delayed:
                 Sound.Play(config.Sound.ItemDelaySound);
-                delayedItem = new(item, SecondaryAction: secondaryAction);
+                delayedItem = new(item, activationType);
                 break;
             default:
                 ItemActivated?.Invoke(this, new(item, result));
@@ -220,7 +220,7 @@ internal class RadialMenuController(
                 activeMenu?.Toggle.ForceButtonSuppression();
                 var activationSound = item.GetActivationSound(
                     player,
-                    secondaryAction,
+                    activationType,
                     config.Sound.ItemActivationSound
                 );
                 Sound.Play(activationSound ?? "");
@@ -355,7 +355,7 @@ internal class RadialMenuController(
             var result = activation.Item.Activate(
                 player,
                 DelayedActions.None,
-                activation.SecondaryAction
+                activation.ActivationType
             );
             Logger.Log(
                 LogCategory.Activation,
@@ -412,7 +412,7 @@ internal class RadialMenuController(
                         Game1.activeClickableMenu = null;
                         ActivateItem(
                             nextActivation.Item,
-                            nextActivation.SecondaryAction,
+                            nextActivation.ActivationType,
                             allowDelay: false,
                             // Forcing suppression here isn't done for any technical reason, it just seems more
                             // principle-of-least-surprise compliant not to have the menu immediately reopen or
@@ -433,7 +433,7 @@ internal class RadialMenuController(
             {
                 var result = ActivateItem(
                     nextActivation.Item,
-                    nextActivation.SecondaryAction,
+                    nextActivation.ActivationType,
                     allowDelay: activeMenu is not null
                 );
                 if (result == ItemActivationResult.Delayed)
@@ -464,7 +464,7 @@ internal class RadialMenuController(
                     "Trigger release activation detected for primary action."
                 );
                 activeMenu?.Toggle.ForceButtonSuppression();
-                ActivateItem(focusedItem, secondaryAction: false);
+                ActivateItem(focusedItem, ItemActivationType.Primary);
             }
             else if (
                 config.Input.SecondaryActivationMethod == ItemActivationMethod.TriggerRelease
@@ -476,7 +476,7 @@ internal class RadialMenuController(
                     "Trigger release activation detected for secondary action."
                 );
                 activeMenu?.Toggle.ForceButtonSuppression();
-                ActivateItem(focusedItem, secondaryAction: true);
+                ActivateItem(focusedItem, ItemActivationType.Secondary);
             }
             else
             {

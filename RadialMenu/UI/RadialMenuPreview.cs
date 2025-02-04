@@ -79,7 +79,7 @@ internal class RadialMenuPreview : IDisposable
         public ItemActivationResult Activate(
             Farmer who,
             DelayedActions delayedActions,
-            bool secondaryAction = false
+            ItemActivationType activationType
         )
         {
             return ItemActivationResult.Ignored;

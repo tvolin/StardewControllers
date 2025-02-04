@@ -18,7 +18,7 @@ namespace RadialMenu.Menus;
 internal class ModMenuItem(
     string id,
     Func<string> title,
-    Func<Farmer, DelayedActions, bool, ItemActivationResult> activate,
+    Func<Farmer, DelayedActions, ItemActivationType, ItemActivationResult> activate,
     Func<string?>? description = null,
     int? stackSize = null,
     int? quality = null,
@@ -48,9 +48,9 @@ internal class ModMenuItem(
     public ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
-        bool secondaryAction
+        ItemActivationType activationType
     )
     {
-        return activate(who, delayedActions, secondaryAction);
+        return activate(who, delayedActions, activationType);
     }
 }

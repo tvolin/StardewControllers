@@ -1,7 +1,5 @@
 ﻿using System.Text;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
 
@@ -12,6 +10,8 @@ namespace RadialMenu.Menus;
 /// </summary>
 internal class InventoryMenuItem : IRadialMenuItem
 {
+    public string Id => Item.QualifiedItemId;
+
     /// <summary>
     /// The underlying inventory item.
     /// </summary>
@@ -50,14 +50,16 @@ internal class InventoryMenuItem : IRadialMenuItem
     public ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
-        bool secondaryAction
+        ItemActivationType activationType
     )
     {
         return FuzzyActivation.ConsumeOrSelect(
             who,
             Item,
             delayedActions,
-            secondaryAction ? InventoryAction.Select : InventoryAction.Use
+            activationType == ItemActivationType.Secondary
+                ? InventoryAction.Select
+                : InventoryAction.Use
         );
     }
 

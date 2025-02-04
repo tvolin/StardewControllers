@@ -110,14 +110,13 @@ public interface IRadialMenuItem
     /// <param name="delayedActions">The types of actions which should result in a
     /// <see cref="ItemActivationResult.Delayed"/> outcome and the actual action being
     /// skipped.</param>
-    /// <param name="secondaryAction">Whether to perform the item's secondary action instead of the
-    /// primary action (typically "Select" instead of "Use"), if one is available. If there is no
-    /// secondary action, this parameter can be ignored.</param>
+    /// <param name="activationType">The type of activation requested, determined by which button
+    /// the player pressed and in what context.</param>
     /// <returns>A result that describes what action, if any, was performed.</returns>
     ItemActivationResult Activate(
         Farmer who,
         DelayedActions delayedActions,
-        bool secondaryAction = false
+        ItemActivationType activationType = ItemActivationType.Primary
     );
 
     /// <summary>
@@ -135,12 +134,15 @@ public interface IRadialMenuItem
     /// </remarks>
     /// <param name="who">The player who activated the item; generally,
     /// <see cref="Game1.player"/>.</param>
-    /// <param name="secondaryAction">Whether it is the item's secondary action instead of the
-    /// primary action (typically "Select" instead of "Use") that is about to be performed.</param>
+    /// <param name="activationType">The type of activation requested, determined by which button
+    /// the player pressed and in what context.</param>
     /// <param name="defaultSound">The default sound that would play if not overridden; implementers
     /// should return this value if not changing the default.</param>
     /// <returns>The name of the sound cue to play on activation, or <c>null</c> or an empty string
     /// to play no sound.</returns>
-    string? GetActivationSound(Farmer who, bool secondaryAction, string defaultSound) =>
-        defaultSound;
+    string? GetActivationSound(
+        Farmer who,
+        ItemActivationType activationType,
+        string defaultSound
+    ) => defaultSound;
 }

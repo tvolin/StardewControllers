@@ -2,7 +2,7 @@ namespace RadialMenu.Menus;
 
 internal record PendingActivation(
     IRadialMenuItem Item,
-    bool SecondaryAction = false,
+    ItemActivationType ActivationType = ItemActivationType.Primary,
     bool IsRegularItem = true,
     bool RequireConfirmation = false
 );
