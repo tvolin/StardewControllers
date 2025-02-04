@@ -20,7 +20,12 @@
                button-press=|^HandleItemButton(this, $Button)|
                button-repeat=|^HandleItemButton(this, $Button)|>
             <lane vertical-content-alignment="middle">
-                <checkbox margin="0, 4" label-text={Name} tooltip={Description} is-checked={<>Enabled} />
+                <checkbox margin="0, 4"
+                          label-text={Name}
+                          tooltip={Description}
+                          is-checked={<>Enabled}
+                          +state:disabled={:Required}
+                          +state:disabled:opacity="0.5" />
                 <spacer layout="stretch"
                         pointer-style="Hand"
                         draggable="true"

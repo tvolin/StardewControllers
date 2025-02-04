@@ -116,7 +116,8 @@ internal partial class ModIntegrationsViewModel(
             // flip the enabled state, so we just flip it back.
             if (button == SButton.ControllerA)
             {
-                controllerReorderingItem.Enabled = !controllerReorderingItem.Enabled;
+                controllerReorderingItem.Enabled =
+                    !controllerReorderingItem.Enabled || controllerReorderingItem.Required;
             }
             controllerReorderingItem = null;
             return true;
@@ -204,6 +205,8 @@ internal partial class ModPriorityViewModel(string id)
 {
     public string Id { get; } = id;
 
+    public bool Required { get; init; } = false;
+
     [Notify]
     private string description = "";
 
@@ -225,6 +228,7 @@ internal partial class ModPriorityViewModel(string id)
         {
             Name = I18n.ModTitle(),
             Description = GetDescription(items.Pager.Pages.Count),
+            Required = true,
         };
         items.Pager.PropertyChanged += (_, e) =>
         {
@@ -240,6 +244,14 @@ internal partial class ModPriorityViewModel(string id)
         string GetDescription(int pageCount)
         {
             return I18n.Config_ModIntegrations_CustomItems(pageCount);
+        }
+    }
+
+    private void OnEnabledChanged()
+    {
+        if (!Enabled && Required)
+        {
+            Enabled = true;
         }
     }
 }

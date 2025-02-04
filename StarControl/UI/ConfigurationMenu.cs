@@ -14,6 +14,11 @@ internal static class ConfigurationMenu
         Action? onClose = null
     )
     {
+        // Proactive remove no-longer-installed mods from the actual configuration so that they
+        // don't get stuck in the UI and become unable to be removed.
+        var activeClientMods = pageRegistry.Mods.Select(mod => mod.UniqueID).ToHashSet();
+        config.Integrations.Priorities.RemoveAll(p => !activeClientMods.Contains(p.ModId));
+
         var context = new ConfigurationViewModel(helper, config)
         {
             Items =

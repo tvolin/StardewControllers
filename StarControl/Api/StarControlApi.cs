@@ -1,4 +1,5 @@
-﻿using StarControl.Menus;
+﻿using StarControl.Config;
+using StarControl.Menus;
 
 namespace StarControl.Api;
 
@@ -11,17 +12,14 @@ namespace StarControl.Api;
 public class StarControlApi : IStarControlApi
 {
     private readonly PageRegistry registry;
+    private readonly ModConfig config;
     private readonly IMonitor monitor;
 
-    internal StarControlApi(PageRegistry registry, IMonitor monitor)
+    internal StarControlApi(PageRegistry registry, ModConfig config, IMonitor monitor)
     {
         this.registry = registry;
+        this.config = config;
         this.monitor = monitor;
-    }
-
-    internal IReadOnlyList<IRadialMenuPage> GetPages(Farmer who)
-    {
-        return registry.CreatePageList(who);
     }
 
     public void InvalidatePage(IManifest mod, string id)
@@ -36,7 +34,11 @@ public class StarControlApi : IStarControlApi
     public void RegisterCustomMenuPage(IManifest mod, string id, IRadialMenuPageFactory factory)
     {
         var pageKey = GetPageKey(mod, id);
-        registry.RegisterPage(pageKey, factory);
+        registry.RegisterPage(mod, pageKey, factory);
+        if (!config.Integrations.Priorities.Any(p => p.ModId == mod.UniqueID))
+        {
+            config.Integrations.Priorities.Add(new() { ModId = mod.UniqueID });
+        }
         monitor.Log($"Registered menu page '{id}' for mod '{mod.UniqueID}'.", LogLevel.Info);
     }
 

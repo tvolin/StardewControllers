@@ -5,7 +5,7 @@ namespace StarControl.Menus;
 
 /// <summary>
 /// Radial menu displaying the shortcuts set up in the
-/// <see cref="Config.ItemsConfiguration.ModMenuPages"/>, as well as any mod-added pages.
+/// <see cref="ItemsConfiguration.ModMenuPages"/>, as well as any mod-added pages.
 /// </summary>
 internal class ModMenu(
     IMenuToggle toggle,
@@ -13,6 +13,7 @@ internal class ModMenu(
     ModMenuItem settingsItem,
     Action<ModMenuItemConfiguration> shortcutActivator,
     IInvalidatableList<IRadialMenuPage> additionalPages,
+    Func<int> userPageIndexSelector,
     IEnumerable<IRadialMenuItem> standaloneItems
 ) : IRadialMenu
 {
@@ -87,12 +88,12 @@ internal class ModMenu(
 
     private IReadOnlyList<IRadialMenuPage> GetCombinedPages()
     {
-        var pages = new List<IRadialMenuPage>();
+        var userPages = new List<IRadialMenuPage>();
         int pageIndex = 0;
         foreach (var pageConfig in config.Items.ModMenuPages)
         {
             Logger.Log(LogCategory.Menus, $"Creating page {pageIndex} of mod menu...");
-            pages.Add(
+            userPages.Add(
                 MenuPage.FromModItemConfigurations(
                     pageConfig,
                     standaloneItems,
@@ -102,10 +103,11 @@ internal class ModMenu(
             );
             pageIndex++;
         }
-        pages.AddRange(additionalPages);
+        var pages = new List<IRadialMenuPage>(additionalPages);
+        pages.InsertRange(userPageIndexSelector(), userPages);
         Logger.Log(
             LogCategory.Menus,
-            $"Added {config.Items.ModMenuPages.Count} user pages and {additionalPages.Count} "
+            $"Added {userPages.Count} user pages and {additionalPages.Count} "
                 + "external pages to mod menu."
         );
         return pages;

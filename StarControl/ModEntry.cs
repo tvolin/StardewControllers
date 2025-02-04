@@ -17,17 +17,17 @@ public class ModEntry : Mod
     private const string GMCM_MOD_ID = "spacechase0.GenericModConfigMenu";
 
     private readonly PerScreen<RadialMenuController> menuController;
-    private readonly PageRegistry pageRegistry = new();
 
     private RadialMenuController MenuController => menuController.Value;
 
-    // Global state
+    // Global state, generally initialized in Entry.
     private StarControlApi api = null!;
     private ModConfig config = null!;
     private Gmcm.GenericModConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;
     private GenericModConfigSync? gmcmSync;
     private KeybindActivator keybindActivator = null!;
+    private PageRegistry pageRegistry = null!;
 
     public ModEntry()
     {
@@ -41,12 +41,13 @@ public class ModEntry : Mod
         Logger.Config = config.Debug;
         I18n.Init(helper.Translation);
         var builtInItems = new BuiltInItems(ModManifest);
+        pageRegistry = new(config);
         pageRegistry.RegisterItem(ModManifest, builtInItems.MainMenu);
         pageRegistry.RegisterItem(ModManifest, builtInItems.Journal);
         pageRegistry.RegisterItem(ModManifest, builtInItems.Map);
         pageRegistry.RegisterItem(ModManifest, builtInItems.Mail);
         pageRegistry.RegisterItem(ModManifest, builtInItems.Crafting);
-        api = new(pageRegistry, Monitor);
+        api = new(pageRegistry, config, Monitor);
         keybindActivator = new(helper.Input);
         Sound.Enabled = config.Sound.EnableUiSounds;
         ConfigurationViewModel.Saved += ConfigurationViewModel_Saved;
@@ -71,6 +72,7 @@ public class ModEntry : Mod
 
     private void ConfigurationViewModel_Saved(object? sender, EventArgs e)
     {
+        pageRegistry.InvalidateAll();
         if (menuController.IsActiveForScreen())
         {
             menuController.Value.Invalidate();
@@ -242,6 +244,7 @@ public class ModEntry : Mod
             settingsItem,
             ActivateModMenuItem,
             registeredPages,
+            () => pageRegistry.CustomItemsPageIndex,
             pageRegistry.StandaloneItems.Select(x => x.Item)
         );
         var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
