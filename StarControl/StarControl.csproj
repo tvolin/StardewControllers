@@ -1,0 +1,101 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>StarControl</AssemblyName>
+    <RootNamespace>StarControl</RootNamespace>
+    <Version>1.0.3</Version>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <EnableHarmony>true</EnableHarmony>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="assets\ui\sprites\Cursors.json" />
+    <None Remove="assets\ui\views\Actions.sml" />
+    <None Remove="assets\ui\views\Configuration.sml" />
+    <None Remove="assets\ui\views\Controls.sml" />
+    <None Remove="assets\ui\views\ModMenuItem.sml" />
+    <None Remove="assets\ui\views\Sound.sml" />
+    <None Remove="assets\ui\views\Style.sml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\extensions\" />
+    <Content Include="assets\ui\data\Kenney.buttonspritemap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\sprites\UI.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\sprites\Cursors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\sprites\UI.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Actions.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Configuration.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Controls.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\ModMenuItem.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Sound.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\ui\views\Style.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="assets\ui\views\QuickSlotPicker.sml" />
+    <Content Include="assets\ui\views\QuickSlotPicker.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="assets\ui\views\ModIntegrations.sml" />
+    <Content Include="assets\ui\views\ModIntegrations.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="assets\ui\views\Debug.sml" />
+    <Content Include="assets\ui\views\Debug.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="assets\ui\views\Confirmation.sml" />
+    <Content Include="assets\ui\views\Confirmation.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="assets\ui\views\ControlsAdvanced.sml" />
+    <Content Include="assets\ui\views\ControlsAdvanced.sml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSharpier.MsBuild" Version="0.30.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
+    <PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="2.2.0">
+        <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="PropertyChanged.SourceGenerator" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="StardewValley" />
+    <Using Include="StardewModdingAPI" />
+    <Using Alias="Object" Include="System.Object" />
+    <Using Alias="SObject" Include="StardewValley.Object" />
+    <Using Alias="Color" Include="Microsoft.Xna.Framework.Color" />
+    <Using Alias="Rectangle" Include="Microsoft.Xna.Framework.Rectangle" />
+    <Using Alias="Vector2" Include="Microsoft.Xna.Framework.Vector2" />
+  </ItemGroup>
+</Project>
