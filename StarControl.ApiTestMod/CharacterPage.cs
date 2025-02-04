@@ -58,14 +58,14 @@ internal class CharacterMenuItem(
 
     public Rectangle? SourceRectangle => GetAnimatedSourceRect();
 
-    public MenuItemActivationResult Activate(Farmer who, DelayedActions delayedActions, MenuItemAction requestedAction)
+    public ItemActivationResult Activate(Farmer who, DelayedActions delayedActions, ItemActivationType activationType)
     {
         if (delayedActions != DelayedActions.None)
         {
-            return MenuItemActivationResult.Delayed;
+            return ItemActivationResult.Delayed;
         }
         onSelect();
-        return MenuItemActivationResult.Selected;
+        return ItemActivationResult.Selected;
     }
 
     private Rectangle GetAnimatedSourceRect()

@@ -12,7 +12,7 @@ internal sealed class ModEntry : Mod
     private Texture2D monstersTexture = null!;
 
     // Initialized in GameLaunched
-    private IRadialMenuApi radialMenu = null!;
+    private IStarControlApi radialMenu = null!;
 
     public override void Entry(IModHelper helper)
     {
@@ -26,7 +26,7 @@ internal sealed class ModEntry : Mod
 
     private void GameLoop_GameLaunched(object? sender, GameLaunchedEventArgs e)
     {
-        radialMenu = Helper.ModRegistry.GetApi<IRadialMenuApi>("focustense.RadialMenu")!;
+        radialMenu = Helper.ModRegistry.GetApi<IStarControlApi>("focustense.RadialMenu")!;
         if (radialMenu is null)
         {
             Monitor.Log("Unable to load Radial Menu API; mod functions disabled.", LogLevel.Error);

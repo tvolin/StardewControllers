@@ -55,13 +55,13 @@ internal class MonsterMenuItem(
 
     public Rectangle? SourceRectangle => sourceRect;
 
-    public MenuItemActivationResult Activate(Farmer who, DelayedActions delayedActions, MenuItemAction requestedAction)
+    public ItemActivationResult Activate(Farmer who, DelayedActions delayedActions, ItemActivationType activationType)
     {
         if (delayedActions == DelayedActions.All)
         {
-            return MenuItemActivationResult.Delayed;
+            return ItemActivationResult.Delayed;
         }
-        monitor.Log($"Monster activated [{requestedAction}]: {Title}", LogLevel.Info);
-        return requestedAction == MenuItemAction.Use ? MenuItemActivationResult.Used : MenuItemActivationResult.Custom;
+        monitor.Log($"Monster activated [{activationType}]: {Title}", LogLevel.Info);
+        return activationType == ItemActivationType.Primary ? ItemActivationResult.Used : ItemActivationResult.Custom;
     }
 }
