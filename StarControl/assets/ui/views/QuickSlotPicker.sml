@@ -59,7 +59,7 @@
                                        text={<>^^SearchText} />
                             <image layout="32px"
                                    margin="18, 2, 0, 0"
-                                   sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
+                                   sprite={@Mods/focustense.StarControl/Sprites/UI:MagnifyingGlass}
                                    shadow-alpha="0.25"
                                    shadow-offset="-2, 2" />
                         </panel>

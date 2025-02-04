@@ -73,7 +73,7 @@
                                       orientation="vertical">
                                     <lane vertical-content-alignment="middle">
                                         <image layout="48px 32px"
-                                               sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:TargetBlue}
+                                               sprite={@Mods/focustense.StarControl/Sprites/Cursors:TargetBlue}
                                                shadow-alpha="0.5"
                                                shadow-offset="-1, 2"
                                                opacity="0"
@@ -90,7 +90,7 @@
                                           margin="48, 4, 0, 8"
                                           vertical-content-alignment="middle">
                                         <image layout="24px" margin="0, 0, 8, 0"
-                                               sprite={@Mods/focustense.RadialMenu/Sprites/UI:Error}
+                                               sprite={@Mods/focustense.StarControl/Sprites/UI:Error}
                                                shadow-alpha="0.5"
                                                shadow-offset="-2, 2" />
                                         <label color="#c30" text={#Config.ModMenuItem.Gmcm.MissingKeybind.Title} />
@@ -131,7 +131,7 @@
                                         opacity="0.6"
                                         focusable="true"
                                         empty-text={#Config.ModMenuItem.Keybind.EmptyText}
-                                        sprite-map={@Mods/focustense.RadialMenu/SpriteMaps/Kenney}
+                                        sprite-map={@Mods/focustense.StarControl/SpriteMaps/Kenney}
                                         keybind-list={<>Keybind}
                                         +state:enabled={CanEditKeybind}
                                         +state:enabled:background-color="#0000"
@@ -154,7 +154,7 @@
                                     +transition:transform="150ms EaseOutQuint"
                                     pointer-enter=|OnRandomizeButtonHover()|
                                     left-click=|PickRandomIcon()|>
-                                <image layout="30px" sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:LuckBuff} />
+                                <image layout="30px" sprite={@Mods/focustense.StarControl/Sprites/Cursors:LuckBuff} />
                             </button>
                         </lane>
                     </form-row>
@@ -179,7 +179,7 @@
                                                text={<>SearchText} />
                                     <image layout="32px"
                                            margin="12, 2, 0, 0"
-                                           sprite={@Mods/focustense.RadialMenu/Sprites/UI:MagnifyingGlass}
+                                           sprite={@Mods/focustense.StarControl/Sprites/UI:MagnifyingGlass}
                                            shadow-alpha="0.25"
                                            shadow-offset="-2, 2" />
                                 </panel>

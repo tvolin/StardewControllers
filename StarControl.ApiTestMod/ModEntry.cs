@@ -26,7 +26,7 @@ internal sealed class ModEntry : Mod
 
     private void GameLoop_GameLaunched(object? sender, GameLaunchedEventArgs e)
     {
-        radialMenu = Helper.ModRegistry.GetApi<IStarControlApi>("focustense.RadialMenu")!;
+        radialMenu = Helper.ModRegistry.GetApi<IStarControlApi>("focustense.StarControl")!;
         if (radialMenu is null)
         {
             Monitor.Log("Unable to load Radial Menu API; mod functions disabled.", LogLevel.Error);

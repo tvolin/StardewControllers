@@ -5,8 +5,8 @@
 <template name="form-heading">
     <banner margin="0, 8, 0, 0" text={&title} />
     <form-row title={#Config.Sound.Enabled.Title}>
-        <checkbox checked-sprite={@Mods/focustense.RadialMenu/Sprites/UI:SoundOn}
-                  unchecked-sprite={@Mods/focustense.RadialMenu/Sprites/UI:SoundOff}
+        <checkbox checked-sprite={@Mods/focustense.StarControl/Sprites/UI:SoundOn}
+                  unchecked-sprite={@Mods/focustense.StarControl/Sprites/UI:SoundOff}
                   tooltip={#Config.Sound.Enabled.Description}
                   is-checked={<>EnableUiSounds}
                   transform-origin="0.5, 0.5"
@@ -91,7 +91,7 @@
                click=|NextSound()| />
         <image layout="48px"
                margin="8, 0"
-               sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:PlayButton}
+               sprite={@Mods/focustense.StarControl/Sprites/Cursors:PlayButton}
                tooltip={#Config.Sound.Preview.Description}
                focusable="true"
                transform-origin="0.5, 0.5"

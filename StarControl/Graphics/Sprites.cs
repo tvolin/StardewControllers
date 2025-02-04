@@ -8,7 +8,7 @@ public static class Sprites
     /// <summary>
     /// Asset path for the mod's own UI tile sheet.
     /// </summary>
-    public const string UI_TEXTURE_PATH = "Mods/focustense.RadialMenu/Sprites/UI";
+    public const string UI_TEXTURE_PATH = "Mods/focustense.StarControl/Sprites/UI";
 
     /// <summary>
     /// Sprite of a book, used for the built-in journal item.

@@ -52,7 +52,7 @@
                        +transition:opacity="150ms EaseOutSine"
                        left-click=|~ItemsConfigurationViewModel.AddNewItem()|>
                     <item-slot tooltip={~ItemsConfigurationViewModel.AddButtonTooltip}>
-                        <slotted-item icon={@Mods/focustense.RadialMenu/Sprites/Cursors:BigPlus}
+                        <slotted-item icon={@Mods/focustense.StarControl/Sprites/Cursors:BigPlus}
                                       +state:disabled={~ItemsConfigurationViewModel.IsPageFull}
                                       +state:disabled:opacity="0.5"
                                       +transition:opacity="150ms" />
@@ -73,11 +73,11 @@
                             <image layout="52px"
                                    margin="4, 6, 0, 0"
                                    horizontal-alignment="middle"
-                                   sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:TrashCan} />
+                                   sprite={@Mods/focustense.StarControl/Sprites/Cursors:TrashCan} />
                             <image layout="36px"
                                    margin="0, 6, 0, 0"
                                    horizontal-alignment="middle"
-                                   sprite={@Mods/focustense.RadialMenu/Sprites/Cursors:TrashCanLid}
+                                   sprite={@Mods/focustense.StarControl/Sprites/Cursors:TrashCanLid}
                                    transform-origin="0.9, 0.5"
                                    +state:open={~ItemsConfigurationViewModel.IsTrashCanHovered}
                                    +state:open:transform="rotate: 45"
@@ -97,15 +97,15 @@
         <form-heading title={#Config.QuickActions.Heading} />
         <label margin="16, 4, 0, 4" color="#666" text={#Config.QuickActions.Items.Help} />
         <lane *context={QuickSlots} layout="stretch content" margin="12, 4, 12, 4">
-            <quick-slot slot={DPadLeft} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadLeft} />
-            <quick-slot slot={DPadUp} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadUp} />
-            <quick-slot slot={DPadRight} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadRight} />
-            <quick-slot slot={DPadDown} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadDown} />
+            <quick-slot slot={DPadLeft} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadLeft} />
+            <quick-slot slot={DPadUp} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadUp} />
+            <quick-slot slot={DPadRight} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadRight} />
+            <quick-slot slot={DPadDown} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadDown} />
             <spacer layout="stretch 0px" />
-            <quick-slot slot={West} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadX} />
-            <quick-slot slot={North} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadY} />
-            <quick-slot slot={East} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadB} />
-            <quick-slot slot={South} prompt={@Mods/focustense.RadialMenu/Sprites/UI:GamepadA} />
+            <quick-slot slot={West} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadX} />
+            <quick-slot slot={North} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadY} />
+            <quick-slot slot={East} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadB} />
+            <quick-slot slot={South} prompt={@Mods/focustense.StarControl/Sprites/UI:GamepadA} />
         </lane>
     </lane>
 </lane>

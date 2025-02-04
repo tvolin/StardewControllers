@@ -117,6 +117,6 @@
     <keybind-editor button-height="32"
                     editable-type="SingleButton"
                     focusable="true"
-                    sprite-map={@Mods/focustense.RadialMenu/SpriteMaps/Kenney}
+                    sprite-map={@Mods/focustense.StarControl/SpriteMaps/Kenney}
                     keybind-list={&button} />
 </template>
