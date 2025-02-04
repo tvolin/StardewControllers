@@ -22,7 +22,7 @@ public class ModEntry : Mod
     private RadialMenuController MenuController => menuController.Value;
 
     // Global state
-    private RadialMenuApi api = null!;
+    private StarControlApi api = null!;
     private ModConfig config = null!;
     private Gmcm.GenericModConfigMenu? configMenu;
     private IGenericModMenuConfigApi? configMenuApi;

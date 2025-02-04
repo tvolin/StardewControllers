@@ -3,17 +3,17 @@
 namespace StarControl.Api;
 
 /// <summary>
-/// Implementation of the <see cref="IRadialMenuApi"/>.
+/// Implementation of the <see cref="IStarControlApi"/>.
 /// </summary>
 /// <remarks>
 /// Must be public to satisfy SMAPI requirements. Avoid passing concrete references.
 /// </remarks>
-public class RadialMenuApi : IRadialMenuApi
+public class StarControlApi : IStarControlApi
 {
     private readonly PageRegistry registry;
     private readonly IMonitor monitor;
 
-    internal RadialMenuApi(PageRegistry registry, IMonitor monitor)
+    internal StarControlApi(PageRegistry registry, IMonitor monitor)
     {
         this.registry = registry;
         this.monitor = monitor;

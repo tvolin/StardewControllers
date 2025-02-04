@@ -30,6 +30,6 @@ public interface IRadialMenuPage
     /// <returns><c>true</c> if the page is empty, <c>false</c> if it has valid items.</returns>
     bool IsEmpty()
     {
-        return !Items.AnyNotNull();
+        return !Items.Any(item => item is not null);
     }
 }

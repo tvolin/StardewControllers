@@ -1,11 +1,12 @@
 ﻿using StarControl.Menus;
+using StardewModdingAPI;
 
 namespace StarControl.Api;
 
 /// <summary>
 /// Public API for mod integrations.
 /// </summary>
-public interface IRadialMenuApi
+public interface IStarControlApi
 {
     /// <summary>
     /// Forces a previously-registered page to be recreated the next time the menu is about to be shown.
@@ -64,7 +65,7 @@ public interface IRadialMenuPageFactory
     /// </summary>
     /// <remarks>
     /// This method may be invoked multiple times in case of invalidation, either implicitly due to a config change in
-    /// RadialMenu or explicitly by <see cref="IRadialMenuApi.InvalidateCustomMenuPage"/>. If page creation is an
+    /// RadialMenu or explicitly by <see cref="IStarControlApi.InvalidateCustomMenuPage"/>. If page creation is an
     /// expensive process then callers are allowed to return a cached result, but if doing so, must ensure that the
     /// result is unique per player/screen.
     /// </remarks>
