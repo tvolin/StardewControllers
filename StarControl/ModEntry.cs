@@ -18,9 +18,11 @@ public class ModEntry : Mod
     private const string GMCM_MOD_ID = "spacechase0.GenericModConfigMenu";
 
     private readonly PerScreen<RadialMenuController> menuController;
+    private readonly PerScreen<ModMenu> modMenu;
     private readonly PerScreen<RemappingController> remappingController;
 
     private RadialMenuController MenuController => menuController.Value;
+    private ModMenu ModMenu => modMenu.Value;
     private RemappingController RemappingController => remappingController.Value;
 
     // Global state, generally initialized in Entry.
@@ -34,8 +36,9 @@ public class ModEntry : Mod
 
     public ModEntry()
     {
+        modMenu = new(CreateModMenu);
         menuController = new(CreateMenuController);
-        remappingController = new(() => new());
+        remappingController = new(CreateRemappingController);
     }
 
     public override void Entry(IModHelper helper)
@@ -105,6 +108,10 @@ public class ModEntry : Mod
         {
             MenuController.Draw(e.SpriteBatch);
         }
+        if (Context.IsPlayerFree && !MenuController.IsMenuActive)
+        {
+            RemappingController.Draw(e.SpriteBatch);
+        }
     }
 
     [EventPriority(EventPriority.Low - 10)]
@@ -144,6 +151,7 @@ public class ModEntry : Mod
     {
         menuController.ResetAllScreens();
         remappingController.ResetAllScreens();
+        modMenu.ResetAllScreens();
     }
 
     private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
@@ -170,6 +178,10 @@ public class ModEntry : Mod
         {
             Game1.freezeControls = false;
         }
+        RemappingController.Update(
+            Game1.currentGameTime.ElapsedGameTime,
+            MenuController.IsMenuActive
+        );
     }
 
     private void Input_ButtonsChanged(object? sender, ButtonsChangedEventArgs e)
@@ -184,6 +196,15 @@ public class ModEntry : Mod
             Helper.Input.Suppress(config.Input.RemappingMenuButton);
             OpenRemappingMenu();
             return;
+        }
+
+        if (e.Pressed.Contains(config.Input.RemappingHudButton))
+        {
+            RemappingController.HudVisible = !RemappingController.HudVisible;
+            Logger.Log(
+                LogCategory.QuickSlots,
+                RemappingController.HudVisible ? "Remapping HUD enabled" : "Remapping HUD disabled"
+            );
         }
 
         if (e.Pressed.Contains(SButton.F10) && ViewEngine.Instance is not null)
@@ -232,6 +253,7 @@ public class ModEntry : Mod
         if (e.Added.Any() || e.Removed.Any())
         {
             MenuController.Invalidate();
+            RemappingController.Refresh();
         }
     }
 
@@ -255,7 +277,29 @@ public class ModEntry : Mod
             c => c.InventoryMenuButton
         );
         var inventoryMenu = new InventoryMenu(inventoryToggle, player, config.Items);
-        var registeredPages = pageRegistry.CreatePageList(player);
+        var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
+        var quickSlotController = new QuickSlotController(
+            Helper.Input,
+            config,
+            new QuickSlotResolver(player, ModMenu),
+            quickSlotRenderer
+        );
+        var menuController = new RadialMenuController(
+            Helper.Input,
+            config,
+            Game1.player,
+            menuPainter,
+            quickSlotController,
+            inventoryMenu,
+            ModMenu
+        );
+        menuController.ItemActivated += MenuController_ItemActivated;
+        return menuController;
+    }
+
+    private ModMenu CreateModMenu()
+    {
+        var registeredPages = pageRegistry.CreatePageList(Game1.player);
         var modMenuToggle = new MenuToggle(Helper.Input, config.Input, c => c.ModMenuButton);
         var settingsSprite = new Lazy<Sprite?>(Sprites.Settings);
         var settingsItem = new ModMenuItem(
@@ -275,7 +319,7 @@ public class ModEntry : Mod
                 return ItemActivationResult.Custom;
             }
         );
-        var modMenu = new ModMenu(
+        return new ModMenu(
             modMenuToggle,
             config,
             settingsItem,
@@ -284,25 +328,16 @@ public class ModEntry : Mod
             () => pageRegistry.CustomItemsPageIndex,
             pageRegistry.StandaloneItems.Select(x => x.Item)
         );
-        var quickSlotRenderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config);
-        var quickSlotController = new QuickSlotController(
-            Helper.Input,
-            config,
-            Game1.player,
-            modMenu,
-            quickSlotRenderer
-        );
-        var menuController = new RadialMenuController(
-            Helper.Input,
-            config,
-            Game1.player,
-            menuPainter,
-            quickSlotController,
-            inventoryMenu,
-            modMenu
-        );
-        menuController.ItemActivated += MenuController_ItemActivated;
-        return menuController;
+    }
+
+    private RemappingController CreateRemappingController()
+    {
+        var resolver = new QuickSlotResolver(Game1.player, ModMenu);
+        var renderer = new QuickSlotRenderer(Game1.graphics.GraphicsDevice, config)
+        {
+            UnassignedButtonsVisible = false,
+        };
+        return new(resolver, renderer);
     }
 
     private void LoadGmcmKeybindings()

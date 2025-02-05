@@ -1,4 +1,4 @@
-namespace StarControl.Config;
+namespace StarControl;
 
 /// <summary>
 /// For a field accepting multiple types of IDs, such as <see cref="QuickSlotConfiguration.Id"/>,

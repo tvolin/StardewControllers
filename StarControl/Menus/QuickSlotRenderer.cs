@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StarControl.Config;
 using StarControl.Graphics;
+using StardewValley.TerrainFeatures;
 
 namespace StarControl.Menus;
 
@@ -23,14 +24,19 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         Right,
     }
 
-    public float Opacity { get; set; } = 1;
+    public float BackgroundOpacity { get; set; } = 1;
+    public float SpriteOpacity { get; set; } = 1;
 
     public IReadOnlyDictionary<SButton, IRadialMenuItem> SlotItems { get; set; } =
         new Dictionary<SButton, IRadialMenuItem>();
+    public IReadOnlyDictionary<SButton, IItemLookup> Slots { get; set; } =
+        new Dictionary<SButton, IItemLookup>();
+
+    public bool UnassignedButtonsVisible { get; set; } = true;
 
     private const int BACKGROUND_RADIUS = SLOT_SIZE + SLOT_SIZE / 2 + MARGIN_OUTER;
     private const int IMAGE_SIZE = 64;
-    private const int MARGIN_HORIZONTAL = 64;
+    private const int MARGIN_HORIZONTAL = 120;
     private const int MARGIN_OUTER = 32;
     private const int MARGIN_VERTICAL = 64;
     private const int PROMPT_OFFSET = SLOT_SIZE / 2;
@@ -55,6 +61,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
     private readonly Dictionary<SButton, Sprite> slotSprites = [];
     private readonly Texture2D uiTexture = Game1.content.Load<Texture2D>(Sprites.UI_TEXTURE_PATH);
 
+    private Color disabledBackgroundColor = Color.Transparent;
     private Color innerBackgroundColor = Color.Transparent;
     private bool isDirty = true;
 
@@ -63,6 +70,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         if (isDirty)
         {
             innerBackgroundColor = (Color)config.Style.OuterBackgroundColor * 0.6f;
+            disabledBackgroundColor = LumaGray(innerBackgroundColor, 0.75f);
             RefreshSlots();
         }
 
@@ -70,33 +78,64 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             viewport.Left + MARGIN_HORIZONTAL + MARGIN_OUTER + SLOT_SIZE / 2,
             viewport.Bottom - MARGIN_VERTICAL - MARGIN_OUTER - SLOT_SIZE - SLOT_SIZE / 2
         );
-        var leftBackgroundRect = GetCircleRect(leftOrigin.AddX(SLOT_SIZE), BACKGROUND_RADIUS);
-        b.Draw(outerBackground, leftBackgroundRect, OuterBackgroundColor * Opacity);
-        DrawSlot(b, leftOrigin, SButton.DPadLeft, PromptPosition.Left);
-        DrawSlot(b, leftOrigin.Add(SLOT_SIZE, -SLOT_SIZE), SButton.DPadUp, PromptPosition.Above);
-        DrawSlot(b, leftOrigin.Add(SLOT_SIZE, SLOT_SIZE), SButton.DPadDown, PromptPosition.Below);
-        DrawSlot(b, leftOrigin.AddX(SLOT_SIZE * 2), SButton.DPadRight, PromptPosition.Right);
+        if (
+            UnassignedButtonsVisible
+            || enabledSlots.Contains(SButton.DPadLeft)
+            || enabledSlots.Contains(SButton.DPadUp)
+            || enabledSlots.Contains(SButton.DPadRight)
+            || enabledSlots.Contains(SButton.DPadDown)
+        )
+        {
+            var leftBackgroundRect = GetCircleRect(leftOrigin.AddX(SLOT_SIZE), BACKGROUND_RADIUS);
+            b.Draw(outerBackground, leftBackgroundRect, OuterBackgroundColor * BackgroundOpacity);
+            DrawSlot(b, leftOrigin, SButton.DPadLeft, PromptPosition.Left);
+            DrawSlot(
+                b,
+                leftOrigin.Add(SLOT_SIZE, -SLOT_SIZE),
+                SButton.DPadUp,
+                PromptPosition.Above
+            );
+            DrawSlot(
+                b,
+                leftOrigin.Add(SLOT_SIZE, SLOT_SIZE),
+                SButton.DPadDown,
+                PromptPosition.Below
+            );
+            DrawSlot(b, leftOrigin.AddX(SLOT_SIZE * 2), SButton.DPadRight, PromptPosition.Right);
+        }
 
-        var rightOrigin = new Point(
-            viewport.Right - MARGIN_HORIZONTAL - MARGIN_OUTER - SLOT_SIZE / 2,
-            leftOrigin.Y
-        );
-        var rightBackgroundRect = GetCircleRect(rightOrigin.AddX(-SLOT_SIZE), BACKGROUND_RADIUS);
-        b.Draw(outerBackground, rightBackgroundRect, OuterBackgroundColor * Opacity);
-        DrawSlot(b, rightOrigin, SButton.ControllerB, PromptPosition.Right);
-        DrawSlot(
-            b,
-            rightOrigin.Add(-SLOT_SIZE, -SLOT_SIZE),
-            SButton.ControllerY,
-            PromptPosition.Above
-        );
-        DrawSlot(
-            b,
-            rightOrigin.Add(-SLOT_SIZE, SLOT_SIZE),
-            SButton.ControllerA,
-            PromptPosition.Below
-        );
-        DrawSlot(b, rightOrigin.AddX(-SLOT_SIZE * 2), SButton.ControllerX, PromptPosition.Left);
+        if (
+            UnassignedButtonsVisible
+            || enabledSlots.Contains(SButton.ControllerX)
+            || enabledSlots.Contains(SButton.ControllerY)
+            || enabledSlots.Contains(SButton.ControllerA)
+            || enabledSlots.Contains(SButton.ControllerB)
+        )
+        {
+            var rightOrigin = new Point(
+                viewport.Right - MARGIN_HORIZONTAL - MARGIN_OUTER - SLOT_SIZE / 2,
+                leftOrigin.Y
+            );
+            var rightBackgroundRect = GetCircleRect(
+                rightOrigin.AddX(-SLOT_SIZE),
+                BACKGROUND_RADIUS
+            );
+            b.Draw(outerBackground, rightBackgroundRect, OuterBackgroundColor * BackgroundOpacity);
+            DrawSlot(b, rightOrigin, SButton.ControllerB, PromptPosition.Right);
+            DrawSlot(
+                b,
+                rightOrigin.Add(-SLOT_SIZE, -SLOT_SIZE),
+                SButton.ControllerY,
+                PromptPosition.Above
+            );
+            DrawSlot(
+                b,
+                rightOrigin.Add(-SLOT_SIZE, SLOT_SIZE),
+                SButton.ControllerA,
+                PromptPosition.Below
+            );
+            DrawSlot(b, rightOrigin.AddX(-SLOT_SIZE * 2), SButton.ControllerX, PromptPosition.Left);
+        }
     }
 
     public void FlashDelay(SButton button)
@@ -135,20 +174,27 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         PromptPosition promptPosition
     )
     {
+        var isAssigned = slotSprites.TryGetValue(button, out var sprite);
+        if (!isAssigned && !UnassignedButtonsVisible)
+        {
+            return;
+        }
+
+        var isEnabled = enabledSlots.Contains(button);
         var backgroundRect = GetCircleRect(origin, SLOT_SIZE / 2);
-        var backgroundColor = GetBackgroundColor(button);
-        b.Draw(slotBackground, backgroundRect, backgroundColor * Opacity);
+        var backgroundColor = GetBackgroundColor(button, isAssigned && isEnabled);
+        b.Draw(slotBackground, backgroundRect, backgroundColor * BackgroundOpacity);
 
-        var slotOpacity = enabledSlots.Contains(button) ? 1f : 0.5f;
+        var slotOpacity = isEnabled ? 1f : 0.5f;
 
-        if (slotSprites.TryGetValue(button, out var sprite))
+        if (isAssigned)
         {
             var spriteRect = GetCircleRect(origin, IMAGE_SIZE / 2);
             b.Draw(
-                sprite.Texture,
+                sprite!.Texture,
                 spriteRect,
                 sprite.SourceRect,
-                Color.White * slotOpacity * Opacity
+                Color.White * slotOpacity * SpriteOpacity
             );
         }
 
@@ -170,16 +216,17 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
                 promptSprite.Texture,
                 promptRect,
                 promptSprite.SourceRect,
-                Color.White * slotOpacity * Opacity
+                Color.White * slotOpacity * SpriteOpacity
             );
         }
     }
 
-    private Color GetBackgroundColor(SButton button)
+    private Color GetBackgroundColor(SButton button, bool enabled)
     {
+        var baseColor = enabled ? innerBackgroundColor : disabledBackgroundColor;
         if (!flashes.TryGetValue(button, out var flash))
         {
-            return innerBackgroundColor;
+            return baseColor;
         }
         var (flashColor, position) = flash.Type switch
         {
@@ -190,7 +237,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             FlashType.Error => (Color.Red, Animation.GetErrorFlashPosition(flash.ElapsedMs)),
             _ => (Color.White, 0),
         };
-        return Color.Lerp(innerBackgroundColor, flashColor, position);
+        return Color.Lerp(baseColor, flashColor, position);
     }
 
     private static Rectangle GetCircleRect(Point center, int radius)
@@ -217,37 +264,51 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
 
     private Sprite? GetPromptSprite(SButton button)
     {
-        var columnIndex = button switch
+        var (rowIndex, columnIndex) = button switch
         {
-            SButton.DPadUp => 0,
-            SButton.DPadRight => 1,
-            SButton.DPadDown => 2,
-            SButton.DPadLeft => 3,
-            SButton.ControllerA => 4,
-            SButton.ControllerB => 5,
-            SButton.ControllerX => 6,
-            SButton.ControllerY => 7,
-            _ => -1,
+            SButton.DPadUp => (1, 0),
+            SButton.DPadRight => (1, 1),
+            SButton.DPadDown => (1, 2),
+            SButton.DPadLeft => (1, 3),
+            SButton.ControllerA => (1, 4),
+            SButton.ControllerB => (1, 5),
+            SButton.ControllerX => (1, 6),
+            SButton.ControllerY => (1, 7),
+            SButton.LeftTrigger => (2, 0),
+            SButton.RightTrigger => (2, 1),
+            SButton.LeftShoulder => (2, 2),
+            SButton.RightShoulder => (2, 3),
+            SButton.ControllerBack => (2, 4),
+            SButton.ControllerStart => (2, 5),
+            SButton.LeftStick => (2, 6),
+            SButton.RightStick => (2, 7),
+            _ => (-1, -1),
         };
         if (columnIndex == -1)
         {
             return null;
         }
-        return new(uiTexture, new(columnIndex * 16, 16, 16, 16));
+        return new(uiTexture, new(columnIndex * 16, rowIndex * 16, 16, 16));
     }
 
-    private Sprite? GetSlotSprite(QuickSlotConfiguration slotConfig)
+    private Sprite? GetSlotSprite(IItemLookup itemLookup)
     {
-        if (string.IsNullOrWhiteSpace(slotConfig.Id))
+        if (string.IsNullOrWhiteSpace(itemLookup.Id))
         {
             return null;
         }
-        return slotConfig.IdType switch
+        return itemLookup.IdType switch
         {
-            ItemIdType.GameItem => Sprite.ForItemId(slotConfig.Id),
-            ItemIdType.ModItem => GetModItemSprite(slotConfig.Id),
+            ItemIdType.GameItem => Sprite.ForItemId(itemLookup.Id),
+            ItemIdType.ModItem => GetModItemSprite(itemLookup.Id),
             _ => null,
         };
+    }
+
+    private static Color LumaGray(Color color, float lightness)
+    {
+        var v = (int)((color.R * 0.2126f + color.G * 0.7152f + color.B * 0.0722f) * lightness);
+        return new(v, v, v);
     }
 
     private void RefreshSlots()
@@ -255,7 +316,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         Logger.Log(LogCategory.QuickSlots, "Starting refresh of quick slot renderer data.");
         enabledSlots.Clear();
         slotSprites.Clear();
-        foreach (var (button, slotConfig) in config.Items.QuickSlots)
+        foreach (var (button, slotConfig) in Slots)
         {
             Logger.Log(LogCategory.QuickSlots, $"Checking slot for {button}...");
             Sprite? sprite = null;

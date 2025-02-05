@@ -4,7 +4,7 @@ namespace StarControl.Config;
 /// Configuration for a Quick Slot that binds actions to a single button press while one of the
 /// radial menus is open.
 /// </summary>
-public class QuickSlotConfiguration : IConfigEquatable<QuickSlotConfiguration>
+public class QuickSlotConfiguration : IConfigEquatable<QuickSlotConfiguration>, IItemLookup
 {
     /// <summary>
     /// The type of ID that the <see cref="Id"/> refers to.

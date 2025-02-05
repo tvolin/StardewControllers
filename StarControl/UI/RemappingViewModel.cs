@@ -1,5 +1,4 @@
 ﻿using PropertyChanged.SourceGenerator;
-using StarControl.Config;
 using StarControl.Data;
 using StarControl.Graphics;
 using StarControl.Menus;
@@ -144,6 +143,7 @@ internal partial class RemappingViewModel(
         Game1.playSound("trashcan");
         slot.Item.AssignedButton = SButton.None;
         slot.Item = null;
+        Save();
     }
 
     public void Update()

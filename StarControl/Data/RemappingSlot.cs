@@ -1,6 +1,4 @@
-﻿using StarControl.Config;
-
-namespace StarControl.Data;
+﻿namespace StarControl.Data;
 
 /// <summary>
 /// Configuration for a button remapping slot.
@@ -19,7 +17,7 @@ namespace StarControl.Data;
 /// multiplayer/co-op game can each have their own moment-to-moment assignments.
 /// </para>
 /// </remarks>
-public class RemappingSlot
+public class RemappingSlot : IItemLookup
 {
     /// <summary>
     /// The type of ID that the <see cref="Id"/> refers to.
