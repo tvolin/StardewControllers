@@ -18,6 +18,13 @@ internal class RadialMenuController(
 {
     public event EventHandler<ItemActivationEventArgs>? ItemActivated;
 
+    public IEnumerable<IRadialMenuItem> AllItems =>
+        menus
+            .SelectMany(menu => menu.Pages)
+            .SelectMany(pages => pages.Items)
+            .Where(item => item is not null)
+            .Cast<IRadialMenuItem>();
+
     public bool Enabled
     {
         get => enabled;

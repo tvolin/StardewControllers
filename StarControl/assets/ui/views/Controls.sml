@@ -24,6 +24,14 @@
                         description={#Config.Keybind.SecondaryAction.Description}
                         button={<>SecondaryActionButton} />
     </form-row-container>
+    <form-row-container>
+        <inline-keybind title={#Config.Keybind.RemappingMenu.Title}
+                        description={#Config.Keybind.RemappingMenu.Description}
+                        button={<>RemappingMenuButton} />
+        <inline-keybind title={#Config.Keybind.RemappingHud.Title}
+                        description={#Config.Keybind.RemappingHud.Description}
+                        button={<>RemappingHudButton} />
+    </form-row-container>
     <form-heading title={#Config.Selection.Heading} />
     <form-row title={#Config.Keybind.PrimaryActivation.Title}
               description={#Config.Keybind.PrimaryActivation.Description}>
@@ -50,9 +58,6 @@
                 interval="50"
                 value={<>ActivationDelayMs}
                 value-format={:FormatActivationDelay} />
-    </form-row>
-    <form-row title={#Config.Selection.Remember.Title} description={#Config.Selection.Remember.Description}>
-        <checkbox is-checked={<>RememberSelection} />
     </form-row>
     <button margin="12, 24, 0, 0"
             text={#Config.Controls.Advanced.Title}

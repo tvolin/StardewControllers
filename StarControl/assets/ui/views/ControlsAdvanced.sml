@@ -6,6 +6,9 @@
             <form-row title={#Config.Menus.ReopenOnHold.Title} description={#Config.Menus.ReopenOnHold.Description}>
                 <checkbox margin="0, 4" is-checked={<>ReopenOnHold} />
             </form-row>
+            <form-row title={#Config.Selection.Remember.Title} description={#Config.Selection.Remember.Description}>
+                <checkbox margin="0, 4" is-checked={<>RememberSelection} />
+            </form-row>
         </lane>
         
         <form-heading title={#Config.Patches.Heading} />

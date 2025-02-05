@@ -13,7 +13,7 @@ public enum MenuToggleMode
     /// The menu is held open for as long as the hotkey is held down.
     /// </summary>
     /// <remarks>
-    /// This is the default and original Radial Menu behavior.
+    /// This is the default and original Star Control behavior.
     /// </remarks>
     Hold,
 

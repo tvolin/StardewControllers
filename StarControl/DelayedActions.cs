@@ -1,7 +1,7 @@
 ﻿namespace StarControl;
 
 /// <summary>
-/// The types of actions that can be delayed when selecting from the radial menu.
+/// The types of actions that can be delayed when selecting from a controller menu.
 /// </summary>
 public enum DelayedActions
 {

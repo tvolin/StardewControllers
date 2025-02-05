@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using StarControl.Api;
 using StarControl.Config;
+using StarControl.Data;
 using StarControl.Gmcm;
 using StarControl.Graphics;
 using StarControl.Input;
@@ -17,8 +18,10 @@ public class ModEntry : Mod
     private const string GMCM_MOD_ID = "spacechase0.GenericModConfigMenu";
 
     private readonly PerScreen<RadialMenuController> menuController;
+    private readonly PerScreen<RemappingController> remappingController;
 
     private RadialMenuController MenuController => menuController.Value;
+    private RemappingController RemappingController => remappingController.Value;
 
     // Global state, generally initialized in Entry.
     private StarControlApi api = null!;
@@ -32,6 +35,7 @@ public class ModEntry : Mod
     public ModEntry()
     {
         menuController = new(CreateMenuController);
+        remappingController = new(() => new());
     }
 
     public override void Entry(IModHelper helper)
@@ -54,6 +58,7 @@ public class ModEntry : Mod
 
         helper.Events.GameLoop.GameLaunched += GameLoop_GameLaunched;
         // Ensure menu gets updated at the right time.
+        helper.Events.GameLoop.ReturnedToTitle += GameLoop_ReturnedToTitle;
         helper.Events.GameLoop.SaveLoaded += GameLoop_SaveLoaded;
         helper.Events.Player.InventoryChanged += Player_InventoryChanged;
         // For optimal latency: handle input before the Update loop, perform actions/rendering after.
@@ -68,6 +73,18 @@ public class ModEntry : Mod
     public override object? GetApi()
     {
         return api;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        // Remapping slots are saved immediately whenever the slots are edited, but other actions
+        // like toggling the HUD avoid eagerly writing to disk for performance reasons, as they are
+        // meant to be performed "in-world" and not in a menu.
+        //
+        // So instead we save the file one last time, including any of this semi-persistent
+        // transient state, on game exit; at the time of writing, Dispose covers both exiting from
+        // the game's main menu and Alt+F4 exits on Windows. Other OSes not tested.
+        SaveRemappingFile();
     }
 
     private void ConfigurationViewModel_Saved(object? sender, EventArgs e)
@@ -123,9 +140,15 @@ public class ModEntry : Mod
         RegisterConfigMenu();
     }
 
-    private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
+    private void GameLoop_ReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
     {
         menuController.ResetAllScreens();
+        remappingController.ResetAllScreens();
+    }
+
+    private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
+    {
+        LoadRemappingSlots();
     }
 
     private void GameLoop_UpdateTicking(object? sender, UpdateTickingEventArgs e)
@@ -156,9 +179,23 @@ public class ModEntry : Mod
             return;
         }
 
+        if (e.Pressed.Contains(config.Input.RemappingMenuButton) && ViewEngine.Instance is not null)
+        {
+            Helper.Input.Suppress(config.Input.RemappingMenuButton);
+            OpenRemappingMenu();
+            return;
+        }
+
         if (e.Pressed.Contains(SButton.F10) && ViewEngine.Instance is not null)
         {
-            OpenConfigMenu();
+            if (Helper.Input.IsDown(SButton.LeftShift))
+            {
+                OpenRemappingMenu();
+            }
+            else
+            {
+                OpenConfigMenu();
+            }
         }
     }
 
@@ -361,9 +398,35 @@ public class ModEntry : Mod
         };
     }
 
+    private void LoadRemappingSlots()
+    {
+        if (Context.IsSplitScreen && Context.ScreenId == 0)
+        {
+            return;
+        }
+        var remappingData = Helper.Data.ReadJsonFile<RemappingData>("remap.json") ?? new();
+        RemappingController.Slots = remappingData.Slots;
+        RemappingController.HudVisible = remappingData.HudVisible;
+    }
+
     private void OpenConfigMenu(bool asRoot = false, Action? onClose = null)
     {
         ConfigurationMenu.Open(Helper, config, pageRegistry, asRoot: asRoot, onClose: onClose);
+    }
+
+    private void OpenRemappingMenu()
+    {
+        var context = new RemappingViewModel(
+            Helper.Input,
+            Game1.player,
+            MenuController.AllItems.Where(item =>
+                item is not InventoryMenuItem && !string.IsNullOrEmpty(item.Id)
+            ),
+            SaveRemappingSlots
+        );
+        context.Load(RemappingController.Slots);
+        var controller = ViewEngine.OpenRootMenu("Remapping", context);
+        Game1.activeClickableMenu = controller!.Menu;
     }
 
     private void RegisterConfigMenu()
@@ -378,5 +441,28 @@ public class ModEntry : Mod
             onClose => OpenConfigMenu(asRoot: true, onClose: onClose)
         );
         configMenu.Setup();
+    }
+
+    private void SaveRemappingFile()
+    {
+        if (
+            Context.IsSplitScreen && Context.ScreenId == 0
+            || !remappingController.IsActiveForScreen()
+        )
+        {
+            return;
+        }
+        var remappingData = new RemappingData()
+        {
+            Slots = RemappingController.Slots,
+            HudVisible = RemappingController.HudVisible,
+        };
+        Helper.Data.WriteJsonFile("remap.json", remappingData);
+    }
+
+    private void SaveRemappingSlots(Dictionary<SButton, RemappingSlot> data)
+    {
+        RemappingController.Slots = data;
+        SaveRemappingFile();
     }
 }

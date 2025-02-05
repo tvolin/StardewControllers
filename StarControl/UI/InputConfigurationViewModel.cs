@@ -35,6 +35,12 @@ internal partial class InputConfigurationViewModel
     private SButton secondaryActionButton;
 
     [Notify]
+    private SButton remappingMenuButton;
+
+    [Notify]
+    private SButton remappingHudButton;
+
+    [Notify]
     private bool reopenOnHold;
 
     [Notify]
@@ -78,6 +84,8 @@ internal partial class InputConfigurationViewModel
         SecondaryActivationMethod.SelectedValue = config.SecondaryActivationMethod;
         ThumbStickPreference.SelectedValue = config.ThumbStickPreference;
         ToggleMode.SelectedValue = config.ToggleMode;
+        RemappingMenuButton = config.RemappingMenuButton;
+        remappingHudButton = config.RemappingHudButton;
         ReopenOnHold = config.ReopenOnHold;
         DelayedActions.SelectedValue = config.DelayedActions;
         ActivationDelayMs = config.ActivationDelayMs;
@@ -109,6 +117,8 @@ internal partial class InputConfigurationViewModel
         config.SecondaryActivationMethod = SecondaryActivationMethod.SelectedValue;
         config.ThumbStickPreference = ThumbStickPreference.SelectedValue;
         config.ToggleMode = ToggleMode.SelectedValue;
+        config.RemappingMenuButton = RemappingMenuButton;
+        config.RemappingHudButton = remappingHudButton;
         config.ReopenOnHold = ReopenOnHold;
         config.DelayedActions = DelayedActions.SelectedValue;
         config.ActivationDelayMs = ActivationDelayMs;

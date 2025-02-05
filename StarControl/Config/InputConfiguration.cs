@@ -60,6 +60,29 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
     public MenuToggleMode ToggleMode { get; set; } = MenuToggleMode.Hold;
 
     /// <summary>
+    /// Button to open the remapping menu, allowing the default in-world behavior (i.e. when no
+    /// radial menu is active) to be changed.
+    /// </summary>
+    public SButton RemappingMenuButton { get; set; } = SButton.LeftStick;
+
+    /// <summary>
+    /// Button to toggle the remapping HUD, showing world actions assigned to each button.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This HUD is the same as the Quick Slots shown while the pie menu UI is open, but showing
+    /// Instant Actions instead of Quick Actions.
+    /// </para>
+    /// <para>
+    /// Note: Logically this could be assigned to the Right Stick by default, but doing so would
+    /// conflict with the vanilla chatbox toggle, and <see cref="SuppressRightStickChatBox"/> is not
+    /// enabled by default in order to avoid too many initially unwanted side effects for new
+    /// players. If assigning this to the right stick, that option should be enabled as well.
+    /// </para>
+    /// </remarks>
+    public SButton RemappingHudButton { get; set; }
+
+    /// <summary>
     /// Whether to allow reopening the menu after an item activation if the corresponding trigger
     /// button has been held the whole time.
     /// </summary>
@@ -157,6 +180,8 @@ public class InputConfiguration : IConfigEquatable<InputConfiguration>
             && SecondaryActivationMethod == other.SecondaryActivationMethod
             && ThumbStickPreference == other.ThumbStickPreference
             && ToggleMode == other.ToggleMode
+            && RemappingMenuButton == other.RemappingMenuButton
+            && RemappingHudButton == other.RemappingHudButton
             && ReopenOnHold == other.ReopenOnHold
             && DelayedActions == other.DelayedActions
             && ActivationDelayMs == other.ActivationDelayMs

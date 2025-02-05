@@ -38,6 +38,10 @@
   "Config.Keybind.SecondaryAction.Description": "Which button performs the secondary action associated with an item.\n\nFor inventory items, this is always to select/hold the item; for mod wheel shortcuts, it depends on the specific action.",
   "Config.Keybind.SecondaryActivation.Title": "Secondary Activation",
   "Config.Keybind.SecondaryActivation.Description": "Additional activation method for the Secondary Action, if any.\n\nIf the choice conflicts with the Primary Activation method, then the Primary Action takes priority.",
+  "Config.Keybind.RemappingMenu.Title": "Instant Actions",
+  "Config.Keybind.RemappingMenu.Description": "Which button opens the Instant Actions menu for remapping in-world buttons to specific functions, e.g. X for pickaxe swing and Y for sword swing.",
+  "Config.Keybind.RemappingHud.Title": "Instant HUD Toggle",
+  "Config.Keybind.RemappingHud.Description": "Which button toggles the Instant Actions HUD, which shows current button assignments while interacting with the world normally.",
   "Config.Selection.Heading": "Selection",
   "Config.Selection.ToggleMode.Title": "Toggle Mode",
   "Config.Selection.ToggleMode.Description": "Whether the inventory and mod wheels are held open using their respective buttons (default) or toggled on and off.",
@@ -237,6 +241,18 @@
   "ModMenu.Map.Description": "Show a map of your current location",
   "ModMenu.SettingsItem.Name": "Star Control Settings",
   "ModMenu.SettingsItem.Description": "Open the configuration menu",
+
+  // Remapping UI
+  //
+  // The strings below are a terrible way to do localization, but the best we can do until Stardew UI gets inline layout: https://github.com/focustense/StardewUI/issues/46
+  // Because all of the strings are positional, it should still be possible to create any type of translation.
+  // The strings can be modified, or changed to empty strings, to create any text before, after and between the buttons.
+  // The same message would be written with image placeholders as: "To assign: <b>Hold</b> {@LT} or {@RT} and press the desired button."
+  // IntroText and TextBeforeButtons are separate messages because the latter gets bold font and the former is regular.
+  "Remapping.Assign.IntroText": "To assign:",
+  "Remapping.Assign.TextBeforeButtons": "Hold",
+  "Remapping.Assign.TextBetweenButtons": "or",
+  "Remapping.Assign.TextAfterButtons": "and press the desired button.",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",

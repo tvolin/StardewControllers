@@ -1,7 +1,7 @@
 ﻿namespace StarControl.Menus;
 
 /// <summary>
-/// The result of activating a menu item in a radial menu.
+/// The result of activating a menu item in a controller menu.
 /// </summary>
 public enum ItemActivationResult
 {
