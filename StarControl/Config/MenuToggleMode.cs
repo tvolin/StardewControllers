@@ -1,8 +1,5 @@
 namespace StarControl.Config;
 
-// TODO: How do we handle the original release-to-activate option? As an open mode or input setting?
-//  It has to replace the Primary Action button, but it's also incompatible with Toggle mode.
-
 /// <summary>
 /// Options for menu opening and persistence; specifies how the menus react to their primary hotkeys.
 /// </summary>
