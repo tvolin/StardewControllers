@@ -10,7 +10,7 @@ internal static class InputPatches
 {
     public static Buttons? ToolUseButton { get; set; }
 
-    private static readonly FieldInfo GetGameInputField = AccessTools.Field(
+    private static readonly FieldInfo GameInputField = AccessTools.Field(
         typeof(Game1),
         nameof(Game1.input)
     );
@@ -22,6 +22,14 @@ internal static class InputPatches
         typeof(InputPatches),
         nameof(GetRemappedGamePadState)
     );
+    private static readonly MethodInfo GetRemappedOldPadStateMethod = AccessTools.Method(
+        typeof(InputPatches),
+        nameof(GetRemappedOldPadState)
+    );
+    private static readonly FieldInfo OldPadStateField = AccessTools.Field(
+        typeof(Game1),
+        nameof(Game1.oldPadState)
+    );
 
     public static IEnumerable<CodeInstruction> GenericGamePadStateTranspiler(
         IEnumerable<CodeInstruction> instructions,
@@ -31,14 +39,44 @@ internal static class InputPatches
     {
         return new CodeMatcher(instructions, gen)
             .MatchStartForward(
-                new CodeMatch(OpCodes.Ldsfld, GetGameInputField),
+                new CodeMatch(OpCodes.Ldsfld, GameInputField),
                 new CodeMatch(OpCodes.Callvirt, GetGamePadStateMethod)
             )
-            .ThrowIfNotMatch(
-                "Couldn't find call to Game1.input.GetGamePadState() in the method body"
+            .Repeat(
+                matcher =>
+                    matcher
+                        .SetAndAdvance(OpCodes.Call, GetRemappedGamePadStateMethod)
+                        .RemoveInstructions(1),
+                _ =>
+                    throw new InvalidOperationException(
+                        "Couldn't find call to Game1.input.GetGamePadState() in the method body"
+                    )
             )
-            .SetAndAdvance(OpCodes.Call, GetRemappedGamePadStateMethod)
-            .RemoveInstructions(1)
+            .InstructionEnumeration();
+    }
+
+    public static IEnumerable<CodeInstruction> GenericOldPadStateTranspiler(
+        IEnumerable<CodeInstruction> instructions,
+        ILGenerator gen,
+        MethodBase original
+    )
+    {
+        var stateLocal = gen.DeclareLocal(typeof(GamePadState));
+        return new CodeMatcher(instructions, gen)
+            .MatchStartForward(new CodeMatch(OpCodes.Ldsflda, OldPadStateField))
+            .Repeat(
+                matcher =>
+                    matcher
+                        .SetAndAdvance(OpCodes.Call, GetRemappedOldPadStateMethod)
+                        .Insert(
+                            new CodeInstruction(OpCodes.Stloc_S, stateLocal.LocalIndex),
+                            new CodeInstruction(OpCodes.Ldloca_S, stateLocal.LocalIndex)
+                        ),
+                _ =>
+                    throw new InvalidOperationException(
+                        "Couldn't find call to Game1.oldPadState in the method body"
+                    )
+            )
             .InstructionEnumeration();
     }
 
@@ -48,9 +86,22 @@ internal static class InputPatches
             Game1.playerOneIndex >= PlayerIndex.One
                 ? GamePad.GetState(Game1.playerOneIndex)
                 : new();
+        RemapGamePadState(ref gamepadState);
+        return gamepadState;
+    }
+
+    private static GamePadState GetRemappedOldPadState()
+    {
+        var gamepadState = Game1.oldPadState;
+        RemapGamePadState(ref gamepadState);
+        return gamepadState;
+    }
+
+    private static void RemapGamePadState(ref GamePadState gamepadState)
+    {
         if (ToolUseButton is null)
         {
-            return gamepadState;
+            return;
         }
         var downButtons = gamepadState.Buttons._buttons;
         if (gamepadState.IsButtonDown(ToolUseButton.Value))
@@ -58,6 +109,5 @@ internal static class InputPatches
             downButtons |= Buttons.X;
         }
         gamepadState.Buttons = new(downButtons);
-        return gamepadState;
     }
 }

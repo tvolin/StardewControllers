@@ -124,7 +124,10 @@ internal class InventoryMenuItem : IRadialMenuItem
         var who = Game1.player;
         if (Item is Tool tool && who.CurrentTool == tool && who.UsingTool && who.canReleaseTool)
         {
-            who.EndUsingTool();
+            if (Item is not FishingRod)
+            {
+                who.EndUsingTool();
+            }
             return true;
         }
         // This isn't equivalent to vanilla logic, but if we detect that the player is no longer

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using StardewValley.Menus;
 using StardewValley.Tools;
 
 namespace StarControl.Patches;
@@ -18,6 +19,10 @@ internal static class Patcher
             typeof(InputPatches),
             nameof(InputPatches.GenericGamePadStateTranspiler)
         );
+        var genericOldPadStateTranspiler = new HarmonyMethod(
+            typeof(InputPatches),
+            nameof(InputPatches.GenericOldPadStateTranspiler)
+        );
         TryPatch(
             harmony,
             typeof(Game1),
@@ -35,6 +40,12 @@ internal static class Patcher
             typeof(FishingRod),
             nameof(FishingRod.tickUpdate),
             transpiler: genericGamePadStateTranspiler
+        );
+        TryPatch(
+            harmony,
+            typeof(BobberBar),
+            nameof(BobberBar.update),
+            transpiler: genericOldPadStateTranspiler
         );
     }
 

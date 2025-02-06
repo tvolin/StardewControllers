@@ -97,7 +97,7 @@ internal class RemappingController(
                 {
                     inputHelper.Suppress(button);
                 }
-                if (!Context.CanPlayerMove && !(Context.IsPlayerFree && item.IsActivating()))
+                if (!Context.CanPlayerMove && !item.IsActivating())
                 {
                     continue;
                 }
@@ -107,20 +107,32 @@ internal class RemappingController(
                 var wasToolUseStarted = false;
                 try
                 {
-                    var result = item.Activate(
-                        who,
-                        DelayedActions.None,
-                        ItemActivationType.Instant
-                    );
-                    if (result != ItemActivationResult.Ignored)
+                    // We don't allow an entirely new tool activation to occur if the player can't
+                    // move but the item is still activating (per condition above). However, we do
+                    // still want to translate the button press into a "tool press" since the item
+                    // will usually require it in order to keep using the same button.
+                    // (For example, to play the fishing bobber game with an alternate button.)
+                    if (Context.IsPlayerFree)
                     {
-                        if (result == ItemActivationResult.ToolUseStarted)
+                        var result = item.Activate(
+                            who,
+                            DelayedActions.None,
+                            ItemActivationType.Instant
+                        );
+                        if (result != ItemActivationResult.Ignored)
                         {
-                            downButtons.Add(button);
-                            wasToolUseStarted = true;
+                            if (result == ItemActivationResult.ToolUseStarted)
+                            {
+                                downButtons.Add(button);
+                                wasToolUseStarted = true;
+                            }
+                            ItemActivated?.Invoke(this, new(item, result));
+                            break;
                         }
-                        ItemActivated?.Invoke(this, new(item, result));
-                        break;
+                    }
+                    else
+                    {
+                        wasToolUseStarted = true;
                     }
                 }
                 finally
