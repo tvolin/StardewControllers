@@ -24,10 +24,10 @@ internal partial class QuickSlotGroupConfigurationViewModel
     private QuickSlotConfigurationViewModel north = new();
 
     [Notify]
-    private QuickSlotConfigurationViewModel south = new(allowActiveOutsideMenu: false);
+    private QuickSlotConfigurationViewModel south = new();
 
     [Notify]
-    private QuickSlotConfigurationViewModel west = new(allowActiveOutsideMenu: false);
+    private QuickSlotConfigurationViewModel west = new();
 
     public void Clear()
     {
@@ -86,7 +86,6 @@ internal partial class QuickSlotGroupConfigurationViewModel
         }
         target.RequireConfirmation = config.RequireConfirmation;
         target.UseSecondaryAction = config.UseSecondaryAction;
-        target.ActiveOutsideMenu = config.ActiveOutsideMenu;
     }
 
     public void Save(IDictionary<SButton, QuickSlotConfiguration> configs)
@@ -115,7 +114,6 @@ internal partial class QuickSlotGroupConfigurationViewModel
                 Id = target.ItemData?.QualifiedItemId ?? target.ModAction?.Id ?? "",
                 RequireConfirmation = target.RequireConfirmation,
                 UseSecondaryAction = target.UseSecondaryAction,
-                ActiveOutsideMenu = target.AllowActiveOutsideMenu && target.ActiveOutsideMenu,
             };
         }
         else

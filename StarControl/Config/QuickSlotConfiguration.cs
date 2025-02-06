@@ -29,30 +29,6 @@ public class QuickSlotConfiguration : IConfigEquatable<QuickSlotConfiguration>, 
     /// </summary>
     public bool UseSecondaryAction { get; set; }
 
-    /// <summary>
-    /// Whether the quick slot should trigger, and replace any vanilla behavior, when its button is
-    /// pressed <em>without</em> the controller menu open.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// Enabling this effectively means that the button is "remapped" to the quick slot's function,
-    /// which means fewer button presses to activate, but may interfere with built-in game controls
-    /// or other mods; for example, the d-pad buttons are normally used in-world for character
-    /// movement, but for players who never use the d-pad for that, and instead rely solely on the
-    /// left analog stick, it might be more useful to have the d-pad slots always active.
-    /// </para>
-    /// <para>
-    /// This setting is per-slot because every player is likely to have a different idea of which
-    /// slots should be "always on".
-    /// </para>
-    /// <para>
-    /// Applies to the slot itself, not the item in the slot. If the item cannot be used - for
-    /// example, if a tool is not in the inventory - then the default/vanilla behavior for the
-    /// slot's button will still be suppressed.
-    /// </para>
-    /// </remarks>
-    public bool ActiveOutsideMenu { get; set; }
-
     /// <inheritdoc />
     public bool Equals(QuickSlotConfiguration? other)
     {
@@ -67,7 +43,6 @@ public class QuickSlotConfiguration : IConfigEquatable<QuickSlotConfiguration>, 
         return IdType == other.IdType
             && Id == other.Id
             && RequireConfirmation == other.RequireConfirmation
-            && UseSecondaryAction == other.UseSecondaryAction
-            && ActiveOutsideMenu == other.ActiveOutsideMenu;
+            && UseSecondaryAction == other.UseSecondaryAction;
     }
 }

@@ -105,15 +105,6 @@
            background={@Mods/StardewUI/Sprites/ControlBorder}>
         <lane padding="4">
             <checkbox margin="0, 0, 32, 0"
-                      label-text={#Config.QuickSlot.ActiveOutsideMenu.Title}
-                      tooltip={#Config.QuickSlot.ActiveOutsideMenu.Description}
-                      is-checked={<>ActiveOutsideMenu}
-                      opacity="0.5"
-                      pointer-events-enabled="false"
-                      +state:enabled={:AllowActiveOutsideMenu}
-                      +state:enabled:opacity="1"
-                      +state:enabled:pointer-events-enabled="true" />
-            <checkbox margin="0, 0, 32, 0"
                       label-text={#Config.QuickSlot.RequireConfirmation.Title}
                       tooltip={#Config.QuickSlot.RequireConfirmation.Description}
                       is-checked={<>RequireConfirmation} />

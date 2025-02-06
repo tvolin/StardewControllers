@@ -5,13 +5,12 @@ using StardewValley.ItemTypeDefinitions;
 
 namespace StarControl.UI;
 
-internal partial class QuickSlotConfigurationViewModel(bool allowActiveOutsideMenu = true)
+internal partial class QuickSlotConfigurationViewModel
 {
     private static readonly Color AssignedColor = new(50, 100, 50);
     private static readonly Color UnassignedColor = new(60, 60, 60);
     private static readonly Color UnavailableColor = new(0x44, 0x44, 0x44, 0x44);
 
-    public bool AllowActiveOutsideMenu { get; } = allowActiveOutsideMenu;
     public Color CurrentAssignmentColor => IsAssigned ? AssignedColor : UnassignedColor;
     public string CurrentAssignmentLabel =>
         IsAssigned
@@ -29,9 +28,6 @@ internal partial class QuickSlotConfigurationViewModel(bool allowActiveOutsideMe
 
     [DependsOn(nameof(ItemData), nameof(ModAction))]
     public TooltipData Tooltip => GetTooltip();
-
-    [Notify]
-    private bool activeOutsideMenu;
 
     [Notify]
     private ParsedItemData? itemData;
