@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StarControl.Config;
 using StarControl.Graphics;
-using StardewValley.TerrainFeatures;
 
 namespace StarControl.Menus;
 
@@ -34,13 +33,14 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
 
     public bool UnassignedButtonsVisible { get; set; } = true;
 
-    private const int BACKGROUND_RADIUS = SLOT_SIZE + SLOT_SIZE / 2 + MARGIN_OUTER;
+    private const int BACKGROUND_RADIUS = SLOT_DISTANCE + SLOT_SIZE / 2 + MARGIN_OUTER;
     private const int IMAGE_SIZE = 64;
     private const int MARGIN_HORIZONTAL = 120;
     private const int MARGIN_OUTER = 32;
-    private const int MARGIN_VERTICAL = 64;
+    private const int MARGIN_VERTICAL = 16;
     private const int PROMPT_OFFSET = SLOT_SIZE / 2;
     private const int PROMPT_SIZE = 32;
+    private const int SLOT_DISTANCE = SLOT_SIZE - 12;
     private const int SLOT_PADDING = 20;
     private const int SLOT_SIZE = IMAGE_SIZE + SLOT_PADDING * 2;
 
@@ -78,6 +78,7 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             viewport.Left + MARGIN_HORIZONTAL + MARGIN_OUTER + SLOT_SIZE / 2,
             viewport.Bottom - MARGIN_VERTICAL - MARGIN_OUTER - SLOT_SIZE - SLOT_SIZE / 2
         );
+        var leftShoulderPosition = leftOrigin.AddX(SLOT_DISTANCE);
         if (
             UnassignedButtonsVisible
             || enabledSlots.Contains(SButton.DPadLeft)
@@ -86,24 +87,48 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             || enabledSlots.Contains(SButton.DPadDown)
         )
         {
-            var leftBackgroundRect = GetCircleRect(leftOrigin.AddX(SLOT_SIZE), BACKGROUND_RADIUS);
+            var leftBackgroundRect = GetCircleRect(
+                leftOrigin.AddX(SLOT_DISTANCE),
+                BACKGROUND_RADIUS
+            );
             b.Draw(outerBackground, leftBackgroundRect, OuterBackgroundColor * BackgroundOpacity);
             DrawSlot(b, leftOrigin, SButton.DPadLeft, PromptPosition.Left);
             DrawSlot(
                 b,
-                leftOrigin.Add(SLOT_SIZE, -SLOT_SIZE),
+                leftOrigin.Add(SLOT_DISTANCE, -SLOT_DISTANCE),
                 SButton.DPadUp,
                 PromptPosition.Above
             );
             DrawSlot(
                 b,
-                leftOrigin.Add(SLOT_SIZE, SLOT_SIZE),
+                leftOrigin.Add(SLOT_DISTANCE, SLOT_DISTANCE),
                 SButton.DPadDown,
                 PromptPosition.Below
             );
-            DrawSlot(b, leftOrigin.AddX(SLOT_SIZE * 2), SButton.DPadRight, PromptPosition.Right);
+            DrawSlot(
+                b,
+                leftOrigin.AddX(SLOT_DISTANCE * 2),
+                SButton.DPadRight,
+                PromptPosition.Right
+            );
+            leftShoulderPosition.Y -= (int)(SLOT_DISTANCE * 2.5f);
+        }
+        if (enabledSlots.Contains(SButton.LeftShoulder))
+        {
+            DrawSlot(
+                b,
+                leftShoulderPosition,
+                SButton.LeftShoulder,
+                PromptPosition.Above,
+                darken: true
+            );
         }
 
+        var rightOrigin = new Point(
+            viewport.Right - MARGIN_HORIZONTAL - MARGIN_OUTER - SLOT_SIZE / 2,
+            leftOrigin.Y
+        );
+        var rightShoulderPosition = rightOrigin.AddX(-SLOT_DISTANCE);
         if (
             UnassignedButtonsVisible
             || enabledSlots.Contains(SButton.ControllerX)
@@ -112,29 +137,41 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
             || enabledSlots.Contains(SButton.ControllerB)
         )
         {
-            var rightOrigin = new Point(
-                viewport.Right - MARGIN_HORIZONTAL - MARGIN_OUTER - SLOT_SIZE / 2,
-                leftOrigin.Y
-            );
             var rightBackgroundRect = GetCircleRect(
-                rightOrigin.AddX(-SLOT_SIZE),
+                rightOrigin.AddX(-SLOT_DISTANCE),
                 BACKGROUND_RADIUS
             );
             b.Draw(outerBackground, rightBackgroundRect, OuterBackgroundColor * BackgroundOpacity);
             DrawSlot(b, rightOrigin, SButton.ControllerB, PromptPosition.Right);
             DrawSlot(
                 b,
-                rightOrigin.Add(-SLOT_SIZE, -SLOT_SIZE),
+                rightOrigin.Add(-SLOT_DISTANCE, -SLOT_DISTANCE),
                 SButton.ControllerY,
                 PromptPosition.Above
             );
             DrawSlot(
                 b,
-                rightOrigin.Add(-SLOT_SIZE, SLOT_SIZE),
+                rightOrigin.Add(-SLOT_DISTANCE, SLOT_DISTANCE),
                 SButton.ControllerA,
                 PromptPosition.Below
             );
-            DrawSlot(b, rightOrigin.AddX(-SLOT_SIZE * 2), SButton.ControllerX, PromptPosition.Left);
+            DrawSlot(
+                b,
+                rightOrigin.AddX(-SLOT_DISTANCE * 2),
+                SButton.ControllerX,
+                PromptPosition.Left
+            );
+            rightShoulderPosition.Y -= (int)(SLOT_DISTANCE * 2.5f);
+        }
+        if (enabledSlots.Contains(SButton.RightShoulder))
+        {
+            DrawSlot(
+                b,
+                rightShoulderPosition,
+                SButton.RightShoulder,
+                PromptPosition.Above,
+                darken: true
+            );
         }
     }
 
@@ -171,7 +208,8 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         SpriteBatch b,
         Point origin,
         SButton button,
-        PromptPosition promptPosition
+        PromptPosition promptPosition,
+        bool darken = false
     )
     {
         var isAssigned = slotSprites.TryGetValue(button, out var sprite);
@@ -182,6 +220,12 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
 
         var isEnabled = enabledSlots.Contains(button);
         var backgroundRect = GetCircleRect(origin, SLOT_SIZE / 2);
+        if (darken)
+        {
+            var darkenRect = backgroundRect;
+            darkenRect.Inflate(4, 4);
+            b.Draw(slotBackground, darkenRect, Color.Black * BackgroundOpacity);
+        }
         var backgroundColor = GetBackgroundColor(button, isAssigned && isEnabled);
         b.Draw(slotBackground, backgroundRect, backgroundColor * BackgroundOpacity);
 

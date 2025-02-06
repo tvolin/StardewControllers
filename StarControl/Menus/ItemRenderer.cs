@@ -22,11 +22,10 @@ internal static class ItemRenderer
         }
         else
         {
-            // TODO: Shadows may end up in wrong place when using non-default sizes. Fix.
             var shadowTexture = Game1.shadowTexture;
             b.Draw(
                 shadowTexture,
-                destinationRect.Location.ToVector2() + new Vector2(32f * scale, 52f * scale),
+                destinationRect.Center.ToVector2() + new Vector2(0, 24f * scale),
                 shadowTexture.Bounds,
                 new Color(Color.Gray, 0.5f) * opacity,
                 0.0f,
