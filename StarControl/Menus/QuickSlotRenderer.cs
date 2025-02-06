@@ -190,12 +190,25 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         if (isAssigned)
         {
             var spriteRect = GetCircleRect(origin, IMAGE_SIZE / 2);
-            b.Draw(
-                sprite!.Texture,
-                spriteRect,
-                sprite.SourceRect,
-                Color.White * slotOpacity * SpriteOpacity
-            );
+            if (SlotItems.TryGetValue(button, out var item) && item.Texture is not null)
+            {
+                ItemRenderer.Draw(
+                    b,
+                    item,
+                    spriteRect,
+                    config.Style,
+                    opacity: slotOpacity * SpriteOpacity
+                );
+            }
+            else
+            {
+                b.Draw(
+                    sprite!.Texture,
+                    spriteRect,
+                    sprite.SourceRect,
+                    Color.White * slotOpacity * SpriteOpacity
+                );
+            }
         }
 
         if (GetPromptSprite(button) is { } promptSprite)

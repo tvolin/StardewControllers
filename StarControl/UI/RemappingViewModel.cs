@@ -15,6 +15,8 @@ internal partial class RemappingViewModel(
 {
     public IMenuController? Controller { get; set; }
     public bool IsItemHovered => HoveredItem is not null;
+    public bool IsSlotHovered => HoveredSlot is not null;
+    public bool IsSlotHoveredAndAssigned => HoveredSlot?.Item is not null;
     public IReadOnlyList<RemappableItemGroupViewModel> ItemGroups { get; } =
         [
             new()
@@ -38,6 +40,9 @@ internal partial class RemappingViewModel(
 
     [Notify]
     private RemappableItemViewModel? hoveredItem;
+
+    [Notify]
+    private RemappingSlotViewModel? hoveredSlot;
 
     private readonly Dictionary<SButton, RemappingSlotViewModel> slotsByButton = new()
     {
@@ -135,6 +140,11 @@ internal partial class RemappingViewModel(
         }
     }
 
+    public void SetSlotHovered(RemappingSlotViewModel? slot)
+    {
+        HoveredSlot = slot;
+    }
+
     public void UnassignSlot(RemappingSlotViewModel slot)
     {
         if (slot.Item is null)
@@ -144,6 +154,7 @@ internal partial class RemappingViewModel(
         Game1.playSound("trashcan");
         slot.Item.AssignedButton = SButton.None;
         slot.Item = null;
+        OnPropertyChanged(new(nameof(IsSlotHoveredAndAssigned)));
         Save();
     }
 
@@ -171,6 +182,9 @@ internal partial class RemappingViewModel(
 internal partial class RemappingSlotViewModel(SButton button)
 {
     public SButton Button { get; } = button;
+    public int? Count => Item?.Count ?? 1;
+    public bool IsCountVisible => Count > 1;
+    public int Quality => Item?.Quality ?? 0;
 
     public Sprite? Sprite => Item?.Sprite;
 
@@ -194,12 +208,19 @@ internal partial class RemappableItemViewModel
     public string Id { get; init; } = "";
 
     public ItemIdType IdType { get; init; }
+    public bool IsCountVisible => Count > 1;
 
     [Notify]
     private SButton assignedButton;
 
     [Notify]
+    private int count = 1;
+
+    [Notify]
     private bool hovered;
+
+    [Notify]
+    private int quality;
 
     [Notify]
     private Sprite? sprite;
@@ -215,6 +236,8 @@ internal partial class RemappableItemViewModel
             Id = item.QualifiedItemId,
             IdType = ItemIdType.GameItem,
             Sprite = new(itemData.GetTexture(), itemData.GetSourceRect()),
+            Quality = item.Quality,
+            Count = item.Stack,
             Tooltip = new(item.getDescription(), item.DisplayName, item),
         };
     }

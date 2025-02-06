@@ -172,87 +172,22 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             }
             GetSpriteSize(item, out var isMonogram);
             var opacity = item.Enabled ? 1 : 0.5f;
-            // Sprites draw from top left rather than center; we have to adjust for it.
+            // Sprites draw from top left rather than center when using destination rectangle; we
+            // have to adjust for it.
             var itemPoint2d = new Vector2(
                 centerX + itemPoint.X - displaySize.X / 2.0f,
                 centerY + itemPoint.Y - displaySize.Y / 2.0f
             );
             var destinationRect = new Rectangle(itemPoint2d.ToPoint(), displaySize);
-            if (isMonogram)
-            {
-                Monogram.Draw(spriteBatch, destinationRect, item.Title, Color.White * opacity);
-            }
-            else
-            {
-                // TODO: Shadows may end up in wrong place when using non-default sizes. Fix.
-                var shadowTexture = Game1.shadowTexture;
-                spriteBatch.Draw(
-                    shadowTexture,
-                    destinationRect.Location.ToVector2() + new Vector2(32f * Scale, 52f * Scale),
-                    shadowTexture.Bounds,
-                    new Color(Color.Gray, 0.5f) * opacity,
-                    0.0f,
-                    new(shadowTexture.Bounds.Center.X, shadowTexture.Bounds.Center.Y),
-                    3f * Scale,
-                    SpriteEffects.None,
-                    -0.0001f
-                );
-                // Tinting may be an overlay sprite, or a tint of the original sprite. In here, we
-                // determine that by the nullness of both the rectangle and color. If a tint color
-                // is specified, but no separate rectangle, then it means we need to tint the base
-                // sprite since no overlay will be drawn; otherwise, draw the base normally.
-                var baseColor = item.TintRectangle is null
-                    ? (item.TintColor ?? Color.White)
-                    : Color.White;
-                spriteBatch.Draw(
-                    item.Texture,
-                    destinationRect,
-                    item.SourceRectangle,
-                    baseColor * opacity
-                );
-                if (item.TintRectangle is { } tintRect && item.TintColor is { } tintColor)
-                {
-                    spriteBatch.Draw(item.Texture, destinationRect, tintRect, tintColor * opacity);
-                }
-            }
-            if (item.Quality is { } quality && quality > 0)
-            {
-                // From StardewValley:Object.cs
-                Rectangle qualitySourceRect =
-                    quality < 4 ? new(338 + (quality - 1) * 8, 400, 8, 8) : new(346, 392, 8, 8);
-                var qualityIconPos = new Vector2(
-                    destinationRect.Left,
-                    destinationRect.Bottom - 16 * Scale
-                );
-                spriteBatch.Draw(
-                    Game1.mouseCursors,
-                    qualityIconPos,
-                    qualitySourceRect,
-                    Color.White * opacity,
-                    rotation: 0,
-                    origin: Vector2.Zero,
-                    scale: 3.0f * Scale,
-                    effects: SpriteEffects.None,
-                    layerDepth: 0.1f
-                );
-            }
-            if (item.StackSize is { } stackSize)
-            {
-                var stackTextScale = 3.0f * Scale;
-                var stackTextWidth = Utility.getWidthOfTinyDigitString(stackSize, stackTextScale);
-                var stackLabelPos = new Vector2(
-                    destinationRect.Right - stackTextWidth,
-                    destinationRect.Bottom - 8 * Scale
-                );
-                Utility.drawTinyDigits(
-                    stackSize,
-                    spriteBatch,
-                    stackLabelPos,
-                    stackTextScale,
-                    layerDepth: 0.1f,
-                    styles.StackSizeColor * opacity
-                );
-            }
+            ItemRenderer.Draw(
+                spriteBatch,
+                item,
+                destinationRect,
+                styles,
+                isMonogram,
+                Scale,
+                opacity
+            );
             currentAngle += angleBetweenItems;
         }
     }

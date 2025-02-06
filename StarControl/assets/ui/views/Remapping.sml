@@ -18,22 +18,37 @@
             </lane>
         </scrollable>
     </frame>
-    <frame padding="32, 24"
-           background={@Mods/StardewUI/Sprites/ControlBorderUncolored}
-           background-tint="#8cd"
-           opacity="0"
-           +state:visible={IsItemHovered}
-           +state:visible:opacity="1"
-           +transition:opacity="300ms EaseOutSine">
-        <lane vertical-content-alignment="middle">
-            <label margin="0, 0, 16, 0" text={#Remapping.Assign.IntroText} />
-            <label bold="true" text={#Remapping.Assign.TextBeforeButtons} />
-            <image layout="32px" margin="8, 0" sprite={@Mods/focustense.StarControl/Sprites/UI:GamepadLeftTrigger} />
-            <label text={#Remapping.Assign.TextBetweenButtons} />
-            <image layout="32px" margin="8, 0" sprite={@Mods/focustense.StarControl/Sprites/UI:GamepadRightTrigger} />
-            <label text={#Remapping.Assign.TextAfterButtons} />
-        </lane>
-    </frame>
+    <panel horizontal-content-alignment="middle">
+        <frame padding="32, 24"
+               background={@Mods/StardewUI/Sprites/ControlBorderUncolored}
+               background-tint="#8cd"
+               opacity="0"
+               +state:visible={IsItemHovered}
+               +state:visible:opacity="1"
+               +transition:opacity="300ms EaseOutSine">
+            <lane vertical-content-alignment="middle">
+                <label margin="0, 0, 16, 0" text={#Remapping.Assign.IntroText} />
+                <label bold="true" text={#Remapping.Assign.TextBeforeButtons} />
+                <image layout="32px" margin="8, 0" sprite={@Mods/focustense.StarControl/Sprites/UI:GamepadLeftTrigger} />
+                <label text={#Remapping.Assign.TextBetweenButtons} />
+                <image layout="32px" margin="8, 0" sprite={@Mods/focustense.StarControl/Sprites/UI:GamepadRightTrigger} />
+                <label text={#Remapping.Assign.TextAfterButtons} />
+            </lane>
+        </frame>
+        <frame padding="32, 24"
+               background={@Mods/StardewUI/Sprites/ControlBorderUncolored}
+               background-tint="#8cd"
+               opacity="0"
+               +state:visible={IsSlotHoveredAndAssigned}
+               +state:visible:opacity="1"
+               +transition:opacity="300ms EaseOutSine">
+            <lane vertical-content-alignment="middle">
+                <label text={#Remapping.Unassign.TextBeforeButton} />
+                <image layout="32px" margin="8, 0" sprite={@Mods/focustense.StarControl/Sprites/UI:GamepadX} />
+                <label text={#Remapping.Unassign.TextAfterButton} />
+            </lane>
+        </frame>
+    </panel>
 </lane>
 
 <template name="remap-slot">
@@ -41,6 +56,8 @@
           orientation="vertical"
           horizontal-content-alignment="middle"
           focusable="true"
+          pointer-enter=|^SetSlotHovered(this)|
+          pointer-leave=|^SetSlotHovered("null")|
           right-click=|^UnassignSlot(this)|>
         <frame background={@Mods/StardewUI/Sprites/MenuBackgroundUncolored}
                background-tint="#8bd"
@@ -96,12 +113,33 @@
 </template>
 
 <template name="slotted-item">
-    <image layout="64px"
+    <panel layout="64px"
            margin="4"
-           horizontal-alignment="middle"
-           vertical-alignment="middle"
-           sprite={&icon}
-           pointer-events-enabled="false" />
+           vertical-content-alignment="end"
+           pointer-events-enabled="false">
+        <image layout="stretch"
+               horizontal-alignment="middle"
+               vertical-alignment="middle"
+               sprite={&icon} />
+        <lane layout="stretch content" vertical-content-alignment="end">
+            <frame *switch={Quality} layout="24px" margin="-3, 0, 0, -3">
+                <image *case="1"
+                       layout="stretch"
+                       sprite={@Mods/focustense.StarControl/Sprites/Cursors:QualityStarSilver} />
+                <image *case="2"
+                       layout="stretch"
+                       sprite={@Mods/focustense.StarControl/Sprites/Cursors:QualityStarGold} />
+                <image *case="4"
+                       layout="stretch"
+                       sprite={@Mods/focustense.StarControl/Sprites/Cursors:QualityStarIridium} />
+            </frame>
+            <spacer layout="stretch 0px" />
+            <digits *if={IsCountVisible}
+                    margin="0, 0, -6, -4"
+                    number={Count}
+                    scale="3" />
+        </lane>
+    </panel>
 </template>
 
 <template name="button-prompt">

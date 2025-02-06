@@ -40,6 +40,15 @@
     "PlayButton": {
         "SourceRect": "175, 379, 16, 15"
     },
+    "QualityStarGold": {
+      "SourceRect": "346, 400, 8, 8"
+    },
+    "QualityStarIridium": {
+      "SourceRect": "346, 392, 8, 8"
+    },
+    "QualityStarSilver": {
+      "SourceRect": "338, 400, 8, 8"
+    },
     "TargetBlue": {
       "SourceRect": "288, 1199, 16, 16"
     },

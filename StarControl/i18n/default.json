@@ -251,6 +251,8 @@
   "Remapping.Assign.TextBeforeButtons": "Hold",
   "Remapping.Assign.TextBetweenButtons": "or",
   "Remapping.Assign.TextAfterButtons": "and press the desired button.",
+  "Remapping.Unassign.TextBeforeButton": "To clear: press",
+  "Remapping.Unassign.TextAfterButton": "or right-click",
 
   // Descriptions of enum values, used in drop-down lists and segmented controls.
   "Enum.DelayedActions.All.Name": "All",
