@@ -71,7 +71,12 @@ internal class InventoryMenuItem : IRadialMenuItem
                 }
                 who.CurrentToolIndex = who.Items.IndexOf(tool);
             }
-            if (tool is not MeleeWeapon)
+            if (tool is FishingRod rod && rod.fishCaught)
+            {
+                rod.doneHoldingFish(who);
+                return ItemActivationResult.Used;
+            }
+            else if (tool is not MeleeWeapon)
             {
                 who.FireTool();
             }

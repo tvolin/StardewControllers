@@ -66,20 +66,22 @@ internal class RemappingController(
         {
             var controllerButton = button.TryGetController(out var cb) ? cb : default;
             var buttonState = inputHelper.GetState(button);
-            if (downButtons.Contains(button))
+            var wasButtonDown = downButtons.Contains(button);
+            var wasPatched = InputPatches.ToolUseButton == controllerButton;
+            if (wasButtonDown || wasPatched)
             {
-                if (
+                var isButtonUp =
                     !inputHelper.IsSuppressed(button)
-                    && buttonState is SButtonState.Released or SButtonState.None
-                )
+                    && buttonState is SButtonState.Released or SButtonState.None;
+                // We have to release the simulated tool button as soon as the remapped button
+                // is released, because some tools won't allow release until *after* they detect
+                // that the tool button is released.
+                if (wasPatched && isButtonUp)
                 {
-                    // We have to release the simulated tool button as soon as the remapped button
-                    // is released, because some tools won't allow release until *after* they detect
-                    // that the tool button is released.
-                    if (InputPatches.ToolUseButton == controllerButton)
-                    {
-                        InputPatches.ToolUseButton = null;
-                    }
+                    InputPatches.ToolUseButton = null;
+                }
+                if (wasButtonDown && isButtonUp)
+                {
                     if (item.EndActivation())
                     {
                         downButtons.Remove(button);
