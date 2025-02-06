@@ -462,10 +462,12 @@ public class ModEntry : Mod
             MenuController.AllItems.Where(item =>
                 item is not InventoryMenuItem && !string.IsNullOrEmpty(item.Id)
             ),
+            config.Input.RemappingMenuButton,
             SaveRemappingSlots
         );
         context.Load(RemappingController.Slots);
         var controller = ViewEngine.OpenRootMenu("Remapping", context);
+        context.Controller = controller;
         Game1.activeClickableMenu = controller!.Menu;
     }
 

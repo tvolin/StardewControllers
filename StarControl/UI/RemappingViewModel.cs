@@ -9,9 +9,11 @@ internal partial class RemappingViewModel(
     IInputHelper inputHelper,
     Farmer who,
     IEnumerable<IRadialMenuItem> modItems,
+    SButton menuToggleButton,
     Action<Dictionary<SButton, RemappingSlot>> onSave
 )
 {
+    public IMenuController? Controller { get; set; }
     public bool IsItemHovered => HoveredItem is not null;
     public IReadOnlyList<RemappableItemGroupViewModel> ItemGroups { get; } =
         [
@@ -37,7 +39,6 @@ internal partial class RemappingViewModel(
     [Notify]
     private RemappableItemViewModel? hoveredItem;
 
-    private readonly Dictionary<SButton, RemappableItemViewModel> assignedItems = [];
     private readonly Dictionary<SButton, RemappingSlotViewModel> slotsByButton = new()
     {
         { SButton.DPadLeft, new(SButton.DPadLeft) },
@@ -150,6 +151,20 @@ internal partial class RemappingViewModel(
     {
         CanReassign =
             inputHelper.IsDown(SButton.LeftTrigger) || inputHelper.IsDown(SButton.RightTrigger);
+        // IClickableMenu.receiveGamePadButton bizarrely does not receive some buttons such as the
+        // left/right stick. We have to check them for through the helper.
+        if (
+            !CanReassign
+            && menuToggleButton
+                is not SButton.DPadUp
+                    or SButton.DPadDown
+                    or SButton.DPadLeft
+                    or SButton.DPadRight
+            && inputHelper.GetState(menuToggleButton) == SButtonState.Pressed
+        )
+        {
+            Controller?.Close();
+        }
     }
 }
 

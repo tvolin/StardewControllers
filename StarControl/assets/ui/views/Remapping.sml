@@ -1,4 +1,6 @@
-﻿<lane margin="0, 0, 0, 20" orientation="vertical" horizontal-content-alignment="middle">
+﻿<lane margin="0, 0, 0, 20"
+      orientation="vertical"
+      horizontal-content-alignment="middle">
     <frame padding="24"
            background={@Mods/StardewUI/Sprites/ControlBorderUncolored}
            background-tint="#8cd">
@@ -53,7 +55,7 @@
                 <slotted-item icon={Sprite} />
             </lane>
         </frame>
-        <button-prompt layout="32px" button={Button} />
+        <button-prompt layout="32px" button={:Button} />
     </lane>
 </template>
 
