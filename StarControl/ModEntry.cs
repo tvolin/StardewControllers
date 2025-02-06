@@ -207,18 +207,6 @@ public class ModEntry : Mod
             );
             return;
         }
-
-        if (e.Pressed.Contains(SButton.F10) && ViewEngine.Instance is not null)
-        {
-            if (Helper.Input.IsDown(SButton.LeftShift))
-            {
-                OpenRemappingMenu();
-            }
-            else
-            {
-                OpenConfigMenu();
-            }
-        }
     }
 
     private void MenuController_ItemActivated(object? sender, ItemActivationEventArgs e)
