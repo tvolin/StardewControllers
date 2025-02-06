@@ -205,6 +205,7 @@ public class ModEntry : Mod
                 LogCategory.QuickSlots,
                 RemappingController.HudVisible ? "Remapping HUD enabled" : "Remapping HUD disabled"
             );
+            return;
         }
 
         if (e.Pressed.Contains(SButton.F10) && ViewEngine.Instance is not null)
@@ -227,7 +228,7 @@ public class ModEntry : Mod
         // To avoid confusing the game's UI, check for this condition and switch to the backpack
         // page that actually does contain the index.
         if (
-            e.Result != ItemActivationResult.Selected
+            e.Result is not ItemActivationResult.Selected or ItemActivationResult.ToolUseStarted
             || Game1.player.CurrentToolIndex < GameConstants.BACKPACK_PAGE_SIZE
         )
         {
@@ -337,7 +338,11 @@ public class ModEntry : Mod
         {
             UnassignedButtonsVisible = false,
         };
-        return new(resolver, renderer);
+        var controller = new RemappingController(Helper.Input, Game1.player, resolver, renderer);
+        // For now, there's no difference between the activation handling of menus and instant
+        // actions; it's only used to cycle the player's inventory. This could change later.
+        controller.ItemActivated += MenuController_ItemActivated;
+        return controller;
     }
 
     private void LoadGmcmKeybindings()

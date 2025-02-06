@@ -82,6 +82,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
     <PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="2.2.0">
@@ -91,6 +95,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Publicize Include="MonoGame.Framework:Microsoft.Xna.Framework.Input.GamePadButtons._buttons" />
+    <Publicize Include="MonoGame.Framework:Microsoft.Xna.Framework.Input.GamePadState.set_Buttons" />
   </ItemGroup>
 
   <ItemGroup>

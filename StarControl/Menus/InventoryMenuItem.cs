@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley.Enchantments;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
+using StardewValley.Tools;
 
 namespace StarControl.Menus;
 
@@ -53,6 +55,29 @@ internal class InventoryMenuItem : IRadialMenuItem
         ItemActivationType activationType
     )
     {
+        if (Item is Tool tool && activationType == ItemActivationType.Instant)
+        {
+            var isActivating = IsActivating();
+            if (!isActivating && (!Context.CanPlayerMove || who.canOnlyWalk || who.UsingTool))
+            {
+                return ItemActivationResult.Ignored;
+            }
+            if (who.CurrentTool != tool)
+            {
+                var toolIndex = who.Items.IndexOf(tool);
+                if (toolIndex < 0)
+                {
+                    return ItemActivationResult.Ignored;
+                }
+                who.CurrentToolIndex = who.Items.IndexOf(tool);
+            }
+            if (tool is not MeleeWeapon)
+            {
+                who.FireTool();
+            }
+            Game1.pressUseToolButton();
+            return isActivating ? ItemActivationResult.Used : ItemActivationResult.ToolUseStarted;
+        }
         return FuzzyActivation.ConsumeOrSelect(
             who,
             Item,
@@ -61,6 +86,69 @@ internal class InventoryMenuItem : IRadialMenuItem
                 ? InventoryAction.Select
                 : InventoryAction.Use
         );
+    }
+
+    public void ContinueActivation()
+    {
+        var who = Game1.player;
+        if (Item is not Tool tool || who.CurrentTool != tool)
+        {
+            return;
+        }
+        if (!who.canReleaseTool || who.Stamina < 1 || tool is FishingRod)
+        {
+            return;
+        }
+        var maxPowerModifier = tool.hasEnchantmentOfType<ReachingToolEnchantment>() ? 1 : 0;
+        var maxPower = tool.UpgradeLevel + maxPowerModifier;
+        if (who.toolPower.Value >= maxPower)
+        {
+            return;
+        }
+        if (who.toolHold.Value <= 0)
+        {
+            who.toolHold.Value = (int)(tool.AnimationSpeedModifier * 600);
+        }
+        else
+        {
+            who.toolHold.Value -= Game1.currentGameTime.ElapsedGameTime.Milliseconds;
+            if (who.toolHold.Value <= 0)
+            {
+                who.toolPowerIncrease();
+            }
+        }
+    }
+
+    public bool EndActivation()
+    {
+        var who = Game1.player;
+        if (Item is Tool tool && who.CurrentTool == tool && who.UsingTool && who.canReleaseTool)
+        {
+            who.EndUsingTool();
+            return true;
+        }
+        // This isn't equivalent to vanilla logic, but if we detect that the player is no longer
+        // using ANY tool (which is what UsingTool tells us) then any button that the controller is
+        // "holding" should be released anyway, so that it can be pressed again.
+        if (!who.UsingTool)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public string? GetActivationSound(
+        Farmer who,
+        ItemActivationType activationType,
+        string defaultSound
+    )
+    {
+        return Item is Tool && activationType == ItemActivationType.Instant ? null : defaultSound;
+    }
+
+    public bool IsActivating()
+    {
+        return Item is Tool tool && Game1.player.CurrentTool == tool && Game1.player.UsingTool;
     }
 
     private static ParsedItemData? GetTextureRedirect(Item item)

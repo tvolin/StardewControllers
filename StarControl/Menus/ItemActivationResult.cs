@@ -68,6 +68,18 @@ public enum ItemActivationResult
     Selected,
 
     /// <summary>
+    /// The item is a tool, and tool use has been initiated.
+    /// </summary>
+    /// <remarks>
+    /// This is generally only applicable to <see cref="ItemActivationType.Instant"/> actions and
+    /// combines some of the semantics of both <see cref="Selected"/> and <see cref="Used"/>.
+    /// Returning this has the same inventory-cycling effect as <see cref="Selected"/>, but also
+    /// triggers various patches to run that trick the game into thinking the tool-use button is
+    /// pressed, until the button that was actually used to activate the item is released.
+    /// </remarks>
+    ToolUseStarted,
+
+    /// <summary>
     /// A special kind of action was performed that has no immediate or delayed effect on the player
     /// or game world, such as opening a menu.
     /// </summary>

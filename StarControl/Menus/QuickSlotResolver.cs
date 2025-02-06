@@ -47,7 +47,7 @@ internal class QuickSlotResolver(Farmer player, ModMenu modMenu)
             // So we match on the inferred "type" (scythe vs. weapon) and then for non-scythe
             // weapons specifically (and only those), give preference to exact matches before
             // sorting by level.
-            var isScythe = data.InternalName.Contains("Scythe");
+            var isScythe = MeleeWeapon.IsScythe(data.QualifiedItemId);
             Logger.Log(
                 LogCategory.QuickSlots,
                 $"Item '{id}' appears to be a weapon with (scythe = {isScythe})."

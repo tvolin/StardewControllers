@@ -228,6 +228,27 @@ namespace StarControl
         );
     
         /// <summary>
+        /// If implemented, performs a function for each frame after the initial <see cref="Activate"/>
+        /// during which the trigger button is held.
+        /// </summary>
+        /// <remarks>
+        /// Only applies to <see cref="ItemActivationType.Instant"/>; used e.g. to charge tools.
+        /// </remarks>
+        void ContinueActivation() { }
+    
+        /// <summary>
+        /// If implemented, performs a function on the frame when the trigger button that caused the
+        /// initial activation is finally released.
+        /// </summary>
+        /// <remarks>
+        /// Only applies to <see cref="ItemActivationType.Instant"/>; e.g. to release a charged tool.
+        /// </remarks>
+        /// <returns>Whether the ending sequence could be performed. If this returns <c>false</c>, then
+        /// the remap controller will keep calling this method on every frame (and ignore further
+        /// activation attempts on this item) until it returns <c>true</c>.</returns>
+        bool EndActivation() => true;
+    
+        /// <summary>
         /// Chooses the sound to play when activating an item.
         /// </summary>
         /// <remarks>
@@ -253,10 +274,30 @@ namespace StarControl
             ItemActivationType activationType,
             string defaultSound
         ) => defaultSound;
+    
+        /// <summary>
+        /// Gets whether the item is still in the process of activating, i.e. is expecting to receive an
+        /// <see cref="EndActivation"/> but has not yet received it.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// The main use of this is to allow additional <see cref="Activate"/> calls to be requested on
+        /// a specific item that is considered to be already in use. This has functions for certain
+        /// tools such as the <see cref="StardewValley.Tools.FishingRod"/> that expect to receive
+        /// multiple button presses from their trigger button (generally the game's tool-use button)
+        /// during a single "use".
+        /// </para>
+        /// <para>
+        /// Unless there is a very specific reason to override this, most API clients should not.
+        /// </para>
+        /// </remarks>
+        /// <returns><c>true</c> if the item is currently in the middle of an activation, animation,
+        /// etc. Otherwise, <c>false</c>.</returns>
+        bool IsActivating() => false;
     }
     
     /// <summary>
-    /// The types of actions that can be delayed when selecting from the radial menu.
+    /// The types of actions that can be delayed when selecting from a controller menu.
     /// </summary>
     public enum DelayedActions
     {
@@ -338,7 +379,7 @@ namespace StarControl
     }
     
     /// <summary>
-    /// The result of activating a menu item in a radial menu.
+    /// The result of activating a menu item in a controller menu.
     /// </summary>
     public enum ItemActivationResult
     {
@@ -403,6 +444,18 @@ namespace StarControl
         /// consistent <see cref="IRadialMenuPage.SelectedItemIndex"/> value.
         /// </remarks>
         Selected,
+    
+        /// <summary>
+        /// The item is a tool, and tool use has been initiated.
+        /// </summary>
+        /// <remarks>
+        /// This is generally only applicable to <see cref="ItemActivationType.Instant"/> actions and
+        /// combines some of the semantics of both <see cref="Selected"/> and <see cref="Used"/>.
+        /// Returning this has the same inventory-cycling effect as <see cref="Selected"/>, but also
+        /// triggers various patches to run that trick the game into thinking the tool-use button is
+        /// pressed, until the button that was actually used to activate the item is released.
+        /// </remarks>
+        ToolUseStarted,
     
         /// <summary>
         /// A special kind of action was performed that has no immediate or delayed effect on the player

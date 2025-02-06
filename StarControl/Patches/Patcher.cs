@@ -1,4 +1,5 @@
 using HarmonyLib;
+using StardewValley.Tools;
 
 namespace StarControl.Patches;
 
@@ -12,6 +13,28 @@ internal static class Patcher
             typeof(Game1),
             "UpdateChatBox",
             transpiler: new(typeof(GamePatches), nameof(GamePatches.UpdateChatBox_Transpiler))
+        );
+        var genericGamePadStateTranspiler = new HarmonyMethod(
+            typeof(InputPatches),
+            nameof(InputPatches.GenericGamePadStateTranspiler)
+        );
+        TryPatch(
+            harmony,
+            typeof(Game1),
+            nameof(Game1.didPlayerJustLeftClick),
+            transpiler: genericGamePadStateTranspiler
+        );
+        TryPatch(
+            harmony,
+            typeof(FishingRod),
+            nameof(FishingRod.beginUsing),
+            transpiler: genericGamePadStateTranspiler
+        );
+        TryPatch(
+            harmony,
+            typeof(FishingRod),
+            nameof(FishingRod.tickUpdate),
+            transpiler: genericGamePadStateTranspiler
         );
     }
 
@@ -44,6 +67,6 @@ internal static class Patcher
         }
         return;
 
-        string MethodName() => targetType.FullName + targetMethodName;
+        string MethodName() => targetType.FullName + '.' + targetMethodName;
     }
 }

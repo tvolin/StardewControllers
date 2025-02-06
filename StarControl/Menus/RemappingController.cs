@@ -1,11 +1,20 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using StarControl.Data;
 using StarControl.Graphics;
+using StarControl.Patches;
+using StardewModdingAPI;
 
 namespace StarControl.Menus;
 
-internal class RemappingController(QuickSlotResolver resolver, QuickSlotRenderer renderer)
+internal class RemappingController(
+    IInputHelper inputHelper,
+    Farmer who,
+    QuickSlotResolver resolver,
+    QuickSlotRenderer renderer
+)
 {
+    public event EventHandler<ItemActivationEventArgs>? ItemActivated;
+
     private const float BASE_OPACITY = 0.6f;
 
     // Should generally be kept in sync with RadialMenuController.QUICK_SLOT_ANIMATION_DURATION_MS.
@@ -25,6 +34,7 @@ internal class RemappingController(QuickSlotResolver resolver, QuickSlotRenderer
         }
     }
 
+    private readonly HashSet<SButton> downButtons = [];
     private readonly Dictionary<SButton, IRadialMenuItem> resolvedItems = [];
 
     private float fadeTimeMs;
@@ -32,7 +42,7 @@ internal class RemappingController(QuickSlotResolver resolver, QuickSlotRenderer
 
     public void Draw(SpriteBatch b)
     {
-        if (renderer.SpriteOpacity > 0)
+        if (Game1.IsHudDrawn && renderer.SpriteOpacity > 0)
         {
             renderer.Draw(b, Viewports.DefaultViewport);
         }
@@ -44,6 +54,87 @@ internal class RemappingController(QuickSlotResolver resolver, QuickSlotRenderer
     }
 
     public void Update(TimeSpan elapsed, bool isMenuActive)
+    {
+        Fade(elapsed, isMenuActive);
+
+        if (isMenuActive)
+        {
+            return;
+        }
+
+        foreach (var (button, item) in resolvedItems)
+        {
+            var controllerButton = button.TryGetController(out var cb) ? cb : default;
+            var buttonState = inputHelper.GetState(button);
+            if (downButtons.Contains(button))
+            {
+                if (
+                    !inputHelper.IsSuppressed(button)
+                    && buttonState is SButtonState.Released or SButtonState.None
+                )
+                {
+                    // We have to release the simulated tool button as soon as the remapped button
+                    // is released, because some tools won't allow release until *after* they detect
+                    // that the tool button is released.
+                    if (InputPatches.ToolUseButton == controllerButton)
+                    {
+                        InputPatches.ToolUseButton = null;
+                    }
+                    if (item.EndActivation())
+                    {
+                        downButtons.Remove(button);
+                    }
+                }
+                else
+                {
+                    item.ContinueActivation();
+                }
+                continue;
+            }
+            if (buttonState == SButtonState.Pressed)
+            {
+                if (Context.IsPlayerFree && Game1.activeClickableMenu is null)
+                {
+                    inputHelper.Suppress(button);
+                }
+                if (!Context.CanPlayerMove && !(Context.IsPlayerFree && item.IsActivating()))
+                {
+                    continue;
+                }
+                // We have to apply the patch _before_ trying to activate the item, because the
+                // activation may depend on that button's state.
+                InputPatches.ToolUseButton = controllerButton;
+                var wasToolUseStarted = false;
+                try
+                {
+                    var result = item.Activate(
+                        who,
+                        DelayedActions.None,
+                        ItemActivationType.Instant
+                    );
+                    if (result != ItemActivationResult.Ignored)
+                    {
+                        if (result == ItemActivationResult.ToolUseStarted)
+                        {
+                            downButtons.Add(button);
+                            wasToolUseStarted = true;
+                        }
+                        ItemActivated?.Invoke(this, new(item, result));
+                        break;
+                    }
+                }
+                finally
+                {
+                    if (!wasToolUseStarted)
+                    {
+                        InputPatches.ToolUseButton = null;
+                    }
+                }
+            }
+        }
+    }
+
+    private void Fade(TimeSpan elapsed, bool isMenuActive)
     {
         var shouldBeVisible = HudVisible && !isMenuActive;
         if (
