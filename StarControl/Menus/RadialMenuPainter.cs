@@ -81,13 +81,17 @@ public class RadialMenuPainter(GraphicsDevice graphicsDevice, Styles styles)
             previousTargets = graphicsDevice.GetRenderTargets();
             graphicsDevice.SetRenderTarget(RenderTarget);
             graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.Begin(
-                SpriteSortMode.Deferred,
-                BlendState.AlphaBlend,
-                rasterizerState: new() { MultiSampleAntiAlias = false },
-                samplerState: SamplerState.PointClamp
-            );
         }
+        else
+        {
+            spriteBatch.End();
+        }
+        spriteBatch.Begin(
+            SpriteSortMode.Deferred,
+            BlendState.AlphaBlend,
+            rasterizerState: new() { MultiSampleAntiAlias = false },
+            samplerState: SamplerState.PointClamp
+        );
         try
         {
             PaintBackgrounds(viewport.Value, selectionAngle);
