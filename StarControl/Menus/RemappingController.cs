@@ -1,13 +1,14 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using StarControl.Config;
 using StarControl.Data;
 using StarControl.Graphics;
 using StarControl.Patches;
-using StardewModdingAPI;
 
 namespace StarControl.Menus;
 
 internal class RemappingController(
     IInputHelper inputHelper,
+    ModConfig config,
     Farmer who,
     QuickSlotResolver resolver,
     QuickSlotRenderer renderer
@@ -56,16 +57,36 @@ internal class RemappingController(
     public void Update(TimeSpan elapsed, bool isMenuActive)
     {
         Fade(elapsed, isMenuActive);
+        renderer.Update(elapsed);
 
         if (isMenuActive)
         {
             return;
         }
 
-        foreach (var (button, item) in resolvedItems)
+        foreach (var (button, slot) in Slots)
         {
-            var controllerButton = button.TryGetController(out var cb) ? cb : default;
             var buttonState = inputHelper.GetState(button);
+            var item = resolvedItems.GetValueOrDefault(button);
+            if (item is null)
+            {
+                // Slots that are assigned and visible, but can't be used, should still bypass their
+                // normal function. If they're not even visible then the result is ambiguous, but
+                // may be less confusing to allow the default behavior in case player doesn't think
+                // to check the Instant Actions menu for what is assigned.
+                if (
+                    buttonState == SButtonState.Pressed
+                    && Context.IsPlayerFree
+                    && Game1.activeClickableMenu is null
+                )
+                {
+                    inputHelper.Suppress(button);
+                    renderer.FlashError(button);
+                    Sound.Play(config.Sound.ItemErrorSound);
+                }
+                continue;
+            }
+            var controllerButton = button.TryGetController(out var cb) ? cb : default;
             var wasButtonDown = downButtons.Contains(button);
             var wasPatched = InputPatches.ToolUseButton == controllerButton;
             if (wasButtonDown || wasPatched)
@@ -130,6 +151,11 @@ internal class RemappingController(
                             }
                             ItemActivated?.Invoke(this, new(item, result));
                             break;
+                        }
+                        else
+                        {
+                            renderer.FlashError(button);
+                            Sound.Play(config.Sound.ItemErrorSound);
                         }
                     }
                     else

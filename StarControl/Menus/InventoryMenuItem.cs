@@ -55,33 +55,66 @@ internal class InventoryMenuItem : IRadialMenuItem
         ItemActivationType activationType
     )
     {
-        if (Item is Tool tool && activationType == ItemActivationType.Instant)
+        if (activationType == ItemActivationType.Instant)
         {
-            var isActivating = IsActivating();
-            if (!isActivating && (!Context.CanPlayerMove || who.canOnlyWalk || who.UsingTool))
+            if (Item is Tool tool)
             {
-                return ItemActivationResult.Ignored;
-            }
-            if (who.CurrentTool != tool)
-            {
-                var toolIndex = who.Items.IndexOf(tool);
-                if (toolIndex < 0)
+                var isActivating = IsActivating();
+                if (!isActivating && (!Context.CanPlayerMove || who.canOnlyWalk || who.UsingTool))
                 {
                     return ItemActivationResult.Ignored;
                 }
-                who.CurrentToolIndex = who.Items.IndexOf(tool);
+                if (who.CurrentTool != tool)
+                {
+                    var toolIndex = who.Items.IndexOf(tool);
+                    if (toolIndex < 0)
+                    {
+                        return ItemActivationResult.Ignored;
+                    }
+                    who.CurrentToolIndex = who.Items.IndexOf(tool);
+                }
+                if (tool is FishingRod rod && rod.fishCaught)
+                {
+                    rod.doneHoldingFish(who);
+                    return ItemActivationResult.Used;
+                }
+                else if (tool is not MeleeWeapon)
+                {
+                    who.FireTool();
+                }
+                Game1.pressUseToolButton();
+                return isActivating
+                    ? ItemActivationResult.Used
+                    : ItemActivationResult.ToolUseStarted;
             }
-            if (tool is FishingRod rod && rod.fishCaught)
+            else if (Item is SObject obj && obj.isPlaceable())
             {
-                rod.doneHoldingFish(who);
-                return ItemActivationResult.Used;
+                var previousToolIndex = who.CurrentToolIndex;
+                var grabTile = Game1.GetPlacementGrabTile();
+                var placementPosition = Utility.GetNearbyValidPlacementPosition(
+                    who,
+                    who.currentLocation,
+                    obj,
+                    (int)grabTile.X * 64,
+                    (int)grabTile.Y * 64
+                );
+                try
+                {
+                    who.CurrentToolIndex = who.Items.IndexOf(obj);
+                    return Utility.tryToPlaceItem(
+                        who.currentLocation,
+                        obj,
+                        (int)placementPosition.X,
+                        (int)placementPosition.Y
+                    )
+                        ? ItemActivationResult.Used
+                        : ItemActivationResult.Ignored;
+                }
+                finally
+                {
+                    who.CurrentToolIndex = previousToolIndex;
+                }
             }
-            else if (tool is not MeleeWeapon)
-            {
-                who.FireTool();
-            }
-            Game1.pressUseToolButton();
-            return isActivating ? ItemActivationResult.Used : ItemActivationResult.ToolUseStarted;
         }
         return FuzzyActivation.ConsumeOrSelect(
             who,

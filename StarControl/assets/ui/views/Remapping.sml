@@ -69,7 +69,7 @@
             <lane margin="4, 0"
                   orientation="vertical"
                   horizontal-content-alignment="middle">
-                <slotted-item icon={Sprite} />
+                <slotted-item icon={Sprite} enabled={IsItemEnabled} />
             </lane>
         </frame>
         <button-prompt layout="32px" button={:Button} />
@@ -102,7 +102,7 @@
                            +state:assignable={^^CanReassign}
                            +state:assignable:opacity="1"
                            +transition:opacity="250ms EaseOutSine" />
-                    <slotted-item icon={Sprite} />
+                    <slotted-item icon={Sprite} enabled="true" />
                     <frame margin="0, 0, 0, -12" pointer-events-enabled="false">
                         <button-prompt layout="24px" button={AssignedButton} />
                     </frame>
@@ -120,7 +120,10 @@
         <image layout="stretch"
                horizontal-alignment="middle"
                vertical-alignment="middle"
-               sprite={&icon} />
+               sprite={&icon}
+               opacity="0.5"
+               +state:enabled={&enabled}
+               +state:enabled:opacity="1" />
         <lane layout="stretch content" vertical-content-alignment="end">
             <frame *switch={Quality} layout="24px" margin="-3, 0, 0, -3">
                 <image *case="1"

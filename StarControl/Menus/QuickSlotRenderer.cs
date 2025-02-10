@@ -81,10 +81,10 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         var leftShoulderPosition = leftOrigin.AddX(SLOT_DISTANCE);
         if (
             UnassignedButtonsVisible
-            || enabledSlots.Contains(SButton.DPadLeft)
-            || enabledSlots.Contains(SButton.DPadUp)
-            || enabledSlots.Contains(SButton.DPadRight)
-            || enabledSlots.Contains(SButton.DPadDown)
+            || HasSlotSprite(SButton.DPadLeft)
+            || HasSlotSprite(SButton.DPadUp)
+            || HasSlotSprite(SButton.DPadRight)
+            || HasSlotSprite(SButton.DPadDown)
         )
         {
             var leftBackgroundRect = GetCircleRect(
@@ -131,10 +131,10 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
         var rightShoulderPosition = rightOrigin.AddX(-SLOT_DISTANCE);
         if (
             UnassignedButtonsVisible
-            || enabledSlots.Contains(SButton.ControllerX)
-            || enabledSlots.Contains(SButton.ControllerY)
-            || enabledSlots.Contains(SButton.ControllerA)
-            || enabledSlots.Contains(SButton.ControllerB)
+            || HasSlotSprite(SButton.ControllerX)
+            || HasSlotSprite(SButton.ControllerY)
+            || HasSlotSprite(SButton.ControllerA)
+            || HasSlotSprite(SButton.ControllerB)
         )
         {
             var rightBackgroundRect = GetCircleRect(
@@ -183,6 +183,11 @@ internal class QuickSlotRenderer(GraphicsDevice graphicsDevice, ModConfig config
     public void FlashError(SButton button)
     {
         flashes[button] = new(FlashType.Error, Animation.ERROR_FLASH_DURATION_MS);
+    }
+
+    public bool HasSlotSprite(SButton button)
+    {
+        return slotSprites.ContainsKey(button);
     }
 
     public void Invalidate()

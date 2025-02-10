@@ -4,23 +4,7 @@ namespace StarControl.Menus;
 
 internal class QuickSlotResolver(Farmer player, ModMenu modMenu)
 {
-    public IRadialMenuItem? ResolveItem(string id, ItemIdType idType)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            return null;
-        }
-        return idType switch
-        {
-            ItemIdType.GameItem => TryGetInventoryItem(id) is { } item
-                ? new InventoryMenuItem(item)
-                : null,
-            ItemIdType.ModItem => modMenu.GetItem(id),
-            _ => null,
-        };
-    }
-
-    private Item? TryGetInventoryItem(string id)
+    public static Item? ResolveInventoryItem(string id, ICollection<Item> items)
     {
         Logger.Log(LogCategory.QuickSlots, $"Searching for inventory item equivalent to '{id}'...");
         if (ItemRegistry.GetData(id) is not { } data)
@@ -52,8 +36,8 @@ internal class QuickSlotResolver(Farmer player, ModMenu modMenu)
                 LogCategory.QuickSlots,
                 $"Item '{id}' appears to be a weapon with (scythe = {isScythe})."
             );
-            var bestWeapon = player
-                .Items.OfType<MeleeWeapon>()
+            var bestWeapon = items
+                .OfType<MeleeWeapon>()
                 .Where(weapon => weapon.Name.Contains("Scythe") == isScythe)
                 .OrderByDescending(weapon => !isScythe && weapon.QualifiedItemId == id)
                 .ThenByDescending(weapon => weapon.getItemLevel())
@@ -74,8 +58,8 @@ internal class QuickSlotResolver(Farmer player, ModMenu modMenu)
             "Searching for regular item using base item "
                 + $"{baseItem.InternalName} with ID {baseItem.QualifiedItemId}."
         );
-        var match = player
-            .Items.Where(item => item is not null)
+        var match = items
+            .Where(item => item is not null)
             .Where(item =>
                 item.QualifiedItemId == id
                 || ItemRegistry
@@ -92,5 +76,21 @@ internal class QuickSlotResolver(Farmer player, ModMenu modMenu)
                 + $"{match?.Name ?? "(nothing)"} with ID {match?.QualifiedItemId ?? "N/A"}."
         );
         return match;
+    }
+
+    public IRadialMenuItem? ResolveItem(string id, ItemIdType idType)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return null;
+        }
+        return idType switch
+        {
+            ItemIdType.GameItem => ResolveInventoryItem(id, player.Items) is { } item
+                ? new InventoryMenuItem(item)
+                : null,
+            ItemIdType.ModItem => modMenu.GetItem(id),
+            _ => null,
+        };
     }
 }

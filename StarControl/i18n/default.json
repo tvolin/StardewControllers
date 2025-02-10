@@ -241,6 +241,7 @@
   "ModMenu.SettingsItem.Description": "Open the configuration menu",
 
   // Remapping UI
+  "Remapping.InvalidItem.Description": "Item ID '{{id}}' can no longer be found in any of your menus. It may have been removed from the Actions Configuration.",
   //
   // The strings below are a terrible way to do localization, but the best we can do until Stardew UI gets inline layout: https://github.com/focustense/StardewUI/issues/46
   // Because all of the strings are positional, it should still be possible to create any type of translation.
