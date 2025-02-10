@@ -1,8 +1,8 @@
 {
   "KeyboardBlank": "Mods/focustense.StarControl/Sprites/UI:KeyboardBlank",
-  "MouseLeft": "Mods/focustense.StarControl/Sprites/UI:MouseLeft",
-  "MouseMiddle": "Mods/focustense.StarControl/Sprites/UI:MouseMiddle",
-  "MouseRight": "Mods/focustense.StarControl/Sprites/UI:MouseRight",
+  "MouseLeft": "Mods/focustense.StarControl/Sprites/UI:MouseButtonLeft",
+  "MouseMiddle": "Mods/focustense.StarControl/Sprites/UI:MouseButtonMiddle",
+  "MouseRight": "Mods/focustense.StarControl/Sprites/UI:MouseButtonRight",
   "Buttons": {
     "DPadUp": "Mods/focustense.StarControl/Sprites/UI:GamepadUp",
     "DPadLeft": "Mods/focustense.StarControl/Sprites/UI:GamepadLeft",
