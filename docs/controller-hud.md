@@ -8,7 +8,7 @@ When visible, the overlay always includes one [pie menu](#pie-menus) and both [q
 
 ## Pie Menus
 
-The [pie menu](https://en.wikipedia.org/wiki/Pie_menu), AKA radial menu, is an ideal design for analog-stick based controllers because the menu's own layout mirrors the layout of the primary pointing device — the controller's analog stick.
+The [pie menu](https://en.wikipedia.org/wiki/Pie_menu), AKA radial menu, is an ideal design for analog-stick based controllers because the menu's own layout mirrors the layout of the primary pointing device—the controller's analog stick.
 
 |               Inventory Menu (Item Wheel)               |            Mod Menu (Mod Wheel)             |
 | :-----------------------------------------------------: | :-----------------------------------------: |
@@ -60,7 +60,7 @@ Quick actions/quick slots have the following properties:
 
 - They are performed **while the controller overlay is shown**, i.e. while a pie menu is visible, by pressing the associated button (:prompts-dpad-any: or :prompts-a:/:prompts-b:/:prompts-x:/:prompts-y:) **without** pointing the analog stick.
 - They stay bound, in the same position, even if the action is no longer possible, e.g. if you run out of the item in your inventory. In this instance, as shown above, they will display grayed out, and flash red if you try to activate one.
-- The [type of activation](#activation) is determined by how you set up the slot — i.e. you choose in the [configuration](configuration.md#quick-actions) whether to perform the primary or secondary action, and also whether to display a confirmation dialog first.
+- The [type of activation](#activation) is determined by how you set up the slot—i.e. you choose in the [configuration](configuration.md#quick-actions) whether to perform the primary or secondary action, and also whether to display a confirmation dialog first.
 - If you do not have the original item, but have a *similar* item, it will use that instead. For example, if the Copper Pickaxe is in one slot and you upgrade it to the Steel Pickaxe, then the slot will use the Steel Pickaxe. Similarly, the image above shows the Galaxy Sword in the right d-pad slot, but if that specific weapon is not available, it will search for other melee weapons in your inventory and choose the one with the best stats.
 
 These attributes are ideal for actions that will be performed _frequently_ but not _constantly_. For the latter, there are [instant actions](instant-actions.md) instead. Quick actions are significantly more customizable but take longer to set up and an extra button press to activate; they are meant to be set up once and used throughout an entire run or play session.

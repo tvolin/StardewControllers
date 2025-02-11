@@ -6,7 +6,7 @@ The only controller mod you'll ever need.[^1]
 
 ---
 
-Star Control — short for **Star**dew **Control**lers — is a total redesign of Stardew Valley's serviceable but clunky controller input system.
+Star Control—short for **Star**dew **Control**lers—is a total redesign of Stardew Valley's serviceable but clunky controller input system.
 
 What does "total redesign" mean? A picture is worth a thousand words, so we'll lead with those; instead of being limited to this:
 
