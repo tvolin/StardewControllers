@@ -149,6 +149,10 @@ public class ModEntry : Mod
 
     private void GameLoop_ReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
     {
+        // Since the remapping controller will be recreated on next game load, we need to save its
+        // settings here (including visibility) in order for them to persist on a reload.
+        SaveRemappingFile();
+
         menuController.ResetAllScreens();
         remappingController.ResetAllScreens();
         modMenu.ResetAllScreens();
@@ -333,6 +337,7 @@ public class ModEntry : Mod
             resolver,
             renderer
         );
+        controller.SetRendererOpacity(0);
         // For now, there's no difference between the activation handling of menus and instant
         // actions; it's only used to cycle the player's inventory. This could change later.
         controller.ItemActivated += MenuController_ItemActivated;

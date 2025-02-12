@@ -174,6 +174,12 @@ internal class RemappingController(
         }
     }
 
+    internal void SetRendererOpacity(float opacity)
+    {
+        renderer.BackgroundOpacity = BASE_OPACITY * opacity;
+        renderer.SpriteOpacity = opacity;
+    }
+
     private void Fade(TimeSpan elapsed, bool isMenuActive)
     {
         var shouldBeVisible = HudVisible && !isMenuActive;
@@ -188,8 +194,7 @@ internal class RemappingController(
         fadeTimeMs = Math.Clamp(fadeTimeMs + (float)delta, 0, FADE_DURATION_MS);
         var fadeProgress = fadeTimeMs / FADE_DURATION_MS;
         var fadeOpacity = (fadeProgress < 1 ? MathF.Sin(fadeProgress * MathF.PI / 2f) : 1);
-        renderer.BackgroundOpacity = BASE_OPACITY * fadeOpacity;
-        renderer.SpriteOpacity = fadeOpacity;
+        SetRendererOpacity(fadeOpacity);
     }
 
     private void ResolveSlots()
