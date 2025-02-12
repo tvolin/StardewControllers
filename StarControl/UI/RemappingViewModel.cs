@@ -97,16 +97,17 @@ internal partial class RemappingViewModel(
             {
                 ItemIdType.GameItem => ItemGroups[0]
                     .Items.FirstOrDefault(item => item.Id == slotData.Id)
-                    ?? RemappableItemViewModel.FromInventoryItem(ItemRegistry.Create(slotData.Id)),
+                    ?? RemappableItemViewModel.FromInventoryItem(
+                        ItemRegistry.Create(slotData.Id),
+                        who.Items
+                    ),
                 ItemIdType.ModItem => ItemGroups[1]
                     .Items.FirstOrDefault(item => item.Id == slotData.Id),
                 _ => null,
             };
-            if (item is not null)
-            {
-                item.AssignedButton = button;
-                slot.Item = item;
-            }
+            item ??= RemappableItemViewModel.Invalid(slotData.IdType, slotData.Id);
+            item.AssignedButton = button;
+            slot.Item = item;
         }
     }
 
@@ -184,6 +185,7 @@ internal partial class RemappingSlotViewModel(SButton button)
     public SButton Button { get; } = button;
     public int? Count => Item?.Count ?? 1;
     public bool IsCountVisible => Count > 1;
+    public bool IsItemEnabled => Item?.Enabled == true;
     public int Quality => Item?.Quality ?? 0;
 
     public Sprite? Sprite => Item?.Sprite;
@@ -217,6 +219,9 @@ internal partial class RemappableItemViewModel
     private int count = 1;
 
     [Notify]
+    private bool enabled;
+
+    [Notify]
     private bool hovered;
 
     [Notify]
@@ -235,11 +240,24 @@ internal partial class RemappableItemViewModel
         {
             Id = item.QualifiedItemId,
             IdType = ItemIdType.GameItem,
+            Enabled = true,
             Sprite = new(itemData.GetTexture(), itemData.GetSourceRect()),
             Quality = item.Quality,
             Count = item.Stack,
             Tooltip = new(item.getDescription(), item.DisplayName, item),
         };
+    }
+
+    public static RemappableItemViewModel FromInventoryItem(
+        Item item,
+        ICollection<Item> availableItems
+    )
+    {
+        var result = FromInventoryItem(item);
+        result.Enabled =
+            QuickSlotResolver.ResolveInventoryItem(item.QualifiedItemId, availableItems)
+                is not null;
+        return result;
     }
 
     public static RemappableItemViewModel FromMenuItem(IRadialMenuItem item)
@@ -248,12 +266,24 @@ internal partial class RemappableItemViewModel
         {
             Id = item.Id,
             IdType = ItemIdType.ModItem,
+            Enabled = item.Enabled,
             Sprite = item.Texture is not null
                 ? new(item.Texture, item.SourceRectangle ?? item.Texture.Bounds)
                 : Sprites.Error(),
             Tooltip = !string.IsNullOrEmpty(item.Description)
                 ? new(item.Description, item.Title)
                 : new(item.Title),
+        };
+    }
+
+    public static RemappableItemViewModel Invalid(ItemIdType type, string id)
+    {
+        return new()
+        {
+            Id = id,
+            IdType = type,
+            Sprite = Sprites.Error(),
+            Tooltip = new(I18n.Remapping_InvalidItem_Description(id)),
         };
     }
 }

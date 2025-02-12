@@ -207,18 +207,6 @@ public class ModEntry : Mod
             );
             return;
         }
-
-        if (e.Pressed.Contains(SButton.F10) && ViewEngine.Instance is not null)
-        {
-            if (Helper.Input.IsDown(SButton.LeftShift))
-            {
-                OpenRemappingMenu();
-            }
-            else
-            {
-                OpenConfigMenu();
-            }
-        }
     }
 
     private void MenuController_ItemActivated(object? sender, ItemActivationEventArgs e)
@@ -338,7 +326,13 @@ public class ModEntry : Mod
         {
             UnassignedButtonsVisible = false,
         };
-        var controller = new RemappingController(Helper.Input, Game1.player, resolver, renderer);
+        var controller = new RemappingController(
+            Helper.Input,
+            config,
+            Game1.player,
+            resolver,
+            renderer
+        );
         // For now, there's no difference between the activation handling of menus and instant
         // actions; it's only used to cycle the player's inventory. This could change later.
         controller.ItemActivated += MenuController_ItemActivated;

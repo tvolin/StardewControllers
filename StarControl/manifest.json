@@ -2,7 +2,7 @@
   "$schema": "https://smapi.io/schemas/manifest.json",
   "Name": "Star Control",
   "Author": "focustense",
-  "Version": "1.0.0-alpha1",
+  "Version": "1.0.0-beta",
   "Description": "Stardew controller framework with pie menus and button remapping",
   "UniqueID": "focustense.StarControl",
   "EntryDll": "StarControl.dll",
@@ -13,10 +13,11 @@
     },
     {
       "UniqueID": "focustense.StardewUI",
+      "MinimumVersion": "0.6.1",
       "IsRequired": false
     }
   ],
   "MinimumApiVersion": "4.1.10",
   "MinimumGameVersion": "1.6.15",
-  "UpdateKeys": [ "Nexus:25257", "GitHub:focustense/StardewRadialMenu" ]
+  "UpdateKeys": [ "Nexus:25257", "GitHub:focustense/StardewControllers" ]
 }

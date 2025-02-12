@@ -98,10 +98,16 @@ internal class ModMenu(
                     pageConfig,
                     standaloneItems,
                     shortcutActivator,
-                    pageIndex == config.Items.SettingsItemPageIndex ? InsertSettingsItem : null
+                    config.Items.ShowSettingsItem && pageIndex == config.Items.SettingsItemPageIndex
+                        ? InsertSettingsItem
+                        : null
                 )
             );
             pageIndex++;
+        }
+        if (userPages.Count == 0 && config.Items.ShowSettingsItem)
+        {
+            userPages.Add(new MenuPage<IRadialMenuItem>([settingsItem], _ => false));
         }
         var pages = new List<IRadialMenuPage>(additionalPages);
         pages.InsertRange(userPageIndexSelector(), userPages);

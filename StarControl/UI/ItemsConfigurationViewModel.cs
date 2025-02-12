@@ -9,7 +9,6 @@ using StardewValley.ItemTypeDefinitions;
 namespace StarControl.UI;
 
 // TODO: Provide a way to move items to a new, blank page, e.g. a dummy item to swap with.
-// TODO: Make minimum window height match max number of item rows, test with different row counts.
 
 internal partial class ItemsConfigurationViewModel
 {
