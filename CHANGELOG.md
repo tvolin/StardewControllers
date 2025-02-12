@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [1.0.0-beta] - 2025-02-12
 
+### Added
+
+- Documentation page is up at https://focustense.github.io/StardewControllers/.
+
 ### Changed
 
 - Assigned but disabled/unavailable slots are shown in the Instant Actions HUD.
