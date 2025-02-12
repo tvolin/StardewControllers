@@ -96,27 +96,31 @@ This lets you configure everything about how you want the item to appear, and al
 
 There are currently two basic "kinds" of items, depending on the Sync setting:
 
-- **Custom** or **User-Defined** Items, if the Sync is set to `None` or `GMCM`.
+#### Custom Items
 
-    These items do one thing and one thing only, which is to _simulate the press of a single key or combination of keys_. Most mods will allow you to activate some feature by pressing a configurable keybind, or in some cases a hard-coded keybind. There aren't enough buttons on a standard controller to actually assign all these disparate functions, especially considering that all buttons are already "in use" by vanilla controls.
+AKA "User-Defined Items", this is the item type when the Sync is set to `None` or `GMCM`.
 
-    Instead, your process will be to assign _keyboard shortcuts_ to these items and have Star Control "play" that shortcut to the game, which causes the mod to activate.
+These items do one thing and one thing only, which is to _simulate the press of a single key or combination of keys_. Most mods will allow you to activate some feature by pressing a configurable keybind, or in some cases a hard-coded keybind. There aren't enough buttons on a standard controller to actually assign all these disparate functions, especially considering that all buttons are already "in use" by vanilla controls.
 
-    It's a roundabout route, but it is compatible with the vast majority of Stardew mods in existence, and doesn't require any explicit integration work on the part of the mod author.
+Instead, your process will be to assign _keyboard shortcuts_ to these items in the other mod's GMCM page, or in its `config.json`, and have Star Control "play" that shortcut to the game, which causes the mod to activate.
 
-    If the mod has a configurable keybind, and uses [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) (GMCM) to register it, then you can use the `GMCM` sync to have it automatically synchronize the keybind (and optionally the title and/or description) with the setting in GMCM.
+It's a roundabout route, but it is compatible with the vast majority of Stardew mods in existence, and doesn't require any explicit integration work on the part of the mod author.
 
-- **Library** Items, or "API items", if the Sync is set to `Library`.
+If the mod has a configurable keybind, and uses [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) (GMCM) to register it, then you can use the `GMCM` sync to have it automatically synchronize the keybind (and optionally the title and/or description) with the setting in GMCM.
 
-    Choosing this option will disable all the other fields and replace them with the current contents of your _Item Library_:
-    
-    ![Item Library](images/screenshot-library.png)
-    
-    These are prefab items that you cannot change. Star Control provides several built-in library items to replace vanilla shortcuts if you decide to rebind certain "important" buttons. For example, if you decide to use :prompts-view:{.medium} as one of the menu toggles, you need an alternate way to access the journal/quest log, which can be done by adding the Quest Log back to the Mod Menu using its Library item.
-    
-    Other built-in options include the Main Menu (if you want to remap :prompts-menu:{.medium}), the Map (keyboard <kbd>M</kbd>, has no gamepad equivalent), and a Mailbox item to check your mail instead of having to interact with the mailbox.
+#### Library Items
 
-    Mods that choose to directly support Star Control, including frameworks such as [Iconic Framework](https://www.nexusmods.com/stardewvalley/mods/11026) and regular mods such as [A Fishing Sea](https://www.nexusmods.com/stardewvalley/mods/27665), will also have their items show up here; the fish icon in the above screenshot is from the latter.
+AKA "API Items", this is the item type when the Sync is set to `Library`.
+
+Choosing this option will disable all the other fields and replace them with the current contents of your _Item Library_:
+
+![Item Library](images/screenshot-library.png)
+
+These are prefab items that you cannot change. Star Control provides several built-in library items to replace vanilla shortcuts if you decide to rebind certain "important" buttons. For example, if you decide to use :prompts-view:{.medium} as one of the menu toggles, you need an alternate way to access the journal/quest log, which can be done by adding the Quest Log back to the Mod Menu using its Library item.
+
+Other built-in options include the Main Menu (if you want to remap :prompts-menu:{.medium}), the Map (keyboard <kbd>M</kbd>, has no gamepad equivalent), and a Mailbox item to check your mail instead of having to interact with the mailbox.
+
+Mods that choose to directly support Star Control, including frameworks such as [Iconic Framework](https://www.nexusmods.com/stardewvalley/mods/11026) and regular mods such as [A Fishing Sea](https://www.nexusmods.com/stardewvalley/mods/27665), will also have their items show up here; the fish icon in the above screenshot is from the latter.
 
 !!! note
 
