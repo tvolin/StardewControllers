@@ -64,6 +64,7 @@ public class ModEntry : Mod
         helper.Events.GameLoop.ReturnedToTitle += GameLoop_ReturnedToTitle;
         helper.Events.GameLoop.SaveLoaded += GameLoop_SaveLoaded;
         helper.Events.Player.InventoryChanged += Player_InventoryChanged;
+        helper.Events.GameLoop.UpdateTicked += GameLoop_UpdateTicked;
         // For optimal latency: handle input before the Update loop, perform actions/rendering after.
         helper.Events.GameLoop.UpdateTicking += GameLoop_UpdateTicking;
         helper.Events.Input.ButtonsChanged += Input_ButtonsChanged;
@@ -163,6 +164,11 @@ public class ModEntry : Mod
         LoadRemappingSlots();
     }
 
+    private void GameLoop_UpdateTicked(object? sender, UpdateTickedEventArgs e)
+    {
+        keybindActivator.Replay();
+    }
+
     private void GameLoop_UpdateTicking(object? sender, UpdateTickingEventArgs e)
     {
         if (!Context.IsWorldReady)
@@ -257,7 +263,7 @@ public class ModEntry : Mod
             Game1.showRedMessage(I18n.Error_MissingBinding());
             return;
         }
-        keybindActivator.Activate(item.Keybind);
+        keybindActivator.Prepare(item.Keybind);
     }
 
     private RadialMenuController CreateMenuController()
