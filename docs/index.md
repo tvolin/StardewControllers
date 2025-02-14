@@ -46,6 +46,12 @@ Using Star Control requires:
 
 Star Control works out of the box, though many of its more powerful features require additional setup. These steps will get you up and running; afterward, head on over to the [configuration](configuration.md) pages to learn how to customize.
 
+!!! warning "Important"
+
+    Users of `RadialMenu 0.2.2` or earlier **must manually uninstall `RadialMenu`** before installing Star Control, i.e. delete the `RadialMenu` folder from the Mods directory and/or mod manager, or move it to a backup location. Otherwise, the two mods may conflict and neither mod will function correctly.
+
+    Star Control is **not backward-compatible** with clients of the older Radial Menu API. Mods designed to work with the older Radial Menu mod, such as [Sword and Sorcery](https://www.nexusmods.com/stardewvalley/mods/12369), will not work with Star Control until they receive updates. Please ensure that your other mods are compatible with the new version before upgrading.
+
 Installation steps:
 
 1. Install [SMAPI](https://smapio.io) and set up your game for mods, per the [Modding: Player's Guide](https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started) instructions.

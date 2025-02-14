@@ -8,6 +8,7 @@ internal class KeybindActivator
     private readonly IInputHelper inputHelper;
     private readonly FieldInfo currentInputStateField;
     private readonly MethodInfo overrideButtonMethod;
+    private readonly List<SButton> pendingButtons = [];
 
     public KeybindActivator(IInputHelper inputHelper)
     {
@@ -31,20 +32,29 @@ internal class KeybindActivator
             )!;
     }
 
-    public void Activate(Keybind keybind)
+    public void Prepare(Keybind keybind)
     {
         if (!keybind.IsBound)
         {
             return;
         }
+        foreach (var button in keybind.Buttons)
+        {
+            pendingButtons.Add(button);
+        }
+    }
+
+    public void Replay()
+    {
         var inputState = GetCurrentInputState();
         // Overrides are transient, because the input state itself is transient and recreated on
         // every frame. Therefore we don't need to remove the override; rather, if we wanted to
         // "hold" the button down, we'd need to keep doing this on every subsequent frame.
-        foreach (var button in keybind.Buttons)
+        foreach (var button in pendingButtons)
         {
             overrideButtonMethod.Invoke(inputState, [button, true]);
         }
+        pendingButtons.Clear();
     }
 
     private object GetCurrentInputState()

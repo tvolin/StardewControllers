@@ -64,6 +64,7 @@ public class ModEntry : Mod
         helper.Events.GameLoop.ReturnedToTitle += GameLoop_ReturnedToTitle;
         helper.Events.GameLoop.SaveLoaded += GameLoop_SaveLoaded;
         helper.Events.Player.InventoryChanged += Player_InventoryChanged;
+        helper.Events.GameLoop.UpdateTicked += GameLoop_UpdateTicked;
         // For optimal latency: handle input before the Update loop, perform actions/rendering after.
         helper.Events.GameLoop.UpdateTicking += GameLoop_UpdateTicking;
         helper.Events.Input.ButtonsChanged += Input_ButtonsChanged;
@@ -149,6 +150,10 @@ public class ModEntry : Mod
 
     private void GameLoop_ReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
     {
+        // Since the remapping controller will be recreated on next game load, we need to save its
+        // settings here (including visibility) in order for them to persist on a reload.
+        SaveRemappingFile();
+
         menuController.ResetAllScreens();
         remappingController.ResetAllScreens();
         modMenu.ResetAllScreens();
@@ -157,6 +162,11 @@ public class ModEntry : Mod
     private void GameLoop_SaveLoaded(object? sender, SaveLoadedEventArgs e)
     {
         LoadRemappingSlots();
+    }
+
+    private void GameLoop_UpdateTicked(object? sender, UpdateTickedEventArgs e)
+    {
+        keybindActivator.Replay();
     }
 
     private void GameLoop_UpdateTicking(object? sender, UpdateTickingEventArgs e)
@@ -253,7 +263,7 @@ public class ModEntry : Mod
             Game1.showRedMessage(I18n.Error_MissingBinding());
             return;
         }
-        keybindActivator.Activate(item.Keybind);
+        keybindActivator.Prepare(item.Keybind);
     }
 
     private RadialMenuController CreateMenuController()
@@ -333,6 +343,7 @@ public class ModEntry : Mod
             resolver,
             renderer
         );
+        controller.SetRendererOpacity(0);
         // For now, there's no difference between the activation handling of menus and instant
         // actions; it's only used to cycle the player's inventory. This could change later.
         controller.ItemActivated += MenuController_ItemActivated;
