@@ -1,0 +1,6 @@
+nav:
+    - index.md
+    - controller-hud.md
+    - instant-actions.md
+    - configuration.md
+    - ...

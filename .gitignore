@@ -229,6 +229,9 @@ _pkginfo.txt
 # but keep track of directories ending in .cache
 !?*.[Cc]ache/
 
+# Rider/JetBrains
+.idea
+
 # Others
 ClientBin/
 ~$*
@@ -361,3 +364,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# mkdocs
+site

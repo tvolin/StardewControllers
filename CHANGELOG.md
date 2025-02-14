@@ -6,6 +6,90 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-02-14
+
+### Fixed
+
+- Instant Actions HUD will not show up unless it has been toggled on.
+- Mod keybinds that conflict with vanilla keys, such as `LeftShift + F` (AFS) conflicting with default `F`, will correctly target the mod and not the vanilla action.
+
+## [1.0.0-beta] - 2025-02-12
+
+### Added
+
+- Documentation page is up at https://focustense.github.io/StardewControllers/.
+
+### Changed
+
+- Assigned but disabled/unavailable slots are shown in the Instant Actions HUD.
+- Instant Actions menu will show error sprites for invalid items, such as items once registered via the API but no longer present, so that they can be identified and removed from those slots.
+- Placeable objects, including e.g. bombs, are automatically placed when used as an Instant Action.
+- Assigned Instant Action slots flash when the action is unavailable, such as due to missing inventory, or a placeable object being forbidden at that location.
+- Always suppress input for assigned instant slots, even if the item/action isn't available, to prevent default behavior from coming back unexpectedly even though the HUD shows a bound action.
+
+### Fixed
+
+- Keys bound to mouse buttons (e.g. when using GMCM Sync in Item Settings) render correctly.
+
+## [1.0.0-alpha2] - 2025-02-06
+
+### Removed
+
+- Hardcoded keyboard shortcuts (F10) for config menu and instant actions. These were dev shortcuts and left in alpha1 accidentally.
+
+### Fixed
+
+- Icons in pie menus draw with the correct rendering settings (no longer blurry).
+- Mod Menu can now be displayed when the only item is the Settings item, i.e. when the mod is newly installed with a fresh configuration.
+
+## [1.0.0-alpha1] - 2025-02-06
+
+### Added
+
+- [Quick Actions](https://focustense.github.io/StardewControllers/controller-hud/#quick-actions): single-button bindings while overlay is open.
+- [Instant Actions](https://focustense.github.io/StardewControllers/instant-actions/): single-button bindings while interacting with the game world, capable of direct tool use and item placement.
+- New configuration UI built in [Stardew UI](https://github.com/focustense/StardewUI) with many new configuration options:
+    - Every button used by the mod is rebindable and removable.
+    - Pie menus (radial menus) can be activated in "Toggle Mode" (press to open, press again to close) instead of "Hold Mode" (open while button is held).
+    - Pie menus can render empty slices for empty inventory slots, to ensure that slices are always the same size and always in the same position.
+    - Alternate activation styles—stick press and trigger release—can both be used, either in addition to or instead of button presses, and can be assigned to either the primary or secondary action.
+    - Menus can be configured to reopen after activation if the trigger button is still held. (Only applicable to Hold Mode)
+    - Style editor now has a proportionate, accurate preview and uses the Stardew UI [color picker](https://focustense.github.io/StardewUI/library/standard-views/#color-picker) for colors.
+    - Mod Menu items can be organized into pages and moved or deleted, and the Icon selector includes a search field.
+    - All sound cues are fully configurable, and sound can be globally muted.
+    - Third-party pages—those added via the [API](https://focustense.github.io/StardewControllers/api/)—can be disabled or reordered.
+- Integrated (configurable) chatbox suppression to enable use of the right stick for mod features, without blocking emojis and other functions.
+- Light/fast animations for menus and slots.
+    - Menus do not wait for animations to complete before handling inputs, so this does not affect latency.
+- New [Item Registration API](https://focustense.github.io/StardewControllers/api/#item-registration) for mod authors allows registering actions without forcing them into the user's menu or requiring an intermediate (keyboard) keybind to activate.
+- Combined, standalone API is now published in the [PublicApi directory](https://github.com/focustense/StardewControllers/tree/master/PublicApi) for easy copy-pasting into other mods.
+- Verbose logging options for mod authors.
+
+### Changed
+
+- Empty pages are automatically hidden from pie menus.
+- Mod settings are accessible directly from the Mod Menu (can be disabled/hidden).
+- Keybind sync for [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) (GMCM) moved to subassembly, which makes GMCM now an optional rather than required dependency, and allows graceful recovery when GMCM is not installed or is an incompatible version.
+- GMCM keybind sync now updates every time the target mod's configuration is changed via GMCM (i.e. in real time), not only when the game is restarted.
+- Changes to the [API](https://focustense.github.io/StardewControllers/api/):
+    - `IRadialMenuPage.Items` can contain nulls; these will render as empty slices.
+    - `IRadialMenuItem` now has an `Id` property; all API clients **should** implement this with a unique and persistent ID if possible, although it is only mandatory for [Item Registration](https://focustense.github.io/StardewControllers/api/#item-registration), not [Page Registration](https://focustense.github.io/StardewControllers/api/#page-registration).
+    - `IRadialMenuItem` has an optional `Enabled` property which, if set to `false`, will dim the item in menus and prevent players from activating it.
+    - `IRadialMenuItem` has an optional `GetActivationSound` method that can be used to override, or disable, the default confirmation sound that the player has set up per item.
+    - **(Breaking Change)** `MenuItemActivationResult` is renamed to `ItemActivationResult`
+    - **(Breaking Change)** `MenuItemAction`, which was inventory-centric, is removed and changed to `ItemActivationType`, which is more general and supports Instant Actions.
+    - `ItemActivationResult` includes new `ToolUseStarted`. API clients generally should **not** use this result as it starts a complicated event loop to repeatedly fire successive activations and trick the game into thinking that different buttons are pressed.
+- **(Breaking Change)** New mod name and ID.
+    - Mod ID ("unique ID") has been intentionally changed so that API clients can remain backward-compatible with older versions, if they choose to, by invoking both the old and new APIs.
+
+### Removed
+
+- GMCM-based configuration menu and all code and assets related to it. The GMCM page is now a stub, containing only a button that opens the mod's own configuration UI, and is only shown as a fallback when direct (Harmony) integration with the GMCM index page fails.
+
+### Fixed
+
+- Correct tool is selected when activating an item that is in the same slot, but on a different page.
+
 ## [0.2.2] - 2024-11-06
 
 ### Fixed
@@ -94,7 +178,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Custom shortcuts menu via right trigger (default).
 - [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) pages for control scheme, appearance and custom shortcuts.
 
-[Unreleased]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-beta...v1.0.0
+[1.0.0-beta]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha2...v1.0.0-beta
+[1.0.0-alpha2]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha1...v1.0.0-alpha2
+[1.0.0-alpha1]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.2...v1.0.0-alpha1
 [0.2.2]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.6...v0.2.0
