@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-02-14
+
+### Fixed
+
+- Instant Actions HUD will not show up unless it has been toggled on.
+- Mod keybinds that conflict with vanilla keys, such as `LeftShift + F` (AFS) conflicting with default `F`, will correctly target the mod and not the vanilla action.
+
 ## [1.0.0-beta] - 2025-02-12
 
 ### Added
@@ -171,7 +178,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Custom shortcuts menu via right trigger (default).
 - [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) pages for control scheme, appearance and custom shortcuts.
 
-[Unreleased]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-beta...HEAD
+[Unreleased]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-beta...v1.0.0
 [1.0.0-beta]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha2...v1.0.0-beta
 [1.0.0-alpha2]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha1...v1.0.0-alpha2
 [1.0.0-alpha1]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.2...v1.0.0-alpha1

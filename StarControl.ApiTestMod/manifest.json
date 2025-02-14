@@ -7,8 +7,8 @@
   "EntryDll": "StarControlApiTestMod.dll",
   "Dependencies": [
     {
-      "UniqueID": "spacechase0.GenericModConfigMenu",
-      "IsRequired": false
+      "UniqueID": "focustense.StarControl",
+      "IsRequired": true
     }
   ],
   "MinimumApiVersion": "4.0.5",
