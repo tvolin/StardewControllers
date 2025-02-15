@@ -82,11 +82,21 @@ internal static class InputPatches
 
     private static GamePadState GetRemappedGamePadState()
     {
-        var gamepadState =
+        var gamepadState = Game1.input.GetGamePadState();
+        // We are going to be suppressing our own input in the RemappingController to prevent
+        // vanilla function, e.g. B button is mapped to a tool and therefore suppressed to avoid
+        // bringing up the menu. This means we need to bypass that suppression in order to determine
+        // if the button is actually being pressed, which requires going to the "raw" state
+        // unmodified by SMAPI, similar to the hack used for trigger buttons in MenuToggle.
+        //
+        // Note however that we don't want to actually use this raw state as the _result_, since it
+        // may lose other nuances, for example other unrelated buttons being suppressed. Only want
+        // to pull remapped buttons from the raw state into the real un-remapped state.
+        var rawState =
             Game1.playerOneIndex >= PlayerIndex.One
                 ? GamePad.GetState(Game1.playerOneIndex)
                 : new();
-        RemapGamePadState(ref gamepadState);
+        RemapGamePadState(ref gamepadState, rawState);
         return gamepadState;
     }
 
@@ -97,14 +107,18 @@ internal static class InputPatches
         return gamepadState;
     }
 
-    private static void RemapGamePadState(ref GamePadState gamepadState)
+    private static void RemapGamePadState(
+        ref GamePadState gamepadState,
+        GamePadState? rawState = null
+    )
     {
         if (ToolUseButton is null)
         {
             return;
         }
         var downButtons = gamepadState.Buttons._buttons;
-        if (gamepadState.IsButtonDown(ToolUseButton.Value))
+        var remapState = rawState ?? gamepadState;
+        if (remapState.IsButtonDown(ToolUseButton.Value))
         {
             downButtons |= Buttons.X;
         }
