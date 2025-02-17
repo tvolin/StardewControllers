@@ -61,7 +61,6 @@ internal partial class ConfigurationViewModel : IDisposable
         Pager.PropertyChanged += Pager_PropertyChanged;
         Items.PropertyChanged += Items_PropertyChanged;
         Preview = new(Style, 500, 500);
-        Load(config);
     }
 
     public bool CancelBlockingAction()
@@ -100,7 +99,7 @@ internal partial class ConfigurationViewModel : IDisposable
         switch (action)
         {
             case ConfigurationAction.Save:
-                Save(config);
+                Save();
                 Dismissed = true;
                 Controller?.Close();
                 break;
@@ -117,7 +116,12 @@ internal partial class ConfigurationViewModel : IDisposable
         }
     }
 
-    public void Save(ModConfig config)
+    public void Reload()
+    {
+        Load(config);
+    }
+
+    public void Save()
     {
         SaveSections(config);
         helper.WriteConfig(config);
