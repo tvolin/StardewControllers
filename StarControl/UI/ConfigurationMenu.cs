@@ -28,6 +28,7 @@ internal static class ConfigurationMenu
                     .ToList(),
             },
         };
+        context.Reload();
         context.Controller = asRoot
             ? ViewEngine.OpenRootMenu("Configuration", context)
             : ViewEngine.OpenChildMenu("Configuration", context);
