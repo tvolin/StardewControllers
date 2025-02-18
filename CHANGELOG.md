@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-02-18
+
+### Changed
+
+- Inventory items will attempt to use a derived texture based on `Item.drawInMenu` for mod-created items with no registration data, e.g. the Net from Nature In The Valley.
+
+### Fixed
+
+- Fishing rod no longer immediately recasts when using X to dismiss the catch dialog.
+- Actions page in configuration menu should no longer intermittently fail to display the correct info for Library Actions.
+
 ## [1.0.0] - 2025-02-14
 
 ### Fixed
@@ -178,18 +189,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Custom shortcuts menu via right trigger (default).
 - [Generic Mod Config Menu](https://www.nexusmods.com/stardewvalley/mods/5098) pages for control scheme, appearance and custom shortcuts.
 
-[Unreleased]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-beta...v1.0.0
-[1.0.0-beta]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha2...v1.0.0-beta
-[1.0.0-alpha2]: https://github.com/focustense/StardewRadialMenu/compare/v1.0.0-alpha1...v1.0.0-alpha2
-[1.0.0-alpha1]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.2...v1.0.0-alpha1
-[0.2.2]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/focustense/StardewRadialMenu/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.6...v0.2.0
-[0.1.6]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.5...v0.1.6
-[0.1.5]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.4...v0.1.5
-[0.1.4]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.3-alpha...v0.1.4
-[0.1.3-alpha]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.2-alpha...v0.1.3-alpha
-[0.1.2-alpha]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.1-alpha...v0.1.2-alpha
-[0.1.1-alpha]: https://github.com/focustense/StardewRadialMenu/compare/v0.1.0-alpha...v0.1.1-alpha
-[0.1.0-alpha]: https://github.com/focustense/StardewRadialMenu/tree/v0.1.0-alpha
+[Unreleased]: https://github.com/focustense/StardewControllers/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/focustense/StardewControllers/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/focustense/StardewControllers/compare/v1.0.0-beta...v1.0.0
+[1.0.0-beta]: https://github.com/focustense/StardewControllers/compare/v1.0.0-alpha2...v1.0.0-beta
+[1.0.0-alpha2]: https://github.com/focustense/StardewControllers/compare/v1.0.0-alpha1...v1.0.0-alpha2
+[1.0.0-alpha1]: https://github.com/focustense/StardewControllers/compare/v0.2.2...v1.0.0-alpha1
+[0.2.2]: https://github.com/focustense/StardewControllers/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/focustense/StardewControllers/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/focustense/StardewControllers/compare/v0.1.6...v0.2.0
+[0.1.6]: https://github.com/focustense/StardewControllers/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/focustense/StardewControllers/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/focustense/StardewControllers/compare/v0.1.3-alpha...v0.1.4
+[0.1.3-alpha]: https://github.com/focustense/StardewControllers/compare/v0.1.2-alpha...v0.1.3-alpha
+[0.1.2-alpha]: https://github.com/focustense/StardewControllers/compare/v0.1.1-alpha...v0.1.2-alpha
+[0.1.1-alpha]: https://github.com/focustense/StardewControllers/compare/v0.1.0-alpha...v0.1.1-alpha
+[0.1.0-alpha]: https://github.com/focustense/StardewControllers/tree/v0.1.0-alpha
