@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley.Enchantments;
 using StardewValley.ItemTypeDefinitions;
@@ -35,6 +36,8 @@ internal class InventoryMenuItem : IRadialMenuItem
 
     public Color? TintColor { get; }
 
+    private static readonly ConditionalWeakTable<Item, Texture2D?> DerivedTextures = [];
+
     public InventoryMenuItem(Item item)
     {
         Logger.Log(LogCategory.Menus, "Starting refresh of inventory menu.");
@@ -43,10 +46,29 @@ internal class InventoryMenuItem : IRadialMenuItem
         Description = UnparseText(item.getDescription());
 
         var data = ItemRegistry.GetDataOrErrorItem(item.QualifiedItemId);
-        var textureData = GetTextureRedirect(item);
-        Texture = textureData?.GetTexture() ?? data.GetTexture();
-        SourceRectangle = textureData?.GetSourceRect() ?? data.GetSourceRect();
-        (TintRectangle, TintColor) = GetTinting(item, textureData ?? data);
+        // Workaround for some mods creating items without registering item data; these mods
+        // typically only implement drawInMenu. This is not a good thing to do, and tends to cause
+        // other problems, but we can still attempt to show an icon.
+        if (
+            data.IsErrorItem
+            // Exclude vanilla item classes; hacked items only apply to mods, and if we found an
+            // instance with a vanilla type, it means the item truly is missing (e.g. source mod is
+            // no longer installed, or the item is simply invalid) and we'd only waste time trying
+            // to derive a texture.
+            && item.GetType().Assembly != typeof(SObject).Assembly
+            && GetDerivedTexture(item) is { } texture
+        )
+        {
+            Texture = texture;
+            SourceRectangle = texture.Bounds;
+        }
+        else
+        {
+            var textureData = GetTextureRedirect(item);
+            Texture = textureData?.GetTexture() ?? data.GetTexture();
+            SourceRectangle = textureData?.GetSourceRect() ?? data.GetSourceRect();
+            (TintRectangle, TintColor) = GetTinting(item, textureData ?? data);
+        }
     }
 
     public ItemActivationResult Activate(
@@ -185,6 +207,52 @@ internal class InventoryMenuItem : IRadialMenuItem
     )
     {
         return Item is Tool && activationType == ItemActivationType.Instant ? null : defaultSound;
+    }
+
+    private static Texture2D? GetDerivedTexture(Item item)
+    {
+        if (!DerivedTextures.TryGetValue(item, out var texture))
+        {
+            try
+            {
+                var graphicsDevice = Game1.graphics.GraphicsDevice;
+                var spriteBatch = Game1.spriteBatch;
+                var previousTargets = graphicsDevice.GetRenderTargets();
+                var renderTarget = new RenderTarget2D(graphicsDevice, 64, 64);
+                graphicsDevice.SetRenderTarget(renderTarget);
+                graphicsDevice.Clear(Color.Transparent);
+                spriteBatch.Begin(
+                    SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend,
+                    rasterizerState: new() { MultiSampleAntiAlias = false },
+                    samplerState: SamplerState.PointClamp
+                );
+                try
+                {
+                    item.drawInMenu(spriteBatch, Vector2.Zero, 1f);
+                    texture = renderTarget;
+                    DerivedTextures.Add(item, texture);
+                }
+                catch
+                {
+                    renderTarget.Dispose();
+                    throw;
+                }
+                finally
+                {
+                    spriteBatch.End();
+                    graphicsDevice.SetRenderTargets(previousTargets);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(
+                    $"Error deriving texture for item '{item.Name}' ({item.QualifiedItemId}): {ex}",
+                    LogLevel.Error
+                );
+            }
+        }
+        return texture;
     }
 
     public bool IsActivating()
